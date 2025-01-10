@@ -5,9 +5,16 @@
   "description": "Export experimental AI functionality",
   "type": "module",
   "module": "./dist/index.js",
-  "main": "./dist//index.js",
+  "main": "./dist/index.js",
   "engines": {
     "node": ">= 20"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js",
+      "import": "./dist/index.js"
+    }
   },
   "scripts": {
     "build": "tsc",

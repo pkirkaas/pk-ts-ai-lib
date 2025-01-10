@@ -1,6 +1,6 @@
 # Node artifact files
 /node_modules/
-dist/
+#dist/ - this is a library
 
 #Symlinked common
 build/

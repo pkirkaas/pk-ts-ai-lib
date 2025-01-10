@@ -1,0 +1,165 @@
+{
+    "name": "allProps",
+    "signature": "function allProps(obj: any, opt: string = 'tvp', depth = 6): GenObj | [] | string | boolean",
+    "description": {
+        "brief": "Inspects an object to get as many properties as possible, optionally with values, types, or both - optionally filtered by props.",
+        "detailed": "This function performs a deep inspection of an object, retrieving its properties along with their values and types. It can handle various types of inputs, including non-objects, and can recurse through nested objects up to a specified depth. The function's behavior changes based on the 'opt' parameter, which determines what information is returned for each property. It can filter out certain built-in properties and handle special cases like built-in objects. The function also deals with potential errors during property access."
+    },
+    "params": [
+        {
+            "name": "obj",
+            "type": ["any"],
+            "description": "The object to inspect. Can be of any type, including primitives, arrays, or complex objects.",
+            "optional": false
+        },
+        {
+            "name": "opt",
+            "type": ["string"],
+            "defaultValue": "'tvp'",
+            "description": "A string containing options for the inspection. 'v' includes the raw value, 'p' includes a parsed, readable value, 't' includes the value type, and 'f' includes full property details without filtering.",
+            "optional": true
+        },
+        {
+            "name": "depth",
+            "type": ["number"],
+            "defaultValue": 6,
+            "description": "The maximum depth to recurse when inspecting nested objects. Prevents infinite recursion for circular references.",
+            "optional": true
+        }
+    ],
+    "tags": ["object inspection", "property analysis", "recursive", "type checking"],
+    "relatedFunctions": [
+        {
+            "name": "typeOf",
+            "description": "Used to determine the type of values in the object"
+        },
+        {
+            "name": "isParsed",
+            "description": "Used to check if a value needs further parsing"
+        },
+        {
+            "name": "isBuiltIn",
+            "description": "Used to identify built-in JavaScript objects"
+        },
+        {
+            "name": "filterProps",
+            "description": "Used to filter out certain properties when the 'f' option is not specified"
+        }
+    ],
+    "exampleUsages": [
+        {
+            "description": "Basic usage with default options",
+            "code": [
+                "const obj = { a: 1, b: 'string', c: { nested: true } };",
+                "const result = allProps(obj);",
+                "console.log(result);"
+            ]
+        },
+        {
+            "description": "Using custom options to get only types",
+            "code": [
+                "const obj = { a: 1, b: 'string', c: { nested: true } };",
+                "const result = allProps(obj, 't');",
+                "console.log(result);"
+            ]
+        },
+        {
+            "description": "Inspecting a non-object value",
+            "code": [
+                "const result = allProps('not an object');",
+                "console.log(result); // Output: 'string'"
+            ]
+        }
+    ],
+    "sourceCode": "export function allProps(obj: any, opt: string = 'tvp', depth = 6): GenObj | [] | string | boolean {\n  try {\n    if (!isObject(obj)) {\n      return typeOf(obj);\n    }\n    if (depth-- < 0) {\n      return 'END';\n    }\n    let opts = [...opt];\n    let filter = !opts.includes('f');\n    let res = isParsed(obj);\n    if (res) {\n      return {\n        val: res, type: typeOf(res), parsed: res,\n      };\n    }\n    let tstKeys = [];\n    for (let prop of keepProps) {\n      let val: any;\n      try {\n        val = obj[prop];\n        if (val === undefined) {\n          continue;\n        }\n        tstKeys.push(prop);\n      } catch (e) {\n        // Don't need to catch it\n      }\n    }\n\n    let objProps = getProps(obj);\n    if (filter) {\n      objProps = filterProps(<string[]>objProps);\n    }\n\n    let unique = uniqueVals(objProps, tstKeys);\n    if (isEmpty(intersect(opts, ['t', 'v', 'p',]))) { //Just the array of props\n      return unique;\n    } //We want more...\n\n    let retObj: GenObj = {};\n    for (let prop of unique) {\n      let ret: GenObj = {};\n      let val: any;\n      try {\n        val = obj[prop];\n      } catch (e) {\n        retObj[prop] = { error: `allProps`, depth, prop, opt };\n        continue;\n      }\n      if (['prototype', 'constructor'].includes(prop)) {\n        let bi: any;\n        if (bi = isBuiltIn(val)) {\n          ret.val = bi;\n          retObj[prop] = ret;\n          continue;\n        }\n      }\n      if (opts.includes('v')) {\n        ret.val = val;\n      }\n      if (opts.includes('t')) {\n        ret.type = typeOf(val);\n      }\n      if (opts.includes('p') && isParsable(val)) {\n        ret.parsed = allProps(val, opt, depth);\n      }\n      retObj[prop] = ret;\n    }\n    return retObj;\n  } catch (e) {\n    return `Exception in allProps at depth [${depth}] w. msg: [${e}]`;\n  }\n}",
+    "isAsync": false,
+    "asyncConsiderations": "This function is synchronous and does not involve any asynchronous operations.",
+    "parameterInterdependencies": "The 'opt' parameter affects how the function processes the 'obj' parameter. The 'depth' parameter is used in recursive calls to limit the depth of inspection for nested objects.",
+    "errors": [
+        {
+            "type": "Exception",
+            "description": "The function may throw an exception if there's an error accessing a property of the object. These exceptions are caught and returned as error messages in the result."
+        }
+    ],
+    "return": {
+        "types": ["GenObj", "[]", "string", "boolean"],
+        "description": "The return value varies based on the input and options. For non-objects, it returns a string describing the type. For objects, it returns either an array of property names or an object containing detailed information about each property, depending on the 'opt' parameter. In case of errors or reaching the maximum depth, it returns a string describing the issue."
+    },
+    "dependencies": [
+        {
+            "name": "isObject",
+            "type": "function"
+        },
+        {
+            "name": "typeOf",
+            "type": "function"
+        },
+        {
+            "name": "isParsed",
+            "type": "function"
+        },
+        {
+            "name": "getProps",
+            "type": "function"
+        },
+        {
+            "name": "filterProps",
+            "type": "function"
+        },
+        {
+            "name": "uniqueVals",
+            "type": "function"
+        },
+        {
+            "name": "isEmpty",
+            "type": "function"
+        },
+        {
+            "name": "intersect",
+            "type": "function"
+        },
+        {
+            "name": "isBuiltIn",
+            "type": "function"
+        },
+        {
+            "name": "isParsable",
+            "type": "function"
+        }
+    ],
+    "notes": [
+        "This function is designed to be flexible and handle various types of inputs, including edge cases.",
+        "It uses recursion to handle nested objects, which could potentially lead to stack overflow for deeply nested structures.",
+        "The function includes error handling to prevent crashes when accessing properties fails."
+    ],
+    "todos": [
+        "Consider implementing a non-recursive version to handle very deep object structures.",
+        "Add more comprehensive type checking for better TypeScript support."
+    ],
+    "edgeCases": [
+        {
+            "description": "Handling circular references",
+            "example": [
+                "const obj = { a: 1 };",
+                "obj.self = obj;",
+                "const result = allProps(obj);"
+            ],
+            "consequence": "The function will stop recursing when it reaches the maximum depth, preventing an infinite loop."
+        },
+        {
+            "description": "Handling objects with non-accessible properties",
+            "example": [
+                "const obj = { get a() { throw new Error('Cannot access'); } };",
+                "const result = allProps(obj);"
+            ],
+            "consequence": "The function will catch the error and include an error message in the result for that property."
+        },
+        {
+            "description": "Handling built-in objects",
+            "example": [
+                "const result = allProps(Math);"
+            ],
+            "consequence": "The function will identify built-in objects and handle them specially, returning their name instead of recursing into their properties."
+        }
+    ]
+}
