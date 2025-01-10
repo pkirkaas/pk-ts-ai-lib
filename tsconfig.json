@@ -1,0 +1,23 @@
+/**
+ * Just for TS-Node...
+ */
+{
+  "extends": "pk-ts-node-lib/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    // tests for ts-node
+    //"moduleResolution": "esnext",
+   //"module": "esnext",
+   // "target": "esnext",
+    "esModuleInterop": true,
+    "baseUrl": "./",
+  },
+  "include": [
+    "./src/**/*",
+    "./src/*",
+  ],
+  "typeRoots": [
+    "node_modules/@types",
+    "src/custom_types/"
+  ]
+}

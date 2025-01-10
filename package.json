@@ -1,0 +1,43 @@
+{
+  "name": "pk-ts-ai-lib",
+  "author": "Paul Kirkaas",
+  "license": "UNLICENSED",
+  "description": "Export experimental AI functionality",
+  "type": "module",
+  "module": "./dist/index.js",
+  "main": "./dist//index.js",
+  "engines": {
+    "node": ">= 20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf ./dist ./node_modules package-lock.json && npm i && tsc"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "*",
+    "@anthropic-ai/sdk": "*",
+    "@anthropic-ai/vertex-sdk": "*",
+    "@google-cloud/aiplatform": "*",
+    "@google-cloud/vertexai": "*",
+    "@google/generative-ai": "*",
+    "@huggingface/inference": "*",
+    "@inquirer/prompts": "*",
+    "@lmstudio/sdk": "*",
+    "ai": "*",
+    "console-title": "*",
+    "google-auth-library": "*",
+    "lodash": "*",
+    "mime": "*",
+    "openai": "*",
+    "pk-ts-sqlite-lib": "github:pkirkaas/pk-ts-sqlite-lib#working",
+    "together-ai": "*",
+    "ts-morph": "*",
+    "ts-node": "*",
+    "typeorm": "*",
+    "typescript": "*",
+    "typescript-ast-util": "*"
+  },
+  "devDependencies": {
+    "tsx": "*"
+  }
+}

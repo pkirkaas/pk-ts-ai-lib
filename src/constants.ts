@@ -1,0 +1,134 @@
+/**
+ * Predefined constants & options, like system messages, etc
+ */
+
+import {
+  getTxtMsgs, defaultSysMsg,
+} from './init.js';
+
+import { VertexAI } from '@google-cloud/vertexai';
+import { AnthropicVertex } from '@anthropic-ai/vertex-sdk';
+import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from "openai";
+
+
+export let LMS_PORT = process.env.LMS_PORT;
+export let OLLAMA_PORT = process.env.OLLAMA_PORT;
+
+export let oaiCodeParams = {
+  temperature: .1,
+  top_p: 0.2,
+  frequency_penalty: 0.0,
+  presence_penalty: 0.0,
+};
+
+export let anthropicCodeParams = {
+  temperature: .15,
+  top_p: 0.2,
+  max_tokens: 8192,
+};
+
+export const defaultGenerationConfig = { // For Google/VertexAI 
+  temperature: .15,
+  top_p: 0.2,
+  top_k: 40,
+  frequency_penalty: 0.0,
+  presence_penalty: 0.0,
+  //maxOutputTokens: 20000,
+  maxOutputTokens: 8192,
+  candidateCount: 1,
+};
+
+export const providers = {
+  lms: {
+    baseUrl: `http://localhost:${LMS_PORT}/v1`,
+    apiKey: 'lms',
+    defaultOpts: {
+      ...oaiCodeParams,
+     // max_tokens: 8192,
+    },
+    clientLib: OpenAI,
+  },
+  grok: {
+    apiKey: process.env.GROK_API_KEY,
+    clientLib: OpenAI,
+    baseURL: "https://api.x.ai/v1",
+    model: "grok-beta",
+    defaultOpts: {
+      ...oaiCodeParams,
+     // max_tokens: 8192,
+    },
+  },
+  ollama: {
+    baseUrl: `http://localhost:${OLLAMA_PORT}/v1`,
+    apiKey: 'ollama',
+    defaultOpts: {
+      ...oaiCodeParams,
+     // max_tokens: 8192,
+    },
+    clientLib: OpenAI,
+  },
+  openai: {
+    baseUrl: 'https://api.openai.com/v1',
+    clientLib: OpenAI,
+    defaultFilter: 'latest',
+    defaultOpts: {
+      ...oaiCodeParams,
+     // max_tokens: 8192,
+    },
+    apiKey: process.env.OPENAI_API_KEY,
+    defaultModel: 'chatgpt-4o-latest',
+  },
+  together: {
+    baseUrl: "https://api.together.xyz/v1",
+    apiKey: process.env.TOGETHER_API_KEY,
+  },
+  anthropic: {
+    clientLib: Anthropic,
+    baseUrl: "",
+    type: "vertex",
+    model: 'claude-3-5-sonnet-latest',
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    defaultOpts: {
+      ...anthropicCodeParams,
+      max_tokens: 8192,
+      system: defaultSysMsg,
+    },
+  },
+  gengemini: { // Use Gemini API instead of VertexAI
+    type: "genai",
+    model: 'gemini-2.0-flash-exp',
+    //model: 'gemini-1.5-pro-002',
+    models: [
+      'gemini-1.5-pro-exp-0827',
+      'gemini-1.5-pro-002',
+    ],
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    project: 'stalwart-veld-438120-v7',
+    defaultGenerationConfig,
+    apiKey: process.env.GEMINI_API_KEY,
+    location: 'us-central1',
+  },
+  gemini: {
+    type: "vertex",
+    clientLib: VertexAI,
+    model: 'gemini-1.5-pro-002',
+    project: 'stalwart-veld-438120-v7',
+    defaultGenerationConfig,
+    apiKey: process.env.GEMINI_API_KEY,
+    location: 'us-central1',
+  },
+  nebius: {
+    clientLib: OpenAI,
+    baseUrl: "https://api.studio.nebius.ai/v1/",
+    apiKey: process.env.NEBIUS_API_KEY,
+  },
+  nvidia: {
+    clientLib: OpenAI,
+    baseUrl: 'https://integrate.api.nvidia.com/v1',
+    apiKey: process.env.NVIDIA_API_KEY,
+  },
+
+};
+
+export const timeout = 96 * 60 * 60 * 1000; //96 hour timeout

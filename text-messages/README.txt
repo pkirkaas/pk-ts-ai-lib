@@ -1,0 +1,1 @@
+This folder contains the text messages for the project - one per file. 
