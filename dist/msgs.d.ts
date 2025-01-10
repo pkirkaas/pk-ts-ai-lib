@@ -4,11 +4,11 @@
 import { GenObj } from 'pk-ts-node-lib';
 import { Strings } from './init.js';
 /**
- * Check if msgstr contains any unmatched embeddeds
+ * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
  * @param msgStr - string to test
  * @return array of remaining embeddeds
  */
-export declare function findEmbeddeds(msgStr: any): any;
+export declare function findEmbeddeds(msgStr: any): any[];
 /**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
@@ -31,10 +31,25 @@ export declare function getMsgKeys(): {
     allKeys: any[];
 };
 export declare const askKey = "__ASK__";
+export declare const wrapPairs: {
+    msg: {
+        open: string;
+        close: string;
+    };
+    code: {
+        open: string;
+        close: string;
+    };
+    comment: {
+        open: string;
+        close: string;
+    };
+};
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
  * to msg strings.
  * ?? Switch whether throw error on used key, or just ignore?
+ *
  */
 export declare function expandMsgs(...args: any[]): Promise<string>;
 /**

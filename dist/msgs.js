@@ -6,15 +6,29 @@ import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubse
 // Local Imports
 import { getTxtMsgs, wrapCode, } from './init.js';
 /**
- * Check if msgstr contains any unmatched embeddeds
+ * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
  * @param msgStr - string to test
  * @return array of remaining embeddeds
  */
 export function findEmbeddeds(msgStr) {
+    let regexes = [
+        /\[\[(.+?)\]\]/g,
+        /\{\{(.+?)\}\}/g,
+        /\{\|(.+?)\|\}/gs,
+    ];
+    let embeddeds = [];
+    for (let regex of regexes) {
+        let embeds = msgStr.match(regex);
+        if (embeds) {
+            embeddeds = embeddeds.concat(embeds);
+        }
+    }
+    /*
     let embeddeds = msgStr.match(/\[\[(.+?)\]\]/g);
     if (!Array.isArray(embeddeds)) {
-        embeddeds = [];
+      embeddeds = [];
     }
+      */
     return embeddeds;
 }
 /**
@@ -62,7 +76,8 @@ export function embedToKey(embed) {
  * Gets all the message keys for all msg objects, ensures no duplicates, & returns array of keys
  */
 export function getMsgKeys() {
-    let keyObjs = [getAllMsgs(), codeFiles];
+    //let keyObjs = [getAllMsgs(), codeFiles];
+    let keyObjs = [getAllMsgs(),];
     let allKeys = [];
     for (let keyObj of keyObjs) {
         allKeys = allKeys.concat(Object.keys(keyObj));
@@ -74,10 +89,25 @@ export function getMsgKeys() {
     return { msgKeys: Object.keys(getAllMsgs()), codeKeys: Object.keys(codeFiles), allKeys };
 }
 export const askKey = '__ASK__'; // To force an ask
+export const wrapPairs = {
+    msg: {
+        open: '[[',
+        close: ']]',
+    },
+    code: {
+        open: '{{',
+        close: '}}',
+    },
+    comment: {
+        open: '{|',
+        close: '|}',
+    },
+};
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
  * to msg strings.
  * ?? Switch whether throw error on used key, or just ignore?
+ *
  */
 export async function expandMsgs(...args) {
     getAllMsgs();
@@ -89,12 +119,15 @@ export async function expandMsgs(...args) {
     //console.log(`in expandMsgs; msgs:`, { toMsgs, msgs });
     let msgKeyObj = getMsgKeys();
     let { msgKeys, allKeys, codeKeys } = msgKeyObj;
-    function wrapKey(key) {
+    function wrapCodeKey(key) {
+        return `{{${key}}}`;
+    }
+    function wrapMsgKey(key) {
         return `[[${key}]]`;
     }
     let keyMap = {};
     for (let key of msgKeys) {
-        keyMap[key] = wrapKey(key);
+        keyMap[key] = wrapMsgKey(key);
     }
     let usedKeys = opts.usedKeys || [];
     let dupKeys = intersect(msgs, usedKeys);
@@ -126,7 +159,7 @@ export async function expandMsgs(...args) {
             //} else if (!codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
         }
         else if (codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
-            msgStr = wrapKey(msg);
+            msgStr = wrapCodeKey(msg);
             //continue;
         }
         else {
@@ -140,7 +173,7 @@ export async function expandMsgs(...args) {
                 throw new PkError(`expandMsg: too many iterations:`, { msgStr, msg, matched });
             }
             for (let key of msgKeys) {
-                if (msgStr.includes(wrapKey(key))) {
+                if (msgStr.includes(wrapMsgKey(key))) {
                     let repStr = '';
                     if (usedKeys.includes(key)) {
                         if (!ignore) {
@@ -171,7 +204,7 @@ export async function expandMsgs(...args) {
                         repStr = '\n';
                         //  throw new PkError(`expandMsg: repStr not in msgStr:`, { msgStr, repStr });
                     }
-                    msgStr = msgStr.replaceAll(wrapKey(key), repStr);
+                    msgStr = msgStr.replaceAll(wrapMsgKey(key), repStr);
                 }
             }
         }
@@ -193,7 +226,7 @@ export async function expandMsgs(...args) {
     msgsStr = stripComments(msgsStr);
     // NOW do code substitution
     for (let key of codeKeys) {
-        if (msgsStr.includes(wrapKey(key))) {
+        if (msgsStr.includes(wrapCodeKey(key))) {
             let repStr = '';
             if (usedKeys.includes(key)) {
                 if (!ignore) {
@@ -206,13 +239,13 @@ export async function expandMsgs(...args) {
             else {
                 usedKeys.push(key);
                 repStr = `\n${wrapCode(codeFiles[key])}\n`;
-                msgsStr = msgsStr.replace(wrapKey(key), repStr);
+                msgsStr = msgsStr.replace(wrapCodeKey(key), repStr);
             }
         }
     }
     let embeddeds = findEmbeddeds(msgsStr);
     if (!isEmpty(embeddeds)) {
-        throw new PkError(`In expandMsg: remaining embeddeds in \nmsgsStr:\n${msgsStr}\n\nembeddeds:\n`, { embeddeds });
+        throw new PkError(`In expandMsg: remaining embeddeds in \nmsgsStr:\n${msgsStr}\n\nembeddeds:\n`, { embeddeds }, `\nMaybe didn't convert some code embeds to {{.*}} from [[.*]]?`);
     }
     msgsStr = stripComments(msgsStr);
     if (msgsStr.includes(askKey)) {
