@@ -475,7 +475,7 @@ You will provide a complete, working, and tested PyQt6 GUI application in Python
     // Define a TS Function body */
     tsfncbody: `Below follows TypeScript sourcecode containing about 100 export definitions, including TypeScript functions.  
   
-  For the purpose of this task, a function definition includes any TypeScript comments in \`TsDoc\` format (\`/** ... */\`) (if any) which immediately preceeds the the function signature, the function signature/call, and the function body/code block, including the opening and closing braces. Remember to consider/include any relevant TypeScript comments that immediately precede the function definition which might include context and understanding of the function.
+  For the purpose of this task, a function definition includes any TypeScript comments in \`TsDoc\` format (\`/** ... */\`) (if any) which immediately precedes the the function signature, the function signature/call, and the function body/code block, including the opening and closing braces. Remember to consider/include any relevant TypeScript comments that immediately precede the function definition which might include context and understanding of the function.
   `,
     webapp: `[[typeorm]] [[react]] The project is a full-stack web application with a front-end built with the latest 'React' 19 and a back-end built with NodeJS and 'express'. The backend API database is \`sqlite\`, using the TypeScript \`typeorm\` ORM library.
 
@@ -557,7 +557,7 @@ export let usrMessages = {
   Only that & nothing more. Wrap the JSON array in triple backticks with followed by 'json' indicating the type of the content.
 
   `,
-    utsfncbody: `Your task is to extract and return the function definition for the function named below. Remember to include any relevant TypeScript comments that immediately preceed the function definition which might include context and understanding of the function. Your response should consist ONLY OF TypeScript code wrapped by triple backticks for TypeScript. Only that and nothing more.`,
+    utsfncbody: `Your task is to extract and return the function definition for the function named below. Remember to include any relevant TypeScript comments that immediately precede the function definition which might include context and understanding of the function. Your response should consist ONLY OF TypeScript code wrapped by triple backticks for TypeScript. Only that and nothing more.`,
 };
 export let AllMsgs = {};
 /**

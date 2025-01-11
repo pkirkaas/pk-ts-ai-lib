@@ -1,0 +1,260 @@
+This is the JSON schema describing the JSON data you should return, per function, for RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness.
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TypeScript Function Schema",
+  "description": "A schema for capturing detailed information about TypeScript functions for RAG training",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the function"
+    },
+    "signature": {
+      "type": "string",
+      "description": "The complete function signature, including return type and parameter types"
+    },
+    "description": {
+      "type": "object",
+      "properties": {
+        "brief": {
+          "type": "string",
+          "description": "A concise overview of the function's purpose"
+        },
+        "detailed": {
+          "type": "string",
+          "description": "The full, complex logic of the function, including different allowed types of parameters and various behaviors and results depending on logic flow"
+        }
+      },
+      "required": [
+        "brief",
+        "detailed"
+      ]
+    },
+    "params": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the parameter"
+          },
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "All possible/allowed types for the parameter"
+          },
+          "defaultValue": {
+            "description": "The default value of the parameter, if any"
+          },
+          "description": {
+            "type": "string",
+            "description": "The full, complex implication & consequence of the parameter, especially variations of logic depending on type or value"
+          },
+          "optional": {
+            "type": "boolean",
+            "description": "Whether the parameter is optional"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "description",
+          "optional"
+        ]
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Relevant tags or categories for the function"
+    },
+    "relatedFunctions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the related function"
+          },
+          "description": {
+            "type": "string",
+            "description": "How this function relates to the main function"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ]
+      }
+    },
+    "exampleUsages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the example usage"
+          },
+          "code": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The code snippet demonstrating the usage with optional comments"
+          }
+        },
+        "required": [
+          "description",
+          "code"
+        ]
+      },
+      "description": "A set of example usages, illustrating each possible usage for parameter values and types"
+    },
+    "sourceCode": {
+      "type": "string",
+      "description": "The actual source code of the function, including assiciate preceeding TSDoc comments describing the function"
+    },
+    "isAsync": {
+      "type": "boolean",
+      "description": "Whether the function is asynchronous"
+    },
+    "asyncConsiderations": {
+      "type": "string",
+      "description": "Any considerations related to the function's asynchronous nature"
+    },
+    "parameterInterdependencies": {
+      "type": "string",
+      "description": "Any interdependencies between parameters"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The type or name of the error"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the error and when it occurs"
+          }
+        },
+        "required": [
+          "type",
+          "description"
+        ]
+      },
+      "description": "All possible errors and reasons for errors"
+    },
+    "return": {
+      "type": "object",
+      "properties": {
+        "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "All possible return types"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of each possible return type & value, their uses, and what influences what is returned"
+        }
+      },
+      "required": [
+        "types",
+        "description"
+      ]
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the dependency"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "package",
+              "module",
+              "function"
+            ],
+            "description": "Type of the dependency"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "description": "Other packages, modules, or functions this function depends on"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional notes or comments about the function"
+    },
+    "todos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Pending tasks or improvements for the function"
+    },
+    "edgeCases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the edge case"
+          },
+          "example": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An example demonstrating the edge case with optional comments"
+          },
+
+          "consequence": {
+            "type": "string",
+            "description": "The consequence or result of this edge case"
+          }
+        },
+        "required": [
+          "description",
+          "example",
+          "consequence"
+        ]
+      },
+      "description": "A deep examination of possible edge cases, examples, and their consequences"
+    }
+  },
+  "required": [
+    "name",
+    "signature",
+    "description",
+    "params",
+    "return",
+    "sourceCode",
+    "isAsync"
+  ]
+}
+```
