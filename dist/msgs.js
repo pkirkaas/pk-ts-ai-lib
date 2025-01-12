@@ -436,15 +436,61 @@ Do not:
   The applications are all undergoing active development and debugging. During development, the applications will be run from the command line, and the output of the application will be displayed in a separate window. All actions will be logged to a log file and the terminal.
 
   `,
-    aicodetrain: `[[ai]] The goal is to additionally train a pre-trained coding LLM ('gpt-4o', 'llama-3.2', etc) on custom code bases/libraries, to enable the LLM to act as a coding assistant for the specialized code base as well as for general coding.
+    llmgoals: `[[aicodetrain]] The LLM trained on the custom code should have a deep understanding of the behavior and purpose of each function in the codebase. This can be challenging because many functions accept arguments of different types, and the behavior and return values of the functions can vary depending on the type of the arguments, so it is important to understand the behavior of the functions in the context of the codebase.
+
+  The result of the custom trained LLM should be able to act as a powerful coding assistant for the specialized code base, and for general coding. Among other requirements, the trained LLM should be able to interact with the developer in the Development Environment (VS Code), monitor the developers code, and suggest  and the Terminal, and be able to perform the following tasks:
+
+
+  
+  
+  
+  support the following for the custom code base:
+   - the purpose and effect of each function & class
+   - Deep understanding of 
+
+
+
+  `,
+    aicodetrain: `[[ai]] The goal is to further train a pre-trained coding LLM ('gpt-4o', 'llama-3.2', etc) on custom code bases/libraries, to enable the LLM to act as a coding assistant for the specialized code base as well as for general coding.
+
+  The code base libraries are implemented in TypeScript/JavaScript, to provide specialized functionality for multiple applications. 
+
+  The libraries each focus on a specific area of functionality, such as front-end/browser components, back-end NodeJS server support, specialized Database/SQL support, etc, and often an application will include several of these libraries in the same application.
+
+  The custom training will focus initially on one of the libraries, but when the training is successful, it should be expanded to include the other libraries, without loss of the initial training results.
+
+  The trained LLM should be able to act as a powerful coding assistant for the specialized code base, and for general coding. Among other requirements, the trained LLM should be able to interact with the developer in the Development Environment (VS Code) to monitor the developers code, identify errors, suggest code completion and generation based on the custom libraries. 
+
+  It should also be aware of the function parameters, types, and return values of the functions, and identify potential parameter errors and suggest fixes.
+
+  It should also be able to work as an AI coding chatbot in a terminal, to allow the developer to ask the chatbot for suggestions on how to achieve a coding goal, and the chatbot should be able to generate appropriate code, using the features and functionality of the custom code libraries it has been trained on.
+  
+  The trained LLM should also be able to identify potential errors/problems in the original code base libraries and suggest improvements/enhancements, error handling, and refactoring, as well as generate complete documentation for each of the functions, classes, and modules in the codebase.
+
+This will be a long term, multi-step process, with multiple steps, and multiple iterations of training, and multiple iterations of testing and evaluation.
+
+The first step is to prepare the source code and extract the relevant information from the code in a suitable structure to support the requirements.
+  
+Our initial approach is to define a JSON schema to explicitly define all the metadata required for each function of the codebase, and then use the JSON schema to extract the relevant information from the code.
+
+{|
+  and be able to answer multiple coding questions with follow-up questions, which can be used as assistants for general coding.
+
+  The custom codebases/libraries are imported and used in multiple different projects in a variety of ways.  so it is important to understand the behavior of the functions in the context of the codebase.
 
   The training methods can be 'RAG' (Retrieval Augmented Generation) or 'Fine Tuning' (Fine Tuning), a combination of both, or other approaches you suggest.
 
+
   I already have implemented multiple multi-shot chatbot agents/applications in both Python and JavaScript, using the OpenAI API, Anthropic API, and Google Vertex which I can run from a command line terminal, which can answer multiple coding questions with follow-up questions, which can be used as assistants for general coding.
 
-  The challenge is to implement custom code training on custom code bases. The software languages can be restricted to 'python', 'javascript' & 'typescript'. That requires several steps and additional libraries and utilities. I have a local vector database/store installed - 'ChromaDB' - but I am open to other open source vector stores that can run locally - 'FAISS', 'Weaviate', or others. I am not interested in cloud or managed vector DBs. I also have several large code bases to train on.
+  The challenge is to implement custom code training on custom code bases. The software languages can be restricted to 'python', 'javascript' & 'typescript'. That requires several steps and additional libraries and utilities. 
+  
+  I have a local vector database/store installed - 'ChromaDB' - but I am open to other open source vector stores that can run locally - 'FAISS', 'Weaviate', or others. I am not interested in cloud or managed vector DBs. I also have several large code bases to train on.
 
   The code bases need to be prepared, split into smaller chunks, and the metadata for each function needs to be extracted and stored in a vector database.
+|}
+  `,
+    tscodetrain: `[[aicodetrain]] The first The first step is to analyze the code base, and split it into smaller chunks, and extract the metadata for each function, and store the metadata in a vector database.
   `,
     js: `[[code]] You are an expert in advanced techniques with modern JavaScript ('ES2022' and greater) software development and engineering, using the \`npm\` package management system, advanced configuration with \`package.json\`, and all relevant, latest versions of 'npm' packages. Prefer 'ESM' 'import' module syntax  over 'CommonJS' 'require' module syntax. For all \`npm\` packages you suggest, use the latest versions and include the \`npm install\` command for the packages in your responses.
   `,
@@ -551,7 +597,8 @@ export let usrMessages = {
 
   Please recommend the best values for the parameters for the chat completions endpoint to generate the most accurate responses to questions about software code, and provide a brief explanation of why you recommend those values.
   `,
-    rag: ``,
+    rag: `[[ai]]`,
+    tsrag: `[[ai]]`,
     tsdecls: `Below follows TypeScript sourcecode containing multiple exports.  Please provide a JSON array of objects for every export. Each object should have only the following properties: 'type' & 'name'. If the type is a class, provide the class name as the 'name'. If the type is a function, provide the function name as the 'name'. If the type is a variable, provide the variable name as the 'name'. If the type is an interface, provide the interface name as the 'name'. If the type is an enum, provide the enum name as the 'name'. If the type is a type alias, provide the type alias name as the 'name'. If the type is a union type, provide the union type name as the 'name'. If the type is a tuple type, provide the tuple type name as the 'name'.
 
   Only that & nothing more. Wrap the JSON array in triple backticks with followed by 'json' indicating the type of the content.

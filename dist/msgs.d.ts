@@ -112,7 +112,9 @@ export declare let systemMessages: {
     python: string;
     ai: string;
     pyapp: string;
+    llmgoals: string;
     aicodetrain: string;
+    tscodetrain: string;
     js: string;
     ts: string;
     node: string;
@@ -146,6 +148,7 @@ export declare let usrMessages: {
     pqtAppFramework: string;
     aiapiparams: string;
     rag: string;
+    tsrag: string;
     tsdecls: string;
     utsfncbody: string;
 };

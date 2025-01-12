@@ -64,7 +64,6 @@ export const commonExports =
   { type: "const", name: "keepProps" },
   { type: "function", name: "filterProps" },
   { type: "function", name: "allProps" },
-  { type: "function", name: "allPropsP" },
   { type: "function", name: "allPropsWithTypes" },
   { type: "function", name: "objInfo" },
   { type: "function", name: "typeOf" },

@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "TypeScript Function Schema",
+  "description": "A schema to capture all relevant information about TypeScript functions for RAG training and fine-tuning LLMs.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the function."
+    },
+    "signature": {
+      "type": "string",
+      "description": "The function's signature, including parameters and return type."
+    },
+    "description": {
+      "type": "object",
+      "properties": {
+        "brief": {
+          "type": "string",
+          "description": "A brief overview of the function's purpose."
+        },
+        "detailed": {
+          "type": "string",
+          "description": "A detailed explanation of the function's logic, including types and behaviors of parameters and returns."
+        }
+      },
+      "required": ["brief", "detailed"]
+    },
+    "params": {
+      "type": "array",
+      "description": "An array of function parameters.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the parameter."
+          },
+          "type": {
+            "type": "array",
+            "description": "All possible/allowed types for each parameter.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "The default value of the parameter, if any.",
+            "type": ["string", "number", "boolean", "null", "array", "object"]
+          },
+          "description": {
+            "type": "string",
+            "description": "Implications and variations in logic based on parameter type or value."
+          },
+          "optional": {
+            "type": "boolean",
+            "description": "Indicates if the parameter is optional."
+          }
+        },
+        "required": ["name", "type", "description"]
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags for classifying or identifying the function.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relatedFunctions": {
+      "type": "array",
+      "description": "Functions related to this function.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the related function."
+          },
+          "description": {
+            "type": "string",
+            "description": "How this function relates to the other function."
+          }
+        },
+        "required": ["name", "description"]
+      }
+    },
+    "exampleUsages": {
+      "type": "array",
+      "description": "Examples illustrating various usages of the function.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Possible errors and reasons for these errors.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "return": {
+      "type": "object",
+      "properties": {
+        "types": {
+          "type": "array",
+          "description": "The return types of the function.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Description for each return type."
+        }
+      },
+      "required": ["types", "description"]
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Dependencies on other packages, modules, or functions.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes."
+    },
+    "todos": {
+      "type": "string",
+      "description": "Todo items related to the function."
+    },
+    "edgeCases": {
+      "type": "string",
+      "description": "Examination of possible edge cases."
+    }
+  },
+  "required": ["name", "signature", "description", "params", "return"]
+}
+
