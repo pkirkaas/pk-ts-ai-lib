@@ -23,7 +23,7 @@ import _ from "lodash";
 
 //PkLib imports
 import {
-  PkError, isFile, JSON5Stringify, JSONStringify, writeData, writeFile, uniqueVals, strIncludesAny, isSubset,
+  PkError, isFile, JSON5Stringify, JSONStringify, writeData,  uniqueVals, strIncludesAny, isSubset,
   askConfirm, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich,
 } from 'pk-ts-node-lib';
 

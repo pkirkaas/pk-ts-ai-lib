@@ -22,7 +22,7 @@ export declare function getEmptyFncMD({ provider, model, arr }?: GenObj): Promis
 /**
  * Return object keyed by fnc name, val MetaData
  */
-export declare function getFncsMD({ provider, model, opts }?: GenObj): Promise<GenObj>;
+export declare function getFncsMD({ provider, model, opts }?: GenObj): Promise<import("pk-ts-common-lib").GenericObject>;
 export declare function dbReport({ provider, model, opts }?: GenObj): Promise<void>;
 /**
  * Create new DB, or new entry? Start with shared DB

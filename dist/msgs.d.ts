@@ -1,7 +1,6 @@
 /**
  * Building messages for chat
  */
-import { GenObj } from 'pk-ts-node-lib';
 import { Strings } from './init.js';
 /**
  * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
@@ -56,7 +55,7 @@ export declare function expandMsgs(...args: any[]): Promise<string>;
  * Returns Object with all msg keys to their expanded values
  * @param msgs - opt - array of msg keys to expand, if not provided, all msgs are expanded
  */
-export declare function getExpandedMsgs(...msgs: any[]): Promise<GenObj>;
+export declare function getExpandedMsgs(...msgs: any[]): Promise<import("pk-ts-node-lib").GenericObject>;
 export declare let wrappedSchemaStr: string;
 /**
  * Keys w. source code file path, to be wrapped in triple backticks

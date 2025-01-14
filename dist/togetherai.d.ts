@@ -10,7 +10,7 @@
  * @param org:string - filter by organization name
  * @param context:number - filter by model context >= context * 1000
  */
-export declare function filterTogetherModels({ name, date, type, context, price, org, opts }: any): Promise<import("pk-ts-node-lib").GenObj[]>;
+export declare function filterTogetherModels({ name, date, type, context, price, org, opts }: any): Promise<import("pk-ts-node-lib").GenericObject[]>;
 /**
  * Accepts filters for TogetherAI models, finds models,  and returns array of models matching filters & formatted for inquirer choices
  */

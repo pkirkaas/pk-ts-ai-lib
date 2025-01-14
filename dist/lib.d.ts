@@ -16,7 +16,7 @@ export declare function mkModelListOpts(opts?: any): any;
  * Returns a processed model list - filtered, sorted, formatted
  *
  */
-export declare function processModelList(modelObjs: GenObj[], opts?: GenObj): GenObj[];
+export declare function processModelList(modelObjs: GenObj[], opts?: GenObj): import("pk-ts-node-lib").GenericObject[];
 /**
  * Return the provider key (lms, ollama)
  * @param {string} provider - ollama' - if null, use llmProvider if set, else ask
@@ -29,7 +29,7 @@ export interface IMsgsParams {
     uMsg?: string | string[] | null;
     sMsg?: string | string[] | null;
 }
-export declare function validateJson(data: any): any;
+export declare function validateJson(data: any): import("pk-ts-node-lib").SimpleObject;
 export declare function mkRepPath(lbl?: string, ext?: string): string;
 export declare function writeLog(str: any, { lbl, ext }?: GenObj): void;
 /**

@@ -5,7 +5,7 @@
 
 //PkLib imports
 import {
-  PkError, isFile, JSON5Stringify, JSONStringify, writeData, writeFile, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf,
+  PkError, isFile, JSON5Stringify, JSONStringify, writeData,  uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf,
   ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich,
 } from 'pk-ts-node-lib';
 
