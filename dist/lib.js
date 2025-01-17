@@ -5,11 +5,11 @@ import setTitle from 'console-title';
 //import * as slugify from 'slugify';
 import slugify from 'slugify';
 // PkLib Imports
-import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, ask, dtFmt, JSON5Stringify, inArr1NinArr2, } from 'pk-ts-node-lib';
+import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, ask, dtFmt, JSON5Stringify, inArr1NinArr2, } from 'pk-ts-node-lib';
 // Local Imports
 import { expandMsgs, 
 //mkMsgStr,
-fncSchema, providers, mkArray, } from './init.js';
+fncSchema, providers, } from './init.js';
 export let llmProvider; //Session provider 
 export function getApiKey(provider = null) {
     provider = getLlmProvider(provider);
@@ -263,19 +263,20 @@ export function getProviders(list = true) {
     }
     return providers;
 }
-//export async function mkLogDets(provider, model, msgs) {
 export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatconfig = {} }) {
     if (isEmpty(msgs)) {
         let msg = await ask(`What is your question for [${provider}]?`);
         msgs = [msg];
     }
     msgs = mkArray(msgs);
+    /*
     if (!Array.isArray(msgs)) {
-        msgs = [msgs];
+      msgs = [msgs];
     }
     if (isEmpty(sMsg)) {
-        sMsg = 'default';
+      sMsg = 'default';
     }
+      */
     sMsg = mkArray(sMsg);
     //let label = msgs[0].substring(0, 25);
     let stamp = mkStamp();

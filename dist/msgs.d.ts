@@ -164,7 +164,6 @@ export declare function tstMsgStr(...msgs: any[]): Promise<string>;
 /**
  * If the arg is not an array, put it into an array
  */
-export declare function mkArray(arg: any): any;
 export interface IMsgSet {
     usr?: Strings;
     sys?: Strings;

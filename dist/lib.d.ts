@@ -2,8 +2,7 @@
  * General (non-API dependent) functions
  */
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
-import { GenObj } from 'pk-ts-node-lib';
-import { Strings } from './init.js';
+import { GenObj, Strings } from 'pk-ts-node-lib';
 export declare let llmProvider: string;
 export declare function getApiKey(provider?: any): any;
 /**
@@ -161,13 +160,14 @@ export declare function getProviders(list?: boolean): string[] | {
         apiKey: string;
     };
 };
-export declare function mkLogDets({ provider, model, msgs, sMsg, chatconfig }: {
-    provider: any;
-    model: any;
-    msgs: any;
-    sMsg?: string;
-    chatconfig?: {};
-}): Promise<{
+interface LogDetails {
+    provider: string;
+    model: string;
+    msgs: Strings;
+    sMsg?: Strings;
+    chatconfig?: Record<string, any>;
+}
+export declare function mkLogDets({ provider, model, msgs, sMsg, chatconfig }: LogDetails): Promise<{
     label: any;
     stamp: string;
     usrmsg: string;
@@ -188,4 +188,5 @@ export declare function askLlmProvider(): Promise<string>;
  * Strips opening & closing backticks from text response
  */
 export declare function stripBackticks(str: string, lbl?: string): string;
+export {};
 //# sourceMappingURL=lib.d.ts.map

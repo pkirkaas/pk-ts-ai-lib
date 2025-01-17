@@ -14,11 +14,10 @@ export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
 //PkLib imports
-import { PkError, isObject, } from 'pk-ts-node-lib';
+import { PkError, isObject, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
 //import { AllMsgs, defaultSysMsg, codeFiles } from './constants.js';
 import { getCommonTs, } from './fileops.js';
-import { mkArray, } from './msgs.js';
 import { getLogDS, } from './sqliteLib/index.js';
 import fncSchema from './FncSchemas/fnc2schema.json' with { type: 'json' };
 export { fncSchema };
@@ -58,122 +57,6 @@ ${JSON.stringify(fncSchema, null, 2)}
     let msgArr = ['default', 'tstGen', fncTask, getCommonTs(), wrappedSchema, 'pureJson'];
     return msgArr;
 }
-/*
-export function expandMsg(msg) {
-  let msgKeys = getMsgKeys();
-  function wrapKey(key) {
-    return `[[${key}]]`;
-  }
-  let keyMap: GenObj = {};
-  for (let key of msgKeys) {
-    keyMap[key] = `[[${key}]]`;
-  }
-  let msgStr = '';
-  if (msgKeys.includes(msg)) {
-    if (msg in cmpMsgs) {
-      msgStr = `\n${mkMsgStr(cmpMsgs[msg])}\n`;
-    } else if (msg in AllMsgs) {
-      msgStr = `\n${AllMsgs[msg]}\n`;
-    } else if (msg in codeFiles) {
-      msgStr = `\n${wrapCode(codeFiles[msg])}\n`;
-    } else { // Probably meant a key in AllMsgs, but not found
-      throw new PkError(`Invalid msg key:`, { msg });
-    }
-  } else if (wordCnt(msg) > 1) { //msg w. whitespace, use as literal
-    msgStr = `\n${msg}\n`;
-  } else {
-    throw new PkError(`Invalid msg:`, { msg });
-  }
-  let matched = [];
-  let cnt = 0;
-  while (strIncludesAny(msgStr, Object.values(keyMap))) {
-    matched = strIncludesWhich(msgStr, Object.values(keyMap));
-    if (cnt++ > 10) {
-      console.log(`expandMsg: too many iterations:`, { msgStr, msg, matched });
-      break;
-    }
-
-    for (let key of msgKeys) {
-      if (msgStr.includes(wrapKey(key))) {
-        let repStr = '';
-        if (key in cmpMsgs) {
-          repStr = mkMsgStr(cmpMsgs[key]);
-        } else if (key in AllMsgs) {
-          repStr = `\n${AllMsgs[key]}\n`;
-        } else if (key in codeFiles) {
-          repStr = `\n${wrapCode(codeFiles[key])}\n`;
-        } else { // Probably meant a key in AllMsgs, but not found
-          throw new PkError(`Invalid msg key:`, { key });
-        }
-        msgStr = msgStr.replaceAll(wrapKey(key), repStr);
-      }
-    }
-  }
-  let embeddeds = findEmbeddeds(msgStr);
-  if (!isEmpty(embeddeds)) {
-    throw new PkError(`In expandMsg: remaining embeddeds for \nmsg: [${msg}] in \nmsgStr:\n${msgStr}\n\nembeddeds:\n`, { embeddeds });
-  }
-  return msgStr;
-}
-  */
-/**
- * Recursively expands a message string, replacing keys with values.
- */
-/*
-export function expandMsgStr(msgStr) {
-  function wrapKey(key) {
-    return `[[${key}]]`;
-  }
-  let keys = getMsgKeys();
-  let keyMap: GenObj = {};
-  for (let key of keys) {
-    keyMap[key] = `[[${key}]]`;
-  }
-  while (strIncludesAny(msgStr, Object.values(keyMap))) {
-    for (let key of keys) {
-      if (msgStr.includes(wrapKey(key))) {
-        msgStr = msgStr.replace(wrapKey(key), keyMap[key]);
-      }
-    }
-  }
-}
-  */
-/**
- * Makes a message string from a string or array of strings.
- * The array of strings can be literal messages, or keys to AllMsgs,
- * which includes system, user, and longer messages found in ./text-message/*.md
- * @param msgs - string or array of strings or arrays of strings, nested as deep as needed
- */
-/*
-export function mkMsgStr(...msgs): string {
-  msgs = msgs.flat(99);
-  let dupKeys = dupEntries(msgs);
-  if (!isEmpty(dupKeys)) {
-    throw new PkError(`in mkMsgStr; dupKeys:`, dupKeys);
-  }
-  //msgs = uniqueVals(msgs.flat(99));
-  let msgStr = '';
-
-  for (let msg of msgs) {
-    if (msg in cmpMsgs) {
-      msgStr += `\n${mkMsgStr(cmpMsgs[msg])}\n`;
-    } else if (msg in AllMsgs) {
-      msgStr += `\n${AllMsgs[msg]}\n`;
-    } else if (msg in codeFiles) {
-      msgStr += `\n${wrapCode(codeFiles[msg])}\n`;
-    } else if (wordCnt(msg) > 1) { //msg w. whitespace, use as literal
-      msgStr += `\n${msg}\n`;
-    } else { // Probably meant a key in AllMsgs, but not found
-      throw new PkError(`Invalid msg:`, { msg });
-    }
-  }
-  //TODO: Add default only for system messages
-  if (!(msgStr.includes(defaultSysMsg))) {
-    msgStr = `${defaultSysMsg}\n${msgStr}`;
-  }
-  return msgStr;
-}
-*/
 /**
  * From an array of objects, return element with name === name
  */
@@ -190,75 +73,4 @@ export function getByName(arg, name) {
     console.error(`No el matched [${name}]`, { arg });
     return false;
 }
-/*
-export function extractCodeC3(resStr: string,): CodeBlocks {
-  const ret: CodeBlocks = {};
-  
-  // Create a regex pattern from the language array
-  const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
-  
-  // Improved regex to handle edge cases and use the dynamic language pattern
-  const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\``, 'gim');
-  
-  let match: RegExpExecArray | null;
-  while ((match = codeBlockRegex.exec(resStr)) !== null) {
-    const [fullMatch, lang, code] = match;
-    const normalizedLang = lang.toLowerCase().trim();
-    
-    if (!ret[normalizedLang]) {
-      ret[normalizedLang] = [];
-    }
-    
-    const trimmedCode = code.trim();
-    if (trimmedCode) {
-      ret[normalizedLang].push(trimmedCode);
-    }
-    
-    // Move the lastIndex to the end of this match to avoid overlapping matches
-    codeBlockRegex.lastIndex = match.index + fullMatch.length;
-  }
-  
-  return ret;
-}
- 
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-export function extractCodeC3(resStr: string,): CodeBlocks {
-  const ret: CodeBlocks = {};
-  
-  // Create a regex pattern from the language array
-  const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
-  
-  // Improved regex to handle edge cases and use the dynamic language pattern
-  const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\``, 'gim');
-  
-  let match: RegExpExecArray | null;
-  while ((match = codeBlockRegex.exec(resStr)) !== null) {
-    const [fullMatch, lang, code] = match;
-    const normalizedLang = lang.toLowerCase().trim();
-    
-    if (!ret[normalizedLang]) {
-      ret[normalizedLang] = [];
-    }
-    
-    const trimmedCode = code.trim();
-    if (trimmedCode) {
-      ret[normalizedLang].push(trimmedCode);
-    }
-    
-    // Move the lastIndex to the end of this match to avoid overlapping matches
-    codeBlockRegex.lastIndex = match.index + fullMatch.length;
-  }
-  
-  return ret;
-}
- 
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-  */
 //# sourceMappingURL=init.js.map

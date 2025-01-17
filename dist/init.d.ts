@@ -22,15 +22,6 @@ export type Strings = string | string[];
  */
 export declare function fncTask(fncs: any): Strings;
 /**
- * Recursively expands a message string, replacing keys with values.
- */
-/**
- * Makes a message string from a string or array of strings.
- * The array of strings can be literal messages, or keys to AllMsgs,
- * which includes system, user, and longer messages found in ./text-message/*.md
- * @param msgs - string or array of strings or arrays of strings, nested as deep as needed
- */
-/**
  * From an array of objects, return element with name === name
  */
 export declare function getByName(arg: any, name: any): any;

@@ -16,7 +16,7 @@ import _ from "lodash";
 
 import {
   getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv,  isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm,
-  writeData,  pkToDate, dtFmt,
+  writeData,  pkToDate, dtFmt, GenObj,
 } from 'pk-ts-node-lib';
 
 import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPropsWithTypes, objInfo, } from 'pk-ts-common-lib';
@@ -24,7 +24,7 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 
 // local imports
 import {
-  initMsgsDB, processMsgsDB,
+  initMsgsDB, processMsgsDB, wrapCodeNew, WrapCodeParam, WrapCodeParams,
   askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, mkMsgArr, getRawModelObjs, getRawModelList,
   //chatTask,
   mkTogetherModelChoices, askTogetherModel, getTxtMsgs, AllMsgs, sGeminiChat, wrappedSchemaStr,
@@ -33,12 +33,13 @@ import {
   anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr, fncTask, getEmptyFncMD, expandMsgs, findEmbeddeds,
   getCommonTs, getTxtMsg, systemMessages, providers, timeout, 
   // claudeChatTask,
-  validateJson, mkArray, getByName, getFncsMD, getModelObjs,
+  validateJson,  getByName, getFncsMD, getModelObjs,
   populateBody, populateBodies, fncNameMsg, //mkMsgStr,
   tstMsgKeys, dbReport,
   // tstFncJsons,
   filterTogetherModels, showTogetherModel, showTogetherModels, //oaiChatTask,
-  allThree, getExpandedMsgs, anthropicChatCached,
+  allThree, //getExpandedMsgs,
+  anthropicChatCached,
 } from './init.js';
 
 // Implementations
@@ -68,8 +69,25 @@ export async function parseChatArgs(args, chatOpts:any={}) {
   return { msgs, opts };
 }
 
+let tstSrcs = {
+  common1: { fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
+    excPatterns:['/tstcli', '.md', '/References/',],
+   },
+  //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
+};
 
 let fncs = {
+  tstWrapCode()  {
+    let res:GenObj = {};
+    for (let key in tstSrcs) {
+      let srcs = tstSrcs[key];
+       res[key] =  wrapCodeNew(srcs);
+      console.log({key,srcs});
+    }
+    dbgWrt(res);
+    console.log(`\nDone w. tstWrapCode\n`);
+
+  },
   txtMsgs: async (...args) => {
     let txtMsgs = await getTxtMsgs();
     let tmK = Object.keys(txtMsgs);
@@ -158,6 +176,7 @@ let fncs = {
     let res = await getModelList(provider, opts);
     console.log(`Model List for ${provider}:`, res);
   },
+  /*
   getExpandedMsgs: (...args) => {
     let res = getExpandedMsgs(...args);
     let keys = Object.keys(res);
@@ -169,6 +188,7 @@ let fncs = {
     }
     console.log(short);
   },
+  */
 
   getModelObjs: async (provider?: string, ...args) => {
     provider = provider || 'openai';

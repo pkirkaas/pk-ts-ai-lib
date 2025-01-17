@@ -2,7 +2,7 @@
  * Building messages for chat
  */
 //PkLib imports
-import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, ask, inArr1NinArr2, subObj, isEmpty, intersect, dupEntries, strIncludesWhich, } from 'pk-ts-node-lib';
+import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, ask, inArr1NinArr2, subObj, isEmpty, intersect, dupEntries, strIncludesWhich, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
 import { getTxtMsgs, wrapCode, } from './init.js';
 /**
@@ -23,12 +23,6 @@ export function findEmbeddeds(msgStr) {
             embeddeds = embeddeds.concat(embeds);
         }
     }
-    /*
-    let embeddeds = msgStr.match(/\[\[(.+?)\]\]/g);
-    if (!Array.isArray(embeddeds)) {
-      embeddeds = [];
-    }
-      */
     return embeddeds;
 }
 /**
@@ -36,10 +30,7 @@ export function findEmbeddeds(msgStr) {
  * but for now: `{| This is a comment |}`
  */
 export function stripComments(msgStr) {
-    //  return msgStr.replace(/\/\*[\s\S]*?\*\//g, '');
     let cmtRE = /\{\|(.+?)\|\}/gs; //s for multiline
-    //let comments = msgStr.match(cmtRE);
-    //console.log({comments});
     msgStr = msgStr.replace(cmtRE, '');
     return msgStr;
 }
@@ -55,7 +46,6 @@ export function findKeyedEmbeds(msgStr) {
         throw new PkError(`findKeyedEmbeds: embeddeds not array`, { embeddeds });
         return keyedEmbeds;
     }
-    //let keys = [];
     for (let embedded of embeddeds) {
         let key = embedToKey(embedded);
         keyedEmbeds[key] = embedded;
@@ -667,20 +657,6 @@ export async function tstMsgStr(...msgs) {
     let outPath = `./out/msg-test-${Date.now()}.md`;
     writeData(`# Test Msg Generation\n**Input Msgs:**\n\n${inpMsgs}\n\n**Generated:**\n\n${msgStr}\n`, outPath);
     return msgStr;
-}
-/**
- * If the arg is not an array, put it into an array
- */
-export function mkArray(arg) {
-    if (!Array.isArray(arg)) {
-        if (!arg) {
-            arg = [];
-        }
-        else {
-            arg = [arg];
-        }
-    }
-    return arg.flat(99);
 }
 // Map keys to usr/system messages
 export let MsgSets = {};

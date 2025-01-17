@@ -2,8 +2,7 @@
  * Test read/write of typescript files from ./tmp/commonts for testing AI Agents
  * Assumes `.` is run from the project root
  */
-import { GenObj } from 'pk-ts-node-lib';
-import { Strings } from './init.js';
+import { GenObj, Strings } from 'pk-ts-node-lib';
 export declare function getCommonTs(): string;
 export declare function initChatMd({ outpath, model, provider, stamp, }: {
     outpath: any;
@@ -58,6 +57,44 @@ export declare const exts: {
     '.log': string;
     '.csv': string;
 };
+/**
+ * Filter out files that match exclude patterns
+ * TODO: Improve this to handle more complex patterns
+ * @param fpathx - Array of file paths
+ * @param excpatx - Array of exclude patterns - currently matches any occurrence of the literal pattern substring
+ * To exclude a directory, use a trailing slash
+ * @returns Array of file paths that do not match exclude patterns
+ */
+export declare function filterExcludes(fpathx: Strings, excpatx: Strings): string[];
+export type WrapCodeObj = {
+    fpaths: Strings;
+    desc?: string;
+    root?: string;
+    excPatterns?: Strings;
+    types?: Strings;
+    dirExc?: Strings;
+};
+export type WrapCodeParam = string | WrapCodeObj;
+export type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
+export declare function isWrapCodeObj(src: any): src is WrapCodeObj;
+/**
+ * Wraps code in markdown code blocks
+ * @param argx:WrapCodeParams - string or object w. fpaths, or array of such
+ */
+export declare function wrapCodeNew(argx: WrapCodeParams): string;
+/**
+ * Wraps code in markdown code blocks
+ * The paths are already filtered to exclude directories and files matching exclude patterns
+ * The result has a common description section if any, and common root directory, if any
+ * @param fpathx:Strings - File Path or array
+ * @param {root?:string, desc?:string} - root: Root directory, desc: Description
+ * @returns {string} - Markdown code blocks
+ *
+ */
+export declare function wrapCodeFiles(fpathx: Strings, { root, desc }: {
+    root?: string;
+    desc?: string;
+}): string;
 /**
  * Wraps code in a file in a code block & returns it as a string wrapped in triple backticks
  * with appropriate language tag

@@ -28,7 +28,7 @@ import {
  anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr, fncTask, getEmptyFncMD,
   getCommonTs, getTxtMsg, systemMessages, providers, timeout, 
  // claudeChatTask,
-  validateJson, mkArray, getByName, getFncsMD,
+  validateJson, getByName, getFncsMD,
   populateBody, populateBodies, fncNameMsg, expandMsgs, 
   //mkMsgStr,
   tstMsgKeys, dbReport,

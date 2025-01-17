@@ -5,10 +5,10 @@
 //import { VertexAI } from '@google-cloud/vertexai';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 // PK Lib Imports
-import { ask, stdOut, writeData, isEmpty, } from 'pk-ts-node-lib';
+import { ask, stdOut, writeData, mkArray, isEmpty, } from 'pk-ts-node-lib';
 import { extractOpts, } from 'pk-ts-common-lib';
 // Local Imports
-import { getApiKey, mkArray, getProviderConfig, parseSingleGeminiResponse, 
+import { getApiKey, getProviderConfig, parseSingleGeminiResponse, 
 //mkMsgStr,
 getLlmProvider, initChatLog, mkLogDets, } from './init.js';
 export async function getGenAIModels(opts = {}) {

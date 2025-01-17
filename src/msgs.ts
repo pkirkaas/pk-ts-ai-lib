@@ -6,7 +6,7 @@
 //PkLib imports
 import {
   PkError, isFile, JSON5Stringify, JSONStringify, writeData,  uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf,
-  ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich,
+  ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich, mkArray,
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -32,12 +32,6 @@ export function findEmbeddeds(msgStr) {
       embeddeds = embeddeds.concat(embeds);
     }
   }
-  /*
-  let embeddeds = msgStr.match(/\[\[(.+?)\]\]/g);
-  if (!Array.isArray(embeddeds)) {
-    embeddeds = [];
-  }
-    */
   return embeddeds;
 }
 
@@ -46,10 +40,7 @@ export function findEmbeddeds(msgStr) {
  * but for now: `{| This is a comment |}`
  */
 export function stripComments(msgStr) {
-  //  return msgStr.replace(/\/\*[\s\S]*?\*\//g, '');
   let cmtRE = /\{\|(.+?)\|\}/gs; //s for multiline
-  //let comments = msgStr.match(cmtRE);
-  //console.log({comments});
   msgStr = msgStr.replace(cmtRE, '');
   return msgStr;
 }
@@ -66,7 +57,6 @@ export function findKeyedEmbeds(msgStr) {
     throw new PkError(`findKeyedEmbeds: embeddeds not array`, { embeddeds });
     return keyedEmbeds;
   }
-  //let keys = [];
   for (let embedded of embeddeds) {
     let key = embedToKey(embedded);
     keyedEmbeds[key] = embedded;
@@ -762,6 +752,7 @@ export async function tstMsgStr(...msgs): Promise<string> {
 /**
  * If the arg is not an array, put it into an array
  */
+/*
 export function mkArray(arg) {
   if (!Array.isArray(arg)) {
     if (!arg) {
@@ -772,6 +763,7 @@ export function mkArray(arg) {
   }
   return arg.flat(99);
 }
+  */
 
 export interface IMsgSet {
   usr?: Strings,

@@ -4,10 +4,10 @@
 // NPM Package Imports
 import OpenAI from "openai";
 // PK Lib Imports
-import { ask, writeData, isEmpty, parseArgs, } from 'pk-ts-node-lib';
+import { ask, writeData, isEmpty, parseArgs, mkArray, } from 'pk-ts-node-lib';
 import { isObject, isSimpleObject, PkError, } from 'pk-ts-common-lib';
 // Local Imports
-import { processModelList, mkArray, getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
+import { processModelList, getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
 /**
  * Some providers work better with a direct call to the OpenAI API than
  * using the openai cliient

@@ -9,13 +9,16 @@ import path from "path";
 
 // PkLib Imports
 import {
-  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv,  PkError, GenObj, isDirectory, isSimpleObject,
-  JSON5Stringify,
+  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, PkError, GenObj, isDirectory, isSimpleObject,
+  JSON5Stringify, mkArray, Strings, getFiles,
 } from 'pk-ts-node-lib';
 
 // Local Imports
 import {
-  Strings, mkArray, matchPattern,
+  //Strings, 
+  //mkArray,
+  matchPattern,
+
 } from './init.js';
 
 export function getCommonTs() {
@@ -102,6 +105,142 @@ export const exts = {
   '.csv': 'csv',
 };
 
+/**
+ * Filter out files that match exclude patterns
+ * TODO: Improve this to handle more complex patterns
+ * @param fpathx - Array of file paths
+ * @param excpatx - Array of exclude patterns - currently matches any occurrence of the literal pattern substring
+ * To exclude a directory, use a trailing slash
+ * @returns Array of file paths that do not match exclude patterns
+ */
+export function filterExcludes(fpathx: Strings, excpatx: Strings): string[] {
+  let fpaths = mkArray(fpathx);
+  let excpats = mkArray(excpatx);
+  let nexcpats = excpats.map(excpat => excpat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  let joined = excpats.join("|");
+  let njoined = nexcpats.join("|");
+  //console.log({ excpats, joined, njoined});
+  const pattern = new RegExp(nexcpats.join("|"), 'i'); // Combine patterns with OR operator and make case-insensitive
+  return fpaths.filter(path => !path.match(pattern));
+}
+
+export type WrapCodeObj =
+  {
+    fpaths: Strings,
+    desc?: string,
+    root?: string,
+    excPatterns?: Strings,
+    types?: Strings, // extensions & extension groups to include
+    dirExc?: Strings,
+  };
+
+export type WrapCodeParam = string | WrapCodeObj;
+export type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
+
+export function isWrapCodeObj(src: any): src is WrapCodeObj {
+  return isSimpleObject(src) && 'fpaths' in src;
+}
+
+/**
+ * Wraps code in markdown code blocks
+ * @param argx:WrapCodeParams - string or object w. fpaths, or array of such
+ */
+export function wrapCodeNew(argx: WrapCodeParams): string {
+  let codeStr = '\n';
+  let defaultDirExc = ['node_modules', 'dist', 'build', 'out', 'target', '.git', 'log', 'logs', 'tmp',];
+  let defaultExcPatterns = ['.tmp', '.swp', '.bak', '.orig', '.old', '.orig', '.log', '/tmp/',
+    '.log', '/node_modules/', '/dist/', '.git', '/deprecated/', '/scripts/', '/out/', '/git-hooks/', 'package-lock.json',
+  ];
+
+  let args: WrapCodeParam[] = mkArray(argx);
+  let aCnt = 0;
+  for (let arg of args) {
+    aCnt++;
+    let codeObj: WrapCodeObj = isWrapCodeObj(arg) ? arg : { fpaths: arg };
+    let { fpaths, root, desc, excPatterns, types, dirExc } = codeObj;
+    let fpathsArr = mkArray(fpaths);
+    let excPatternsArr = defaultExcPatterns.concat(mkArray(excPatterns));
+    let filePaths: string[] = [];
+    let dirExcArr = defaultDirExc.concat(mkArray(dirExc));
+    //let codeStr = '\n';
+    for (let fpath of fpathsArr) {
+      fpath = slashPath(fpath);
+      if (!fs.existsSync(fpath)) {
+        throw new PkError(`In wrapCodeNew-File [${fpath}] not found`, { argx });
+      }
+      if (isDirectory(fpath)) {
+        let bname = path.basename(fpath);
+        console.log({ fpath, bname });
+        if (dirExcArr.includes(path.basename(fpath))) {
+          continue;
+        }
+        let files = getFiles(fpath, types);
+        filePaths = filePaths.concat(files);
+      } else {
+        filePaths.push(fpath);
+      }
+    }
+    // filePaths should be an array of file paths
+    let fPathsExc = filterExcludes(filePaths, excPatternsArr);
+    //let relPaths = fPathsExc.map(fpath => path.posix.relative(rootDir, fpath));
+    console.log({
+      aCnt,
+      arg,
+      codeObj,
+      root,
+      desc,
+      // filePaths,
+      fPathsExc,
+     // rootDir,
+     // relPaths,
+    });
+//    let wcRes = wrapCodeFiles(fPathsExc, { root, desc,});
+//    console.log({ wcRes });
+    codeStr += wrapCodeFiles(fPathsExc, { root, desc,});
+  }
+  console.log({ codeStr });
+  return codeStr;
+}
+
+/**
+ * Wraps code in markdown code blocks
+ * The paths are already filtered to exclude directories and files matching exclude patterns
+ * The result has a common description section if any, and common root directory, if any
+ * @param fpathx:Strings - File Path or array
+ * @param {root?:string, desc?:string} - root: Root directory, desc: Description
+ * @returns {string} - Markdown code blocks
+ * 
+ */
+export function wrapCodeFiles(fpathx: Strings, { root = '', desc = '' }: { root?: string, desc?: string; },): string {
+  let fpaths = mkArray(fpathx);
+  console.log('Enter wrapCodeFiles - ',{  root, desc, fpaths });
+  let rootDir = root ? slashPath(path.resolve(root)) : '';
+  let outStr = `\n\n${desc}\n`;
+  for (let fpath of fpaths) {
+    fpath = slashPath(fpath);
+    if (!fs.existsSync(fpath)) {
+      throw new PkError(`In wrapCodeFiles-File [${fpath}] not found`, { fpathx });
+    }
+    let fname = rootDir ? path.relative(rootDir, fpath) : fpath;
+    let ext = path.extname(fpath);
+    let lang = exts[ext] || '';
+    let code = fs.readFileSync(fpath, 'utf8');
+    if (ext) {
+      ext = ext.toLowerCase();
+    }
+    let basename = path.basename(fpath);
+    if (ext && !(ext in exts)) {
+      console.error(`wrapCodeFiles, File [${fpath}] has unknown extension [${ext}]`);
+      continue;
+      //throw new PkError(`File [${fpath}] has unknown extension [${ext}]`);
+    }
+    outStr += `\nThe code in file: \`${fname}\`\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
+  }
+  //console.log('Exit wrapCodeFiles - ',{ outStr});
+  return outStr;
+}
+
+
 //export const exclude
 /**
  * Wraps code in a file in a code block & returns it as a string wrapped in triple backticks
@@ -154,7 +293,7 @@ export function wrapCode(srcArg: Strings | GenObj | GenObj[], opts: any = {}): s
       }
       fpath = slashPath(path.resolve(fpath));
       if (isDirectory(fpath)) {
-        codeStr += `${desc}${wrapCodeDir(fpath, {root, dirExc, excPatterns})}\n\n`;
+        codeStr += `${desc}${wrapCodeDir(fpath, { root, dirExc, excPatterns })}\n\n`;
 
         continue;
       } else if (!isFile(fpath)) {
@@ -197,7 +336,7 @@ export function wrapCode(srcArg: Strings | GenObj | GenObj[], opts: any = {}): s
 
   return codeStr;
 }
- //*   @param opts.desc:string? - description of code block
+//*   @param opts.desc:string? - description of code block
 
 /**
  * Takes a directory & recurses, wrapping each file in a code block

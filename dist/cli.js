@@ -5,16 +5,17 @@
 //import SDK from '@lmstudio/sdk';
 //const { LMStudioClient } = SDK;
 // pk-lib imports
-import { ask, runCli, stdOut, isSimpleObject, PkError, parseArgs, writeData, } from 'pk-ts-node-lib';
+import { dbgWrt, ask, runCli, stdOut, isSimpleObject, PkError, parseArgs, writeData, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { initMsgsDB, processMsgsDB, getModelList, getLlmProvider, chat, mkMsgArr, getRawModelObjs, 
+import { initMsgsDB, processMsgsDB, wrapCodeNew, getModelList, getLlmProvider, chat, mkMsgArr, getRawModelObjs, 
 //chatTask,
 mkTogetherModelChoices, getTxtMsgs, AllMsgs, sGeminiChat, 
 //geminiChat,
 genAIChat, getAllMsgsByObj, hfChat, expandMsgs, findEmbeddeds, getModelObjs, 
 // tstFncJsons,
-filterTogetherModels, getExpandedMsgs, anthropicChatCached, } from './init.js';
+filterTogetherModels, //getExpandedMsgs,
+anthropicChatCached, } from './init.js';
 // Implementations
 export let msgKeys = {};
 export async function parseChatArgs(args, chatOpts = {}) {
@@ -37,7 +38,23 @@ export async function parseChatArgs(args, chatOpts = {}) {
     }
     return { msgs, opts };
 }
+let tstSrcs = {
+    common1: { fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
+        excPatterns: ['/tstcli', '.md', '/References/',],
+    },
+    //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
+};
 let fncs = {
+    tstWrapCode() {
+        let res = {};
+        for (let key in tstSrcs) {
+            let srcs = tstSrcs[key];
+            res[key] = wrapCodeNew(srcs);
+            console.log({ key, srcs });
+        }
+        dbgWrt(res);
+        console.log(`\nDone w. tstWrapCode\n`);
+    },
     txtMsgs: async (...args) => {
         let txtMsgs = await getTxtMsgs();
         let tmK = Object.keys(txtMsgs);
@@ -117,17 +134,19 @@ let fncs = {
         let res = await getModelList(provider, opts);
         console.log(`Model List for ${provider}:`, res);
     },
+    /*
     getExpandedMsgs: (...args) => {
-        let res = getExpandedMsgs(...args);
-        let keys = Object.keys(res);
-        let fpath = "./tmp/expanded-msgs-3.json5";
-        writeData(res, fpath);
-        let short = {};
-        for (let k of keys) {
-            short[k] = res[k].slice(0, 20);
-        }
-        console.log(short);
+      let res = getExpandedMsgs(...args);
+      let keys = Object.keys(res);
+      let fpath = "./tmp/expanded-msgs-3.json5";
+      writeData(res, fpath);
+      let short = {};
+      for (let k of keys) {
+        short[k] = res[k].slice(0, 20);
+      }
+      console.log(short);
     },
+    */
     getModelObjs: async (provider, ...args) => {
         provider = provider || 'openai';
         provider = getLlmProvider(provider);

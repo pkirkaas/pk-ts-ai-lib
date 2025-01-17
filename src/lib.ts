@@ -15,18 +15,18 @@ import _ from "lodash";
 // PkLib Imports
 
 import {
-  GenObj, typeOf,  writeData, ajvSchema, isSimpleObject, PkError, isEmpty,
+  GenObj, typeOf,  writeData, ajvSchema, isSimpleObject, PkError, isEmpty,mkArray, Strings,
   ask, multiAsk, dtFmt, parseArgs, JSON5Stringify, JSONStringify, inArr1NinArr2,
 } from 'pk-ts-node-lib';
 
 // Local Imports
 
 import {
-  oaiChatTask, geminiChatTask, claudeChatTask, Strings, expandMsgs,
+  oaiChatTask, geminiChatTask, claudeChatTask,  expandMsgs,
   //mkMsgStr,
   fncSchema,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, AllMsgs, initChatLog,
-  wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities, mkArray,
+  wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities, 
 } from './init.js';
 
 export let llmProvider: string; //Session provider 
@@ -270,7 +270,7 @@ return `Done w. allThree, output: [${outPath}]`;
 //export function mkMsgArr(uMsgs:string | string[]='', sysMsgs:string | string[]=''):ChatCompletionMessageParam[] {
 export async function mkMsgArr(msgSrc: Strings | null | IMsgsParams): Promise<ChatCompletionMessageParam[]> {
 
-  let uMsg, sMsg;
+  let uMsg:Strings, sMsg:Strings;
   if (isSimpleObject(msgSrc)) {
     ({ uMsg, sMsg } = msgSrc as IMsgsParams);
   } else if ((typeof msgSrc === 'string') || Array.isArray(msgSrc)) {
@@ -314,18 +314,27 @@ export function getProviders(list = true) {
 }
 
 //export async function mkLogDets(provider, model, msgs) {
-export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatconfig = {} }) {
+interface LogDetails {
+  provider: string;
+  model: string;
+  msgs: Strings;
+  sMsg?: Strings; // Optional property with default value later
+  chatconfig?: Record<string, any>; // Optional property
+}
+export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatconfig = {} }:LogDetails) {
   if (isEmpty(msgs)) {
     let msg = await ask(`What is your question for [${provider}]?`);
     msgs = [msg];
   }
   msgs = mkArray(msgs);
+  /*
   if (!Array.isArray(msgs)) {
     msgs = [msgs];
   }
   if (isEmpty(sMsg)) {
     sMsg = 'default';
   }
+    */
   sMsg = mkArray(sMsg);
   //let label = msgs[0].substring(0, 25);
   let stamp = mkStamp();
