@@ -18,7 +18,10 @@ import {
 
 // Local Imports
 import {
-  mkRepPath, getLogDS, LogItem, wrapCode, getAllFiles, wrapCodeDir,
+  mkRepPath, getLogDS, LogItem, 
+//  wrapCode,
+//  getAllFiles, 
+ // wrapCodeDir,
 } from './init.js';
 
 // JSON Imports
@@ -102,6 +105,7 @@ async function multiLineInput(prompt?:string):Promise<string> {
 
 
 let fncs = {
+  /*
   wrapCodeDir:() => {
     //let root = '.\\';
     let root = "C:/www/TypeScriptLibs/Pk-Ts-Common"
@@ -133,6 +137,7 @@ let fncs = {
     let res = getAllFiles(root, {stats:true});
     console.log( res);
   },
+  */
   tstRL : async (prompt?:string) => {
     if (!prompt) {
       prompt = 'Def Say what?';

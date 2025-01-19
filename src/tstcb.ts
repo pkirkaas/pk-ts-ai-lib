@@ -1,4 +1,6 @@
-import { extractCode, extractCodeOAI, extractCodeClaude, extractCodeClaude2, extractCodeC3, } from './init.js';
+import { extractCode, 
+  //extractCodeOAI, extractCodeClaude, extractCodeClaude2,
+  extractCodeC3, } from './init.js';
 import { JSON5Stringify, stdOut, } from 'pk-ts-node-lib';
 const testString = `
 Here's some Python code:

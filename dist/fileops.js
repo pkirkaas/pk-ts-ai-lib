@@ -12,17 +12,23 @@ import {
 //Strings, 
 //mkArray,
 matchPattern, } from './init.js';
+/*
 export function getCommonTs() {
-    //let commonTs = fs.readFileSync('./tmp/commonts/common-operations.ts', 'utf8');
-    let commonTs = fs.readFileSync("C:/www/TypeScriptLibs/Pk-Ts-Common/src/common-operations.ts", 'utf8');
-    return '\n```typescript\n' + commonTs + '\n```\n';
+  //let commonTs = fs.readFileSync('./tmp/commonts/common-operations.ts', 'utf8');
+  let commonTs = fs.readFileSync("C:/www/TypeScriptLibs/Pk-Ts-Common/src/common-operations.ts", 'utf8');
+  return '\n```typescript\n' + commonTs + '\n```\n';
+
 }
+
 export function initChatMd({ outpath, model, provider, stamp, }) {
 }
+
 export function getTxtMsg(fname) {
-    let msg = fs.readFileSync(`./text-messages/${fname}.md`, 'utf8');
-    return msg;
+  let msg = fs.readFileSync(`./text-messages/${fname}.md`, 'utf8');
+  return msg;
 }
+
+*/
 /**
  * Get all text messages in ./text-messages (recursively)
  * Error if duplicate file names
@@ -112,8 +118,9 @@ export function isWrapCodeObj(src) {
 /**
  * Wraps code in markdown code blocks
  * @param argx:WrapCodeParams - string or object w. fpaths, or array of such
+ * @param dbg - debug - just list the file paths
  */
-export function wrapCodeNew(argx) {
+export function wrapCodeNew(argx, dbg) {
     let codeStr = '\n';
     let defaultDirExc = ['node_modules', 'dist', 'build', 'out', 'target', '.git', 'log', 'logs', 'tmp',];
     let defaultExcPatterns = ['.tmp', '.swp', '.bak', '.orig', '.old', '.orig', '.log', '/tmp/',
@@ -124,23 +131,17 @@ export function wrapCodeNew(argx) {
     for (let arg of args) {
         aCnt++;
         let codeObj = isWrapCodeObj(arg) ? arg : { fpaths: arg };
-        let { fpaths, root, desc, excPatterns, types, dirExc } = codeObj;
+        let { fpaths, debug, root, desc, excPatterns, types, dirExc } = codeObj;
         let fpathsArr = mkArray(fpaths);
         let excPatternsArr = defaultExcPatterns.concat(mkArray(excPatterns));
         let filePaths = [];
         let dirExcArr = defaultDirExc.concat(mkArray(dirExc));
-        //let codeStr = '\n';
         for (let fpath of fpathsArr) {
             fpath = slashPath(fpath);
             if (!fs.existsSync(fpath)) {
                 throw new PkError(`In wrapCodeNew-File [${fpath}] not found`, { argx });
             }
             if (isDirectory(fpath)) {
-                let bname = path.basename(fpath);
-                console.log({ fpath, bname });
-                if (dirExcArr.includes(path.basename(fpath))) {
-                    continue;
-                }
                 let files = getFiles(fpath, types);
                 filePaths = filePaths.concat(files);
             }
@@ -150,23 +151,13 @@ export function wrapCodeNew(argx) {
         }
         // filePaths should be an array of file paths
         let fPathsExc = filterExcludes(filePaths, excPatternsArr);
-        //let relPaths = fPathsExc.map(fpath => path.posix.relative(rootDir, fpath));
-        console.log({
-            aCnt,
-            arg,
-            codeObj,
-            root,
-            desc,
-            // filePaths,
-            fPathsExc,
-            // rootDir,
-            // relPaths,
-        });
-        //    let wcRes = wrapCodeFiles(fPathsExc, { root, desc,});
-        //    console.log({ wcRes });
-        codeStr += wrapCodeFiles(fPathsExc, { root, desc, });
+        if (debug || dbg) {
+            codeStr += `\nDebugging wrapCodeNew: ${aCnt}\nArg:\n${JSON5Stringify(arg)}\nFile Paths:\n${fPathsExc.join('\n')}\n`;
+        }
+        else {
+            codeStr += wrapCodeFiles(fPathsExc, { root, desc, });
+        }
     }
-    console.log({ codeStr });
     return codeStr;
 }
 /**
@@ -180,7 +171,7 @@ export function wrapCodeNew(argx) {
  */
 export function wrapCodeFiles(fpathx, { root = '', desc = '' }) {
     let fpaths = mkArray(fpathx);
-    console.log('Enter wrapCodeFiles - ', { root, desc, fpaths });
+    //console.log('Enter wrapCodeFiles - ',{  root, desc, fpaths });
     let rootDir = root ? slashPath(path.resolve(root)) : '';
     let outStr = `\n\n${desc}\n`;
     for (let fpath of fpaths) {
@@ -198,123 +189,14 @@ export function wrapCodeFiles(fpathx, { root = '', desc = '' }) {
         let basename = path.basename(fpath);
         if (ext && !(ext in exts)) {
             console.error(`wrapCodeFiles, File [${fpath}] has unknown extension [${ext}]`);
-            continue;
+            //      continue;
             //throw new PkError(`File [${fpath}] has unknown extension [${ext}]`);
         }
         outStr += `\nThe code in file: \`${fname}\`\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
     }
-    //console.log('Exit wrapCodeFiles - ',{ outStr});
     return outStr;
 }
-//export const exclude
-/**
- * Wraps code in a file in a code block & returns it as a string wrapped in triple backticks
- * with appropriate language tag
- * @param src:Strings|GenObj - path or path array to files/directories, or object w. property fpath, base, desc
- * @param opts?:string|GenObj - optional object with properties:
- * @param opts.root:string? - root directory for project
- * @param opts.desc: string? - description of code block
- *
- */
-// Refactor - ignore 'opts' arg, use 'src' arg to determine what to wrap
-export function wrapCode(srcArg, opts = {}) {
-    let codeObjArr = [];
-    let srcArr = mkArray(srcArg);
-    let codeStr = '\n';
-    for (let src of srcArr) { // src either a string of a file path, or an object with properties fpaths, desc, root
-        //let fpaths:Strings, desc:string, root:string;
-        let fpaths;
-        let desc;
-        let root;
-        let excPatterns;
-        let dirExc;
-        if (isSimpleObject(src)) {
-            ({ fpaths, desc, root, dirExc, excPatterns } = src);
-        }
-        else {
-            fpaths = src;
-        }
-        fpaths = mkArray(fpaths);
-        /*
-        if (typeof opts === 'string') {
-          opts = { root: opts };
-        }
-        opts.root = opts.root || root;
-        opts.desc = opts.desc || desc;
-        //console.log(`wrapCode pre-res, fpaths: ${JSON5Stringify(fpaths)}, root:[${root}], opts: ${JSON5Stringify(opts)}`);
-        if (opts.root) {
-          opts.root = slashPath(path.resolve(opts.root));
-        }
-          */
-        //console.log(`wrapCode post-res, fpaths: ${JSON5Stringify(fpaths)}, root:[${root}], opts: ${JSON5Stringify(opts)}`);
-        //console.log(`wrapCode, fpaths: ${JSON5Stringify(fpaths)}, opts: ${JSON5Stringify(opts)}`);
-        //let { root, desc = "", } = opts;
-        //console.log(`wrapCode, fpaths: ${JSON5Stringify(fpaths)}, root:[${root}], opts: ${JSON5Stringify(opts)}`);
-        for (let fpath of fpaths) {
-            if (desc) {
-                desc = `\n${desc}\n`;
-            }
-            fpath = slashPath(path.resolve(fpath));
-            if (isDirectory(fpath)) {
-                codeStr += `${desc}${wrapCodeDir(fpath, { root, dirExc, excPatterns })}\n\n`;
-                continue;
-            }
-            else if (!isFile(fpath)) {
-                throw new PkError(`File [${fpath}] not found`);
-            }
-            let ext = path.extname(fpath);
-            if (ext) {
-                ext = ext.toLowerCase();
-            }
-            let basename = path.basename(fpath);
-            if (ext && !(ext in exts)) {
-                console.error(`wrapCode, File [${fpath}] has unknown extension [${ext}]`);
-                continue;
-                //throw new PkError(`File [${fpath}] has unknown extension [${ext}]`);
-            }
-            if (root) { // change basename to be relative to root
-                root = slashPath(path.resolve(opts.root));
-                if (!root.endsWith('/')) {
-                    root += '/';
-                }
-                if (!isDirectory(root)) {
-                    throw new PkError(`Root [${root}] not found`);
-                }
-                if (!fpath.startsWith(root)) {
-                    throw new PkError(`File [${fpath}] not in root [${root}]`);
-                }
-                basename = fpath.substring(root.length);
-                console.log(`wrapCode, basename: ${basename}, root: ${root}, fpath: ${fpath}`);
-                //console.log(`testing wrapCode, basename: ${basename}, root: ${root}, fpath: ${fpath}`);
-            }
-            let lang = exts[ext] || '';
-            let code = fs.readFileSync(fpath, 'utf8');
-            codeStr += `${desc || ''}\nThe code in file: \`${basename}\`\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
-        }
-    }
-    return codeStr;
-}
-//*   @param opts.desc:string? - description of code block
-/**
- * Takes a directory & recurses, wrapping each file in a code block
- * @param dir - directory to recurse
- * @param opts?:string|GenObj - optional object with optional properties:
- *   @param opts.root:string? - root directory for project
- *   @param opts.excPatterns:string[]? - Patterns of filenames to exclude from file list
- *   @param opts.dirExc:string[]? - Patterns of directory names to exclude from file list
- */
-export function wrapCodeDir(dir, opts = {}) {
-    if (!opts.root) {
-        opts.root = slashPath(path.resolve(dir));
-    }
-    console.log(`wrapCodeDir, dir: ${dir}, opts: ${JSON5Stringify(opts)}`);
-    let fileList = getAllFiles(dir, opts);
-    let ret = '';
-    for (let fpath of fileList) {
-        ret += wrapCode(fpath, opts);
-    }
-    return ret;
-}
+export let languages = Object.values(exts);
 /**
  * Returns an array of all files in a directory, recursively
  * With default exclude dirnames & glob patterns
@@ -367,111 +249,6 @@ export function getAllFiles(dir, opts = {}) {
     return fileList;
 }
 /**
- * @deprecated Takes a string response from a chatbot and extracts the code blocks
- * returns as an object keyed by lang tag to array of code blocks
- */
-export function extractCode1(resStr) {
-    let ret = {};
-    let langs = Object.values(exts);
-    let closeStr = '\n```\n';
-    for (let lang of langs) {
-        let re = new RegExp(`${closeStr}${lang}\n(.*?)\n${closeStr}`, 'gs');
-        let matches = resStr.matchAll(re);
-        let codeArr = [];
-        for (let match of matches) {
-            let code = match[1];
-            codeArr.push(code);
-        }
-        if (codeArr.length > 0) {
-            ret[lang] = codeArr;
-        }
-    }
-    return ret;
-}
-/**
- * @deprecated Takes a string response from a chatbot and extracts the code blocks
- */
-export function extractCodeOAI(resStr) {
-    const ret = {};
-    let langs = Object.values(exts);
-    for (const lang of langs) {
-        // Regular expression to capture code blocks for a specific language
-        const langRegex = new RegExp(`\n\\\`\\\`\\\`${lang}\\n([\\s\\S]*?)\\n\\\`\\\`\\\``, 'g');
-        let match;
-        while ((match = langRegex.exec(resStr)) !== null) {
-            const code = match[1].trim();
-            if (code) {
-                if (!ret[lang]) {
-                    ret[lang] = [];
-                }
-                ret[lang].push(code);
-            }
-        }
-    }
-    return ret;
-}
-/**
- * @deprecated Takes a string response from a chatbot and extracts the code blocks
- */
-export function extractCodeClaude(resStr) {
-    const ret = {};
-    let languages = Object.values(exts);
-    // Create a regex pattern from the language array
-    const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
-    // Improved regex to handle edge cases and use the dynamic language pattern
-    const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
-    let match;
-    while ((match = codeBlockRegex.exec(resStr)) !== null) {
-        const [, lang, code] = match;
-        const normalizedLang = lang.toLowerCase().trim();
-        if (!ret[normalizedLang]) {
-            ret[normalizedLang] = [];
-        }
-        const trimmedCode = code.trim();
-        if (trimmedCode) {
-            ret[normalizedLang].push(sanitizeCodeBlock(trimmedCode));
-        }
-    }
-    return ret;
-}
-/**
- * @deprecated
- */
-function sanitizeCodeBlock(code) {
-    // Replace triple backticks with single backticks to preserve code structure
-    return code.replace(/```/g, '`');
-}
-/*
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-  */
-export let languages = Object.values(exts);
-export let langs = Object.values(exts);
-/**
- * @deprecated Takes a string response from a chatbot and extracts the code blocks
- */
-export function extractCodeClaude2(resStr) {
-    const ret = {};
-    // Create a regex pattern from the language array
-    const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
-    // Improved regex to handle edge cases and use the dynamic language pattern
-    const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
-    let match;
-    while ((match = codeBlockRegex.exec(resStr)) !== null) {
-        const [, lang, code] = match;
-        const normalizedLang = lang.toLowerCase().trim();
-        if (!ret[normalizedLang]) {
-            ret[normalizedLang] = [];
-        }
-        const trimmedCode = code.trim();
-        if (trimmedCode) {
-            ret[normalizedLang].push(trimmedCode);
-        }
-    }
-    return ret;
-}
-/**
  * Use the latest implementation
  * Take a string response from a chatbot and extracts the code blocks
  * returns as an object keyed by lang tag to array of code blocks
@@ -513,4 +290,232 @@ export function extractCodeC3(resStr) {
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+/*
+
+//* @deprecated Takes a string response from a chatbot and extracts the code blocks
+//* returns as an object keyed by lang tag to array of code blocks
+export function extractCode1(resStr: string): GenObj {
+ let ret: GenObj = {};
+ let langs = Object.values(exts);
+ let closeStr = '\n```\n';
+ for (let lang of langs) {
+   let re = new RegExp(`${closeStr}${lang}\n(.*?)\n${closeStr}`, 'gs');
+   let matches = resStr.matchAll(re);
+   let codeArr = [];
+   for (let match of matches) {
+     let code = match[1];
+     codeArr.push(code);
+   }
+   if (codeArr.length > 0) {
+     ret[lang] = codeArr;
+   }
+ }
+ return ret;
+}
+
+//  @deprecated Takes a string response from a chatbot and extracts the code blocks
+export function extractCodeOAI(resStr) {
+ const ret = {};
+ let langs = Object.values(exts);
+ for (const lang of langs) {
+   // Regular expression to capture code blocks for a specific language
+   const langRegex = new RegExp(`\n\\\`\\\`\\\`${lang}\\n([\\s\\S]*?)\\n\\\`\\\`\\\``, 'g');
+   let match;
+
+   while ((match = langRegex.exec(resStr)) !== null) {
+     const code = match[1].trim();
+     if (code) {
+       if (!ret[lang]) {
+         ret[lang] = [];
+       }
+       ret[lang].push(code);
+     }
+   }
+ }
+
+ return ret;
+}
+
+/// Claude
+
+
+//  * @deprecated Takes a string response from a chatbot and extracts the code blocks
+export function extractCodeClaude(resStr: string,): CodeBlocks {
+ const ret: CodeBlocks = {};
+ let languages = Object.values(exts);
+
+ // Create a regex pattern from the language array
+ const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
+
+ // Improved regex to handle edge cases and use the dynamic language pattern
+ const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
+
+ let match: RegExpExecArray | null;
+ while ((match = codeBlockRegex.exec(resStr)) !== null) {
+   const [, lang, code] = match;
+   const normalizedLang = lang.toLowerCase().trim();
+
+   if (!ret[normalizedLang]) {
+     ret[normalizedLang] = [];
+   }
+
+   const trimmedCode = code.trim();
+   if (trimmedCode) {
+     ret[normalizedLang].push(sanitizeCodeBlock(trimmedCode));
+   }
+ }
+
+ return ret;
+}
+
+// * @deprecated
+function sanitizeCodeBlock(code: string): string {
+ // Replace triple backticks with single backticks to preserve code structure
+ return code.replace(/```/g, '`');
+}
+
+// function escapeRegExp(string: string): string {
+//   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// }
+
+// * @deprecated Takes a string response from a chatbot and extracts the code blocks
+export function extractCodeClaude2(resStr: string,): CodeBlocks {
+ const ret: CodeBlocks = {};
+
+ // Create a regex pattern from the language array
+ const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
+
+ // Improved regex to handle edge cases and use the dynamic language pattern
+ const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
+
+ let match: RegExpExecArray | null;
+ while ((match = codeBlockRegex.exec(resStr)) !== null) {
+   const [, lang, code] = match;
+   const normalizedLang = lang.toLowerCase().trim();
+
+   if (!ret[normalizedLang]) {
+     ret[normalizedLang] = [];
+   }
+
+   const trimmedCode = code.trim();
+   if (trimmedCode) {
+     ret[normalizedLang].push(trimmedCode);
+   }
+ }
+
+ return ret;
+}
+*/
+/**
+ * Wraps code in a file in a code block & returns it as a string wrapped in triple backticks
+ * with appropriate language tag
+ * @param src:Strings|GenObj - path or path array to files/directories, or object w. property fpath, base, desc
+ * @param opts?:string|GenObj - optional object with properties:
+ * @param opts.root:string? - root directory for project
+ * @param opts.desc: string? - description of code block
+ *
+ */
+// Refactor - ignore 'opts' arg, use 'src' arg to determine what to wrap
+/*
+export function wrapCode(srcArg: Strings | GenObj | GenObj[], opts: any = {}): string {
+  let codeObjArr: GenObj[] = [];
+  let srcArr: any[] = mkArray(srcArg);
+  let codeStr = '\n';
+
+  for (let src of srcArr) { // src either a string of a file path, or an object with properties fpaths, desc, root
+    //let fpaths:Strings, desc:string, root:string;
+    let fpaths: Strings;
+    let desc: string;
+    let root: string;
+    let excPatterns: string[];
+    let dirExc: string[];
+    if (isSimpleObject(src)) {
+      ({ fpaths, desc, root, dirExc, excPatterns } = (src as GenObj));
+    } else {
+      fpaths = (src as Strings);
+    }
+
+    fpaths = mkArray(fpaths);
+    //if (typeof opts === 'string') {
+   //   opts = { root: opts };
+   // }
+   // opts.root = opts.root || root;
+    opts.desc = opts.desc || desc;
+    //console.log(`wrapCode pre-res, fpaths: ${JSON5Stringify(fpaths)}, root:[${root}], opts: ${JSON5Stringify(opts)}`);
+    //if (opts.root) {
+     // opts.root = slashPath(path.resolve(opts.root));
+   // }
+    //console.log(`wrapCode post-res, fpaths: ${JSON5Stringify(fpaths)}, root:[${root}], opts: ${JSON5Stringify(opts)}`);
+    //console.log(`wrapCode, fpaths: ${JSON5Stringify(fpaths)}, opts: ${JSON5Stringify(opts)}`);
+    //let { root, desc = "", } = opts;
+    //console.log(`wrapCode, fpaths: ${JSON5Stringify(fpaths)}, root:[${root}], opts: ${JSON5Stringify(opts)}`);
+    for (let fpath of fpaths) {
+      if (desc) {
+        desc = `\n${desc}\n`;
+      }
+      fpath = slashPath(path.resolve(fpath));
+      if (isDirectory(fpath)) {
+        codeStr += `${desc}${wrapCodeDir(fpath, { root, dirExc, excPatterns })}\n\n`;
+
+        continue;
+      } else if (!isFile(fpath)) {
+        throw new PkError(`File [${fpath}] not found`);
+      }
+      let ext = path.extname(fpath);
+      if (ext) {
+        ext = ext.toLowerCase();
+      }
+      let basename = path.basename(fpath);
+      if (ext && !(ext in exts)) {
+        console.error(`wrapCode, File [${fpath}] has unknown extension [${ext}]`);
+        continue;
+        //throw new PkError(`File [${fpath}] has unknown extension [${ext}]`);
+      }
+      if (root) { // change basename to be relative to root
+        root = slashPath(path.resolve(opts.root));
+        if (!root.endsWith('/')) {
+          root += '/';
+        }
+        if (!isDirectory(root)) {
+          throw new PkError(`Root [${root}] not found`);
+        }
+        if (!fpath.startsWith(root)) {
+          throw new PkError(`File [${fpath}] not in root [${root}]`);
+        }
+        basename = fpath.substring(root.length);
+
+        console.log(`wrapCode, basename: ${basename}, root: ${root}, fpath: ${fpath}`);
+        //console.log(`testing wrapCode, basename: ${basename}, root: ${root}, fpath: ${fpath}`);
+      }
+      let lang = exts[ext] || '';
+      let code = fs.readFileSync(fpath, 'utf8');
+      codeStr += `${desc || ''}\nThe code in file: \`${basename}\`\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
+    }
+  }
+  return codeStr;
+}
+*/
+//*   @param opts.desc:string? - description of code block
+/**
+ * Takes a directory & recurses, wrapping each file in a code block
+ * @param dir - directory to recurse
+ * @param opts?:string|GenObj - optional object with optional properties:
+ *   @param opts.root:string? - root directory for project
+ *   @param opts.excPatterns:string[]? - Patterns of filenames to exclude from file list
+ *   @param opts.dirExc:string[]? - Patterns of directory names to exclude from file list
+ */
+/*
+export function wrapCodeDir(dir: string, opts: any = {}) {
+  if (!opts.root) {
+    opts.root = slashPath(path.resolve(dir));
+  }
+  console.log(`wrapCodeDir, dir: ${dir}, opts: ${JSON5Stringify(opts)}`);
+  let fileList = getAllFiles(dir, opts);
+  let ret = '';
+  for (let fpath of fileList) {
+    ret += wrapCode(fpath, opts);
+  }
+  return ret;
+}
+  */ 
 //# sourceMappingURL=fileops.js.map

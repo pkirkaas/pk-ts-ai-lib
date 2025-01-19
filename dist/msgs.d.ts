@@ -1,7 +1,7 @@
 /**
  * Building messages for chat
  */
-import { Strings } from './init.js';
+import { Strings } from 'pk-ts-node-lib';
 /**
  * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
  * @param msgStr - string to test
@@ -69,6 +69,13 @@ export declare let codeFiles: {
     };
     nextconfs: {
         fpaths: string[];
+        desc: string;
+    };
+    commonlib: {
+        fpaths: string;
+        root: string;
+        excPatterns: string[];
+        debug: boolean;
         desc: string;
     };
     cssmodules: {

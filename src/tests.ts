@@ -25,17 +25,19 @@ import {
   askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, mkMsgArr, getRawModelObjs, getRawModelList, 
   //chatTask,
   //geminiChat,
- anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr, fncTask, getEmptyFncMD,
-  getCommonTs, getTxtMsg, systemMessages, providers, timeout, 
+ anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
+  // fncTask, getEmptyFncMD, getCommonTs, getTxtMsg,
+  systemMessages, providers, timeout, 
  // claudeChatTask,
   validateJson, getByName, getFncsMD,
-  populateBody, populateBodies, fncNameMsg, expandMsgs, 
+  //populateBody, populateBodies,
+ // fncNameMsg,
+  expandMsgs, 
   //mkMsgStr,
   tstMsgKeys, dbReport,
   // tstFncJsons,
   filterTogetherModels, showTogetherModel, showTogetherModels,
-  //oaiChatTask,
-  allThree,
+  //oaiChatTask, allThree,
   mkTogetherModelChoices, askTogetherModel, getTxtMsgs, AllMsgs, sGeminiChat, wrappedSchemaStr, 
 } from './init.js';
 
@@ -108,21 +110,19 @@ let fncs = {
       }
     }
   },
-  */
 
   tstFncTask: async (fncName = 'allProps') => {
     let msgArr = fncTask(fncName);
     let res = tstMsgStr(msgArr);
     console.log(`Res of fncTask for [${fncName}]:`, { res });
   },
-
-  /*
   tstOAItask: async () => {
     let res = await oaiChatTask(['default', 'tsTypes']);
     console.log(res);
   },
   */
 
+  /*
   tstAllThree: async (...msgs) => {
     //let msgs = ['default', 'functionSchema', 'fncSchema1'];
     //let msgs = ['default', 'tstGen', getCommonTs(), 'fncSchema2', 'Execute this request now and return the JSON for the named function `allProps`'];
@@ -203,12 +203,12 @@ let fncs = {
     let res = await chatTask({provider, model, msgs});
     console.log(`\nDone w. Chat w. together, res:\n`, { res });
   },
-  */
   tstGetMsg: async (provider = 'lms') => {
     let uMsg = getTxtMsg(`function-schema`);
     let res = await chat(provider, { sMsg: ['ai', 'ts'], uMsg });
     console.log(`res:\n`, res);
   },
+  */
   allTogetherModels: async () => {
     let models = await filterTogetherModels({ type: 'chat' });
     let fpath = "./tmp/all-together-models.json5";
@@ -254,13 +254,16 @@ let fncs = {
     console.log(`For Provider [${provider}] models are:`, models);
     return;
   },
+  /*
   tstMkMsgArr: () => {
     let uMsg = ['tsfncbody', getCommonTs()];
     let sMsg = ['ts', 'tsfncbody'];
     let msgRes = mkMsgArr({ uMsg, sMsg });
     console.log(msgRes);
   },
+  */
 
+  /*
   tstPopFnc: async (provider = 'lms', fncName = 'allProps') => {
     provider = getLlmProvider(provider);
     let model = await askModel(provider);
@@ -274,6 +277,7 @@ let fncs = {
     writeData(res, './out/msg-arr.json5');
     console.log("Done pop bodies");
   },
+  */
   initDecTbl: async (provider = 'lms') => {
     provider = getLlmProvider(provider);
     let model = await askModel(provider);
@@ -285,6 +289,7 @@ let fncs = {
     let res = await hfChat();
     console.log(res);
   },
+  /*
   tstFncDef: async (provider = 'lms') => {
     provider = getLlmProvider(provider);
     let uMsg = ['tsfncbody', getCommonTs()];
@@ -313,6 +318,7 @@ let fncs = {
     console.log(`\nDone w. OAI Chat\n`);
 
   },
+  */
   chat: async (provider = 'lms', sMsg = 'ai', uMsg?: string) => {
     if (!uMsg) {
       uMsg = await ask('Enter a message to send to the AI');

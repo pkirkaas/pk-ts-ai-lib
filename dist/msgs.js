@@ -4,7 +4,10 @@
 //PkLib imports
 import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, ask, inArr1NinArr2, subObj, isEmpty, intersect, dupEntries, strIncludesWhich, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
-import { getTxtMsgs, wrapCode, } from './init.js';
+import { getTxtMsgs, 
+// wrapCode,
+// Strings,
+wrapCodeNew, } from './init.js';
 /**
  * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
  * @param msgStr - string to test
@@ -138,7 +141,7 @@ export async function expandMsgs(...args) {
                 msgStr = `\n${AllMsgs[msg]}\n`;
             }
             else if (msg in codeFiles) {
-                msgStr = `\n${wrapCode(codeFiles[msg])}\n`;
+                msgStr = `\n${wrapCodeNew(codeFiles[msg])}\n`;
             }
             else { // Probably meant a key in AllMsgs, but not found
                 throw new PkError(`Invalid msg key:`, { msg });
@@ -183,7 +186,7 @@ export async function expandMsgs(...args) {
                         else if (key in codeFiles) {
                             usedKeys.push(key);
                             //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
-                            repStr = `\n${wrapCode(codeFiles[key])}\n`;
+                            repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
                         }
                         else { // Probably meant a key in AllMsgs, but not found
                             throw new PkError(`Invalid msg key:`, { key });
@@ -228,7 +231,7 @@ export async function expandMsgs(...args) {
             }
             else {
                 usedKeys.push(key);
-                repStr = `\n${wrapCode(codeFiles[key])}\n`;
+                repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
                 msgsStr = msgsStr.replace(wrapCodeKey(key), repStr);
             }
         }
@@ -290,6 +293,13 @@ export let codeFiles = {
             `Q:/Common/AI-Experiments/Node/guis/next-basic/package.json`,
         ],
         desc: 'Next.js Basic Configurations',
+    },
+    commonlib: {
+        fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common",
+        root: "C:/www/TypeScriptLibs/Pk-Ts-Common",
+        excPatterns: [".md", ".sh", "tstcli",],
+        debug: true,
+        desc: 'Common TypeScript/JavaScript Library Sources and Configuration Files:',
     },
     cssmodules: [{
             desc: "The library `tsconfig.json`",

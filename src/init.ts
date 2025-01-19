@@ -29,7 +29,6 @@ import {
 
 // Local Imports
 //import { AllMsgs, defaultSysMsg, codeFiles } from './constants.js';
-import { getCommonTs, } from './fileops.js';
 import {
 } from './msgs.js';
 
@@ -47,6 +46,7 @@ await getLogDS();
  * The Function Task message, for either single function or array of functions.
  * @param fncs - string fnc name, object with property `name`, or array of such
  */
+/*
 export function fncTask(fncs): Strings {
   let fncTask: string;
   function wrapName(el) {
@@ -78,6 +78,7 @@ ${JSON.stringify(fncSchema, null, 2)}
   let msgArr = ['default', 'tstGen', fncTask, getCommonTs(), wrappedSchema, 'pureJson'];
   return msgArr;
 }
+  */
 
 /**
  * From an array of objects, return element with name === name

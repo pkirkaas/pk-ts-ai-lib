@@ -16,7 +16,7 @@ import _ from "lodash";
 
 import {
   getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv,  isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm,
-  writeData,  pkToDate, dtFmt, GenObj,
+  writeData,  pkToDate, dtFmt, GenObj, 
 } from 'pk-ts-node-lib';
 
 import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPropsWithTypes, objInfo, } from 'pk-ts-common-lib';
@@ -24,17 +24,21 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 
 // local imports
 import {
+  codeFiles,
   initMsgsDB, processMsgsDB, wrapCodeNew, WrapCodeParam, WrapCodeParams,
   askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, mkMsgArr, getRawModelObjs, getRawModelList,
   //chatTask,
   mkTogetherModelChoices, askTogetherModel, getTxtMsgs, AllMsgs, sGeminiChat, wrappedSchemaStr,
   //geminiChat,
   genAIChat,getAllMsgsByObj,
-  anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr, fncTask, getEmptyFncMD, expandMsgs, findEmbeddeds,
-  getCommonTs, getTxtMsg, systemMessages, providers, timeout, 
+  anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
+   //fncTask, getCommonTs, getTxtMsg,
+   getEmptyFncMD, expandMsgs, findEmbeddeds,
+   systemMessages, providers, timeout, 
   // claudeChatTask,
   validateJson,  getByName, getFncsMD, getModelObjs,
-  populateBody, populateBodies, fncNameMsg, //mkMsgStr,
+  //populateBody, populateBodies,
+  // fncNameMsg, //mkMsgStr,
   tstMsgKeys, dbReport,
   // tstFncJsons,
   filterTogetherModels, showTogetherModel, showTogetherModels, //oaiChatTask,
@@ -77,14 +81,23 @@ let tstSrcs = {
 };
 
 let fncs = {
-  tstWrapCode()  {
+  tstWrapCode(key?:string)  {
+    if (!key) {
+      key = "commonlib";
+    }
+    let srcs = codeFiles[key];
+    console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
+    let res = wrapCodeNew(srcs);
+    /*
     let res:GenObj = {};
     for (let key in tstSrcs) {
       let srcs = tstSrcs[key];
-       res[key] =  wrapCodeNew(srcs);
-      console.log({key,srcs});
+       let outstr = res[key] =  wrapCodeNew(srcs);
+       stdOut(outstr);
+      //console.log({key,srcs});
     }
-    dbgWrt(res);
+      */
+    dbgWrt(res,'tstWrapCode');
     console.log(`\nDone w. tstWrapCode\n`);
 
   },
@@ -215,7 +228,7 @@ let fncs = {
     let fpath = "./tmp/expanded-msgStr-1.json5";
     writeData({msgs, msgStr}, fpath);
     //let msgStr = expandMsg(msgs[0]);
-    console.log(`tstMsgStr Res in:\n${fpath}`);
+    console.log(`tstMsgStr Res in: ${fpath}`);
     stdOut(msgStr);
   },
   tstArgs: (...args) => {

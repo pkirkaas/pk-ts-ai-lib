@@ -2,9 +2,13 @@
  * More tests....
  */
 //PkLib Imports
-import { writeData, ajvSchema, runCli, multiAsk, stdOut, } from 'pk-ts-node-lib';
+import { ajvSchema, runCli, multiAsk, stdOut, } from 'pk-ts-node-lib';
 // Local Imports
-import { getLogDS, LogItem, wrapCode, getAllFiles, } from './init.js';
+import { getLogDS, LogItem,
+//  wrapCode,
+//  getAllFiles, 
+// wrapCodeDir,
+ } from './init.js';
 // JSON Imports
 import geminiAllProps from './allPropsJsons/GeminiAllProps.json' with { type: "json" };
 import claudeAllProps from './allPropsJsons/ClaudeAllProps.json' with { type: "json" };
@@ -78,36 +82,39 @@ async function multiLineInput(prompt?:string):Promise<string> {
 }
 */
 let fncs = {
-    wrapCodeDir: () => {
-        //let root = '.\\';
-        let root = "C:/www/TypeScriptLibs/Pk-Ts-Common";
-        console.log(`Testing wrapCodeDir on [${root}]`);
-        //let res = wrapCodeDir(root);
-        let res = wrapCode(root);
-        let wdres = writeData(res, './out/wrappedCode.md');
-        console.log(`Done w. wrapCodeDir, wdres:`, { wdres });
+    /*
+    wrapCodeDir:() => {
+      //let root = '.\\';
+      let root = "C:/www/TypeScriptLibs/Pk-Ts-Common"
+      console.log(`Testing wrapCodeDir on [${root}]`);
+      //let res = wrapCodeDir(root);
+      let res = wrapCode(root);
+      let wdres = writeData(res,'./out/wrappedCode.md');
+      console.log(`Done w. wrapCodeDir, wdres:`, {wdres},);
     },
     wrapCode: () => {
-        //let fname = './src/lib.ts';
-        let root = "Q:/Common/Software-Dev/Pythons/SortFiles";
-        // let fname = 'Q:\\Common\\AI-Experiments\\Node\\Sept2024\\Basic-1\\src\\lib.ts';
-        //let root = '.';
-        //let root = '.\\';
-        console.log(`Testing wrapCode on [${root}], root:`, { root });
-        let res = wrapCode(root, { root, desc: "Testing wrapCode" });
-        //let res = wrapCode(fname);
-        stdOut(res);
+      //let fname = './src/lib.ts';
+  
+      let root = "Q:/Common/Software-Dev/Pythons/SortFiles";
+     // let fname = 'Q:\\Common\\AI-Experiments\\Node\\Sept2024\\Basic-1\\src\\lib.ts';
+      //let root = '.';
+      //let root = '.\\';
+      console.log(`Testing wrapCode on [${root}], root:`, {root});
+      let res = wrapCode(root, {root, desc: "Testing wrapCode"});
+      //let res = wrapCode(fname);
+      stdOut(res);
     },
     getAllFiles: () => {
-        //let root = "C:/www/TypeScriptLibs/Pk-Ts-Common"
-        //"Q:/Common/Software-Dev/Pythons/SortFiles"
-        let root = "Q:/Common/Software-Dev/Pythons/SortFiles";
-        //throw new Error('Not implemented');
-        //let root = '.\\';
-        console.log(`Testing getAllFiles on [${root}]`);
-        let res = getAllFiles(root, { stats: true });
-        console.log(res);
+      //let root = "C:/www/TypeScriptLibs/Pk-Ts-Common"
+      //"Q:/Common/Software-Dev/Pythons/SortFiles"
+      let root = "Q:/Common/Software-Dev/Pythons/SortFiles";
+      //throw new Error('Not implemented');
+      //let root = '.\\';
+      console.log(`Testing getAllFiles on [${root}]`);
+      let res = getAllFiles(root, {stats:true});
+      console.log( res);
     },
+    */
     tstRL: async (prompt) => {
         if (!prompt) {
             prompt = 'Def Say what?';

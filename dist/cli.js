@@ -8,7 +8,7 @@
 import { dbgWrt, ask, runCli, stdOut, isSimpleObject, PkError, parseArgs, writeData, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { initMsgsDB, processMsgsDB, wrapCodeNew, getModelList, getLlmProvider, chat, mkMsgArr, getRawModelObjs, 
+import { codeFiles, initMsgsDB, processMsgsDB, wrapCodeNew, getModelList, getLlmProvider, chat, mkMsgArr, getRawModelObjs, 
 //chatTask,
 mkTogetherModelChoices, getTxtMsgs, AllMsgs, sGeminiChat, 
 //geminiChat,
@@ -45,14 +45,23 @@ let tstSrcs = {
     //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
 };
 let fncs = {
-    tstWrapCode() {
-        let res = {};
-        for (let key in tstSrcs) {
-            let srcs = tstSrcs[key];
-            res[key] = wrapCodeNew(srcs);
-            console.log({ key, srcs });
+    tstWrapCode(key) {
+        if (!key) {
+            key = "commonlib";
         }
-        dbgWrt(res);
+        let srcs = codeFiles[key];
+        console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
+        let res = wrapCodeNew(srcs);
+        /*
+        let res:GenObj = {};
+        for (let key in tstSrcs) {
+          let srcs = tstSrcs[key];
+           let outstr = res[key] =  wrapCodeNew(srcs);
+           stdOut(outstr);
+          //console.log({key,srcs});
+        }
+          */
+        dbgWrt(res, 'tstWrapCode');
         console.log(`\nDone w. tstWrapCode\n`);
     },
     txtMsgs: async (...args) => {
@@ -171,7 +180,7 @@ let fncs = {
         let fpath = "./tmp/expanded-msgStr-1.json5";
         writeData({ msgs, msgStr }, fpath);
         //let msgStr = expandMsg(msgs[0]);
-        console.log(`tstMsgStr Res in:\n${fpath}`);
+        console.log(`tstMsgStr Res in: ${fpath}`);
         stdOut(msgStr);
     },
     tstArgs: (...args) => {

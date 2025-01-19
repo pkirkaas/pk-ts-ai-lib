@@ -19,7 +19,8 @@ import { PkError, mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProp
 // Local imports
 
 import {
-getCommonTs, hfChat, initFncDets,   getDbPath, FunctionDets, chatTask, mkMsgArr,
+//getCommonTs, 
+hfChat, initFncDets,   getDbPath, FunctionDets, chatTask, mkMsgArr,
   askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, 
  systemMessages, providers, timeout,  getProviderConfig
   // mkMsgArray, 
@@ -28,11 +29,14 @@ getCommonTs, hfChat, initFncDets,   getDbPath, FunctionDets, chatTask, mkMsgArr,
 
 
 // Exports
+/*
 export function fncNameMsg(fncName:string) {
   let msg = `Your task is to process and parse the typescript code that follows and just return the function definition/code as described in the system message, ONLY for the function named \`${fncName}\` - remembering to include the function signature and applicable \`TsDoc\` comments. Just return the function definition. The code is:\n` + getCommonTs();
   return msg;
 }
+  */
 
+/*
 export async function populateBody({provider, model, fncName,}) {
   provider = provider || 'lms';
   let config = getProviderConfig(provider);
@@ -65,10 +69,12 @@ export async function populateBody({provider, model, fncName,}) {
   console.log(`ChatTask body res for ${fncName}:\n`, res);
   return res;
   }
+  */
 
   /**
    * Populate the bodies of all functions in the common-operations.ts file
    */
+  /*
   export async function populateBodies({provider, model,}:GenObj={}) {
     provider = provider || 'lms';
     let config = getProviderConfig(provider);
@@ -89,3 +95,5 @@ export async function populateBody({provider, model, fncName,}) {
     } 
     return "Done";
   }
+
+  */

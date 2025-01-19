@@ -20,7 +20,6 @@ export type Strings = string | string[];
  * The Function Task message, for either single function or array of functions.
  * @param fncs - string fnc name, object with property `name`, or array of such
  */
-export declare function fncTask(fncs: any): Strings;
 /**
  * From an array of objects, return element with name === name
  */
