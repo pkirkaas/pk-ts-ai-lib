@@ -109,9 +109,10 @@ let fncs = {
         provider = getLlmProvider(provider);
         console.log(`in rawModels:`, { provider });
         let models = await getRawModelObjs(provider);
-        let fpath = "./tmp/gemini-models.json5";
-        writeData(models, fpath);
-        console.log(`in rawModels:`, { models });
+        //let fpath = "./tmp/gemini-models.json5";
+        let fpath = `./tmp/${provider}-models.json5`;
+        let wrtPath = writeData(models, fpath);
+        console.log(`in rawModels for [${provider}] - written to: [${wrtPath}]:`, { models });
     },
     //chatOAI: async ( ...msgs: string[]) => {
     chatOAI: async (...args) => {
@@ -136,9 +137,11 @@ let fncs = {
         let res = findEmbeddeds(tst);
         console.log(tst, '\n', res);
     },
-    getModelList: async (provider, ...args) => {
-        let { opts } = parseArgs(args);
-        provider = provider || 'openai';
+    //getModelList: async (provider?: string, ...args) => {
+    getModelList: async (...args) => {
+        console.log(`in getModelList:`, { args });
+        let { arr, opts } = parseArgs(args);
+        let provider = arr[0] || 'openai';
         provider = getLlmProvider(provider);
         let res = await getModelList(provider, opts);
         console.log(`Model List for ${provider}:`, res);

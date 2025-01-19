@@ -16,7 +16,7 @@ import _ from "lodash";
 
 import {
   GenObj, typeOf,  writeData, ajvSchema, isSimpleObject, PkError, isEmpty,mkArray, Strings,
-  ask, multiAsk, dtFmt, parseArgs, JSON5Stringify, JSONStringify, inArr1NinArr2,
+  ask, multiAsk, dtFmt, parseArgs, JSON5Stringify, JSONStringify, inArr1NinArr2, strIncludesAny,
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -64,9 +64,11 @@ export function processModelList(modelObjs: GenObj[], opts: GenObj = {}) {
   if (filter) {
     modelObjs = modelObjs.filter((modelObj) => {
       if (modelObj.id) {
-        return modelObj.id.toLowerCase().includes(filter.toLowerCase());
+        //return modelObj.id.toLowerCase().includes(filter.toLowerCase());
+        return strIncludesAny(modelObj.id, filter, true);
       } else if (modelObj.name) {
-        return modelObj.name.toLowerCase().includes(filter.toLowerCase());
+        return strIncludesAny(modelObj.name, filter, true);
+        //return modelObj.name.toLowerCase().includes(filter.toLowerCase());
       } else { // What to filter on?
         return true;
       }

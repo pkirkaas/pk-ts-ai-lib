@@ -5,7 +5,7 @@ import setTitle from 'console-title';
 //import * as slugify from 'slugify';
 import slugify from 'slugify';
 // PkLib Imports
-import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, ask, dtFmt, JSON5Stringify, inArr1NinArr2, } from 'pk-ts-node-lib';
+import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, ask, dtFmt, JSON5Stringify, inArr1NinArr2, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
 import { expandMsgs, 
 //mkMsgStr,
@@ -40,10 +40,12 @@ export function processModelList(modelObjs, opts = {}) {
     if (filter) {
         modelObjs = modelObjs.filter((modelObj) => {
             if (modelObj.id) {
-                return modelObj.id.toLowerCase().includes(filter.toLowerCase());
+                //return modelObj.id.toLowerCase().includes(filter.toLowerCase());
+                return strIncludesAny(modelObj.id, filter, true);
             }
             else if (modelObj.name) {
-                return modelObj.name.toLowerCase().includes(filter.toLowerCase());
+                return strIncludesAny(modelObj.name, filter, true);
+                //return modelObj.name.toLowerCase().includes(filter.toLowerCase());
             }
             else { // What to filter on?
                 return true;
