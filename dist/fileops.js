@@ -30,22 +30,31 @@ export function getTxtMsg(fname) {
 
 */
 /**
- * Get all text messages in ./text-messages (recursively)
+ * Build a message object from MD files in 'rootdirx'
+ * Recursively build a message object from MD files in 'rootdirx', keyed by file name
+ *
+ * @param rootdirx?:Strings - root directory(ies) to find
  * Error if duplicate file names
  * return obj of {key: msg}
  */
-export function getTxtMsgs() {
-    let files = fs.readdirSync(`./text-messages`, { recursive: true });
-    //console.error(files);
+export function getFileMsgObj(rootdirx) {
+    rootdirx = rootdirx || './text-messages';
+    let rootdirs = mkArray(rootdirx);
     let ret = {};
-    for (let f of files) {
-        if (f.endsWith(".md")) {
-            let bname = path.basename(f, ".md");
-            //Seems to correctly escape single quotes?
-            if (bname in ret) {
-                throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
+    for (let rootdir of rootdirs) {
+        if (!isDirectory(rootdir)) {
+            throw new PkError(`Not a directory [${rootdir}]`);
+        }
+        let files = fs.readdirSync(rootdir, { recursive: true });
+        for (let f of files) {
+            if (f.endsWith(".md")) {
+                let bname = path.basename(f, ".md");
+                //Seems to correctly escape single quotes?
+                if (bname in ret) {
+                    throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
+                }
+                ret[bname] = fs.readFileSync(slashPath(rootdir, f), 'utf8');
             }
-            ret[bname] = fs.readFileSync(`./text-messages/${f}`, 'utf8');
         }
     }
     return ret;

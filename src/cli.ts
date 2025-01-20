@@ -28,7 +28,7 @@ import {
   initMsgsDB, processMsgsDB, wrapCodeNew, WrapCodeParam, WrapCodeParams,
   askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, mkMsgArr, getRawModelObjs, getRawModelList,
   //chatTask,
-  mkTogetherModelChoices, askTogetherModel, getTxtMsgs, AllMsgs, sGeminiChat, wrappedSchemaStr,
+  mkTogetherModelChoices, askTogetherModel,  AllMsgs, sGeminiChat, wrappedSchemaStr,
   //geminiChat,
   genAIChat,getAllMsgsByObj,
   anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
@@ -101,12 +101,14 @@ let fncs = {
     console.log(`\nDone w. tstWrapCode\n`);
 
   },
+  /*
   txtMsgs: async (...args) => {
     let txtMsgs = await getTxtMsgs();
     let tmK = Object.keys(txtMsgs);
 
     console.log({tmK},`\nDone w. getTxtMsgs\n`);
   },
+  */
   initMsgs: async (...args) => {
     console.log(`in initMsgs:`, args);
     let res = await initMsgsDB(true);

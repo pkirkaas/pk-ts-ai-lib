@@ -16,6 +16,9 @@ export * from './ts-analysis/index.js';
 import fncSchema from './FncSchemas/fnc2schema.json';
 export { fncSchema };
 export type Strings = string | string[];
+export type MsgObj = {
+    [key: string]: string;
+};
 /**
  * The Function Task message, for either single function or array of functions.
  * @param fncs - string fnc name, object with property `name`, or array of such

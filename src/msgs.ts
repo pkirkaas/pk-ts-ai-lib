@@ -11,7 +11,7 @@ import {
 
 // Local Imports
 import {
-  getTxtMsgs, 
+  getFileMsgObj, 
   WrapCodeParams,
  // wrapCode,
  // Strings,
@@ -100,9 +100,13 @@ export function getMsgKeys() {
 export const askKey = '__ASK__'; // To force an ask
 
 export const wrapPairs = {
-  msg: {
+  sysmsg: {
     open: '[[',
     close: ']]',
+  },
+  usrmsg: {
+    open: '[<',
+    close: '>]',
   },
   code: {
     open: '{{',
@@ -651,7 +655,7 @@ export let usrMessages = {
 
  The 'help' menu item should open a component that only says "This is the help component", and contains a "close" button.
  
- The 'about' menu item should open a component that only says "This is the about compnonent", and includes a "close" button.
+ The 'about' menu item should open a component that only says "This is the about component", and includes a "close" button.
  
  Create the appropriate components for each described.
 
@@ -698,7 +702,7 @@ export let AllMsgs: IMsgObj = {};
 export function getAllMsgs(...msgObjs: IMsgObj[]): IMsgObj {
   let ret: IMsgObj = {};
 
-  let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getTxtMsgs(), };
+  let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), };
   for (let msgObjKey in initMsgObjs) {
     let msgObj = initMsgObjs[msgObjKey];
     let iKeys = intersect(Object.keys(ret), Object.keys(msgObj));
@@ -712,7 +716,7 @@ export function getAllMsgs(...msgObjs: IMsgObj[]): IMsgObj {
 }
 
 export async function getAllMsgsByObj() {
-  let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getTxtMsgs(), codeFiles };
+  let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), codeFiles };
   let ret: IMsgObj = {};
   for (let msgObjKey in initMsgObjs) {
     let msgObj = initMsgObjs[msgObjKey];

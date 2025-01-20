@@ -3,7 +3,7 @@
  */
 
 import {
-  getTxtMsgs, defaultSysMsg,
+   defaultSysMsg,
 } from './init.js';
 
 import { VertexAI } from '@google-cloud/vertexai';

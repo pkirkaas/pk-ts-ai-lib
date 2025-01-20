@@ -40,7 +40,7 @@ import {
 import {
   FunctionDets, fncEntities, logEntities, getProviderConfig, ChatItem, ChatLog, chatEntities,
   commonExports, getDbPath, LogItem, stripBackticks, writeLog, MsgBuilder,
-  systemMessages, usrMessages, getTxtMsgs, codeFiles, findKeyedEmbeds,
+  systemMessages, usrMessages, getFileMsgObj, codeFiles, findKeyedEmbeds,
 } from '../init.js';
 
 
@@ -60,7 +60,7 @@ export async function getMsgsDS(dropSchema = false) {
   return ds;
 }
 
-//let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getTxtMsgs(), cmpMsgs };
+//let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), cmpMsgs };
 export async function initMsgsDB(dropSchema = true) {
   console.log(`in initMsgsDB: dropSchema`, { dropSchema });
   let ds = await getMsgsDS(dropSchema);
@@ -77,7 +77,7 @@ export async function initMsgsDB(dropSchema = true) {
     await msgB.save();
   }
   msgtype = 'usr';
-  let txtMsgs = getTxtMsgs();
+  let txtMsgs = getFileMsgObj();
   let aUmsgs = { ...txtMsgs, ...usrMessages };
   for (let key in aUmsgs) {
     let body = aUmsgs[key];

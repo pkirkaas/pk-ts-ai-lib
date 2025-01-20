@@ -11,7 +11,7 @@ import { intersect, inArr1NinArr2, } from 'pk-ts-common-lib';
 import { stdOut, } from 'pk-ts-node-lib';
 import { PkDataSource, PkError, isFile, } from "pk-ts-sqlite-lib/typeorm";
 // Local Imports
-import { FunctionDets, fncEntities, logEntities, getProviderConfig, ChatLog, chatEntities, commonExports, getDbPath, stripBackticks, writeLog, MsgBuilder, systemMessages, usrMessages, getTxtMsgs, codeFiles, findKeyedEmbeds, } from '../init.js';
+import { FunctionDets, fncEntities, logEntities, getProviderConfig, ChatLog, chatEntities, commonExports, getDbPath, stripBackticks, writeLog, MsgBuilder, systemMessages, usrMessages, getFileMsgObj, codeFiles, findKeyedEmbeds, } from '../init.js';
 // Implementation
 let cascade = { cascade: true, };
 export async function getLogDS() {
@@ -25,7 +25,7 @@ export async function getMsgsDS(dropSchema = false) {
     let ds = await PkDataSource.getToDataSource({ database, dropSchema, entities: [MsgBuilder] });
     return ds;
 }
-//let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getTxtMsgs(), cmpMsgs };
+//let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), cmpMsgs };
 export async function initMsgsDB(dropSchema = true) {
     console.log(`in initMsgsDB: dropSchema`, { dropSchema });
     let ds = await getMsgsDS(dropSchema);
@@ -42,7 +42,7 @@ export async function initMsgsDB(dropSchema = true) {
         await msgB.save();
     }
     msgtype = 'usr';
-    let txtMsgs = getTxtMsgs();
+    let txtMsgs = getFileMsgObj();
     let aUmsgs = { ...txtMsgs, ...usrMessages };
     for (let key in aUmsgs) {
         let body = aUmsgs[key];

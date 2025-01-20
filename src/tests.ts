@@ -38,7 +38,7 @@ import {
   // tstFncJsons,
   filterTogetherModels, showTogetherModel, showTogetherModels,
   //oaiChatTask, allThree,
-  mkTogetherModelChoices, askTogetherModel, getTxtMsgs, AllMsgs, sGeminiChat, wrappedSchemaStr, 
+  mkTogetherModelChoices, askTogetherModel,  AllMsgs, sGeminiChat, wrappedSchemaStr, 
 } from './init.js';
 
 // Implementations

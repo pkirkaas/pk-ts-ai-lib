@@ -4,7 +4,7 @@
 //PkLib imports
 import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, ask, inArr1NinArr2, subObj, isEmpty, intersect, dupEntries, strIncludesWhich, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
-import { getTxtMsgs, 
+import { getFileMsgObj, 
 // wrapCode,
 // Strings,
 wrapCodeNew, } from './init.js';
@@ -83,9 +83,13 @@ export function getMsgKeys() {
 }
 export const askKey = '__ASK__'; // To force an ask
 export const wrapPairs = {
-    msg: {
+    sysmsg: {
         open: '[[',
         close: ']]',
+    },
+    usrmsg: {
+        open: '[<',
+        close: '>]',
     },
     code: {
         open: '{{',
@@ -587,7 +591,7 @@ export let usrMessages = {
 
  The 'help' menu item should open a component that only says "This is the help component", and contains a "close" button.
  
- The 'about' menu item should open a component that only says "This is the about compnonent", and includes a "close" button.
+ The 'about' menu item should open a component that only says "This is the about component", and includes a "close" button.
  
  Create the appropriate components for each described.
 
@@ -612,7 +616,7 @@ export let AllMsgs = {};
  */
 export function getAllMsgs(...msgObjs) {
     let ret = {};
-    let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getTxtMsgs(), };
+    let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), };
     for (let msgObjKey in initMsgObjs) {
         let msgObj = initMsgObjs[msgObjKey];
         let iKeys = intersect(Object.keys(ret), Object.keys(msgObj));
@@ -625,7 +629,7 @@ export function getAllMsgs(...msgObjs) {
     return AllMsgs;
 }
 export async function getAllMsgsByObj() {
-    let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getTxtMsgs(), codeFiles };
+    let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), codeFiles };
     let ret = {};
     for (let msgObjKey in initMsgObjs) {
         let msgObj = initMsgObjs[msgObjKey];

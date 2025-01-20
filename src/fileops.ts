@@ -18,6 +18,7 @@ import {
   //Strings, 
   //mkArray,
   matchPattern,
+  MsgObj,
 
 } from './init.js';
 
@@ -39,22 +40,31 @@ export function getTxtMsg(fname) {
 
 */
 /** 
- * Get all text messages in ./text-messages (recursively)
+ * Build a message object from MD files in 'rootdirx'
+ * Recursively build a message object from MD files in 'rootdirx', keyed by file name
+ * 
+ * @param rootdirx?:Strings - root directory(ies) to find 
  * Error if duplicate file names
  * return obj of {key: msg}
  */
-export function getTxtMsgs() {
-  let files = fs.readdirSync(`./text-messages`, { recursive: true });
-  //console.error(files);
-  let ret = {};
-  for (let f of files) {
-    if (f.endsWith(".md")) {
-      let bname = path.basename(f, ".md");
-      //Seems to correctly escape single quotes?
-      if (bname in ret) {
-        throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
+export function getFileMsgObj(rootdirx?: Strings):MsgObj {
+  rootdirx = rootdirx || './text-messages';
+  let rootdirs = mkArray(rootdirx);
+  let ret:MsgObj = {};
+  for (let rootdir of rootdirs) {
+    if (!isDirectory(rootdir)) {
+      throw new PkError(`Not a directory [${rootdir}]`);
+    }
+    let files = fs.readdirSync(rootdir, { recursive: true });
+    for (let f of files) {
+      if (f.endsWith(".md")) {
+        let bname = path.basename(f, ".md");
+        //Seems to correctly escape single quotes?
+        if (bname in ret) {
+          throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
+        }
+        ret[bname] = fs.readFileSync(slashPath(rootdir,f), 'utf8');
       }
-      ret[bname] = fs.readFileSync(`./text-messages/${f}`, 'utf8');
     }
   }
   return ret;
@@ -129,7 +139,7 @@ export function filterExcludes(fpathx: Strings, excpatx: Strings): string[] {
 export type WrapCodeObj =
   {
     fpaths: Strings,
-    debug?:any, //Debug - for now, just list the file paths
+    debug?: any, //Debug - for now, just list the file paths
     desc?: string,
     root?: string,
     excPatterns?: Strings,
@@ -149,7 +159,7 @@ export function isWrapCodeObj(src: any): src is WrapCodeObj {
  * @param argx:WrapCodeParams - string or object w. fpaths, or array of such
  * @param dbg - debug - just list the file paths
  */
-export function wrapCodeNew(argx: WrapCodeParams,dbg?:any): string {
+export function wrapCodeNew(argx: WrapCodeParams, dbg?: any): string {
   let codeStr = '\n';
   let defaultDirExc = ['node_modules', 'dist', 'build', 'out', 'target', '.git', 'log', 'logs', 'tmp',];
   let defaultExcPatterns = ['.tmp', '.swp', '.bak', '.orig', '.old', '.orig', '.log', '/tmp/',
@@ -182,9 +192,9 @@ export function wrapCodeNew(argx: WrapCodeParams,dbg?:any): string {
     let fPathsExc = filterExcludes(filePaths, excPatternsArr);
     if (debug || dbg) {
       codeStr += `\nDebugging wrapCodeNew: ${aCnt}\nArg:\n${JSON5Stringify(arg)}\nFile Paths:\n${fPathsExc.join('\n')}\n`;
-       
+
     } else {
-      codeStr += wrapCodeFiles(fPathsExc, { root, desc,});
+      codeStr += wrapCodeFiles(fPathsExc, { root, desc, });
     }
   }
   return codeStr;
@@ -219,7 +229,7 @@ export function wrapCodeFiles(fpathx: Strings, { root = '', desc = '' }: { root?
     let basename = path.basename(fpath);
     if (ext && !(ext in exts)) {
       console.error(`wrapCodeFiles, File [${fpath}] has unknown extension [${ext}]`);
-//      continue;
+      //      continue;
       //throw new PkError(`File [${fpath}] has unknown extension [${ext}]`);
     }
     outStr += `\nThe code in file: \`${fname}\`\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
@@ -333,50 +343,50 @@ function escapeRegExp(string: string): string {
 }
 
 
- /*
+/*
 
- //* @deprecated Takes a string response from a chatbot and extracts the code blocks
- //* returns as an object keyed by lang tag to array of code blocks
+//* @deprecated Takes a string response from a chatbot and extracts the code blocks
+//* returns as an object keyed by lang tag to array of code blocks
 export function extractCode1(resStr: string): GenObj {
-  let ret: GenObj = {};
-  let langs = Object.values(exts);
-  let closeStr = '\n```\n';
-  for (let lang of langs) {
-    let re = new RegExp(`${closeStr}${lang}\n(.*?)\n${closeStr}`, 'gs');
-    let matches = resStr.matchAll(re);
-    let codeArr = [];
-    for (let match of matches) {
-      let code = match[1];
-      codeArr.push(code);
-    }
-    if (codeArr.length > 0) {
-      ret[lang] = codeArr;
-    }
-  }
-  return ret;
+ let ret: GenObj = {};
+ let langs = Object.values(exts);
+ let closeStr = '\n```\n';
+ for (let lang of langs) {
+   let re = new RegExp(`${closeStr}${lang}\n(.*?)\n${closeStr}`, 'gs');
+   let matches = resStr.matchAll(re);
+   let codeArr = [];
+   for (let match of matches) {
+     let code = match[1];
+     codeArr.push(code);
+   }
+   if (codeArr.length > 0) {
+     ret[lang] = codeArr;
+   }
+ }
+ return ret;
 }
 
 //  @deprecated Takes a string response from a chatbot and extracts the code blocks
 export function extractCodeOAI(resStr) {
-  const ret = {};
-  let langs = Object.values(exts);
-  for (const lang of langs) {
-    // Regular expression to capture code blocks for a specific language
-    const langRegex = new RegExp(`\n\\\`\\\`\\\`${lang}\\n([\\s\\S]*?)\\n\\\`\\\`\\\``, 'g');
-    let match;
+ const ret = {};
+ let langs = Object.values(exts);
+ for (const lang of langs) {
+   // Regular expression to capture code blocks for a specific language
+   const langRegex = new RegExp(`\n\\\`\\\`\\\`${lang}\\n([\\s\\S]*?)\\n\\\`\\\`\\\``, 'g');
+   let match;
 
-    while ((match = langRegex.exec(resStr)) !== null) {
-      const code = match[1].trim();
-      if (code) {
-        if (!ret[lang]) {
-          ret[lang] = [];
-        }
-        ret[lang].push(code);
-      }
-    }
-  }
+   while ((match = langRegex.exec(resStr)) !== null) {
+     const code = match[1].trim();
+     if (code) {
+       if (!ret[lang]) {
+         ret[lang] = [];
+       }
+       ret[lang].push(code);
+     }
+   }
+ }
 
-  return ret;
+ return ret;
 }
 
 /// Claude
@@ -384,37 +394,37 @@ export function extractCodeOAI(resStr) {
 
 //  * @deprecated Takes a string response from a chatbot and extracts the code blocks
 export function extractCodeClaude(resStr: string,): CodeBlocks {
-  const ret: CodeBlocks = {};
-  let languages = Object.values(exts);
+ const ret: CodeBlocks = {};
+ let languages = Object.values(exts);
 
-  // Create a regex pattern from the language array
-  const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
+ // Create a regex pattern from the language array
+ const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
 
-  // Improved regex to handle edge cases and use the dynamic language pattern
-  const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
+ // Improved regex to handle edge cases and use the dynamic language pattern
+ const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
 
-  let match: RegExpExecArray | null;
-  while ((match = codeBlockRegex.exec(resStr)) !== null) {
-    const [, lang, code] = match;
-    const normalizedLang = lang.toLowerCase().trim();
+ let match: RegExpExecArray | null;
+ while ((match = codeBlockRegex.exec(resStr)) !== null) {
+   const [, lang, code] = match;
+   const normalizedLang = lang.toLowerCase().trim();
 
-    if (!ret[normalizedLang]) {
-      ret[normalizedLang] = [];
-    }
+   if (!ret[normalizedLang]) {
+     ret[normalizedLang] = [];
+   }
 
-    const trimmedCode = code.trim();
-    if (trimmedCode) {
-      ret[normalizedLang].push(sanitizeCodeBlock(trimmedCode));
-    }
-  }
+   const trimmedCode = code.trim();
+   if (trimmedCode) {
+     ret[normalizedLang].push(sanitizeCodeBlock(trimmedCode));
+   }
+ }
 
-  return ret;
+ return ret;
 }
 
 // * @deprecated
 function sanitizeCodeBlock(code: string): string {
-  // Replace triple backticks with single backticks to preserve code structure
-  return code.replace(/```/g, '`');
+ // Replace triple backticks with single backticks to preserve code structure
+ return code.replace(/```/g, '`');
 }
 
 // function escapeRegExp(string: string): string {
@@ -423,30 +433,30 @@ function sanitizeCodeBlock(code: string): string {
 
 // * @deprecated Takes a string response from a chatbot and extracts the code blocks
 export function extractCodeClaude2(resStr: string,): CodeBlocks {
-  const ret: CodeBlocks = {};
+ const ret: CodeBlocks = {};
 
-  // Create a regex pattern from the language array
-  const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
+ // Create a regex pattern from the language array
+ const langPattern = languages.map(lang => escapeRegExp(lang)).join('|');
 
-  // Improved regex to handle edge cases and use the dynamic language pattern
-  const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
+ // Improved regex to handle edge cases and use the dynamic language pattern
+ const codeBlockRegex = new RegExp(`^\\s*\`\`\`\\s*(${langPattern})\\s*\\n([\\s\\S]*?)\\n\\s*\`\`\`\\s*$`, 'gim');
 
-  let match: RegExpExecArray | null;
-  while ((match = codeBlockRegex.exec(resStr)) !== null) {
-    const [, lang, code] = match;
-    const normalizedLang = lang.toLowerCase().trim();
+ let match: RegExpExecArray | null;
+ while ((match = codeBlockRegex.exec(resStr)) !== null) {
+   const [, lang, code] = match;
+   const normalizedLang = lang.toLowerCase().trim();
 
-    if (!ret[normalizedLang]) {
-      ret[normalizedLang] = [];
-    }
+   if (!ret[normalizedLang]) {
+     ret[normalizedLang] = [];
+   }
 
-    const trimmedCode = code.trim();
-    if (trimmedCode) {
-      ret[normalizedLang].push(trimmedCode);
-    }
-  }
+   const trimmedCode = code.trim();
+   if (trimmedCode) {
+     ret[normalizedLang].push(trimmedCode);
+   }
+ }
 
-  return ret;
+ return ret;
 }
 */
 
@@ -457,7 +467,7 @@ export function extractCodeClaude2(resStr: string,): CodeBlocks {
  * @param opts?:string|GenObj - optional object with properties:
  * @param opts.root:string? - root directory for project
  * @param opts.desc: string? - description of code block
- * 
+ *
  */
 
 // Refactor - ignore 'opts' arg, use 'src' arg to determine what to wrap

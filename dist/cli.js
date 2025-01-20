@@ -10,7 +10,7 @@ import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
 import { codeFiles, initMsgsDB, processMsgsDB, wrapCodeNew, getModelList, getLlmProvider, chat, mkMsgArr, getRawModelObjs, 
 //chatTask,
-mkTogetherModelChoices, getTxtMsgs, AllMsgs, sGeminiChat, 
+mkTogetherModelChoices, AllMsgs, sGeminiChat, 
 //geminiChat,
 genAIChat, getAllMsgsByObj, hfChat, expandMsgs, findEmbeddeds, getModelObjs, 
 // tstFncJsons,
@@ -64,11 +64,14 @@ let fncs = {
         dbgWrt(res, 'tstWrapCode');
         console.log(`\nDone w. tstWrapCode\n`);
     },
+    /*
     txtMsgs: async (...args) => {
-        let txtMsgs = await getTxtMsgs();
-        let tmK = Object.keys(txtMsgs);
-        console.log({ tmK }, `\nDone w. getTxtMsgs\n`);
+      let txtMsgs = await getTxtMsgs();
+      let tmK = Object.keys(txtMsgs);
+  
+      console.log({tmK},`\nDone w. getTxtMsgs\n`);
     },
+    */
     initMsgs: async (...args) => {
         console.log(`in initMsgs:`, args);
         let res = await initMsgsDB(true);

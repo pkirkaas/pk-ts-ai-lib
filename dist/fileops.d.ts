@@ -3,12 +3,16 @@
  * Assumes `.` is run from the project root
  */
 import { Strings } from 'pk-ts-node-lib';
+import { MsgObj } from './init.js';
 /**
- * Get all text messages in ./text-messages (recursively)
+ * Build a message object from MD files in 'rootdirx'
+ * Recursively build a message object from MD files in 'rootdirx', keyed by file name
+ *
+ * @param rootdirx?:Strings - root directory(ies) to find
  * Error if duplicate file names
  * return obj of {key: msg}
  */
-export declare function getTxtMsgs(): {};
+export declare function getFileMsgObj(rootdirx?: Strings): MsgObj;
 /**
  * Encodes local file w. base64, returns data & mime type
  */

@@ -40,6 +40,7 @@ import fncSchema from './FncSchemas/fnc2schema.json' with {type: 'json'};
 
 export { fncSchema };
 export type Strings = string | string[];
+export type MsgObj = { [key: string]: string };
 
 await getLogDS();
 /**

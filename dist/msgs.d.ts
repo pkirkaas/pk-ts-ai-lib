@@ -31,7 +31,11 @@ export declare function getMsgKeys(): {
 };
 export declare const askKey = "__ASK__";
 export declare const wrapPairs: {
-    msg: {
+    sysmsg: {
+        open: string;
+        close: string;
+    };
+    usrmsg: {
         open: string;
         close: string;
     };
