@@ -240,8 +240,8 @@ export function buildSysMsg(msg) {
     return sysMsgStr;
 }
 export function partitionMsg(msg) {
-    let sMsg = buildSysMsg(msg);
-    let uMsg = nestReplaceTags(msg, 'usrmsg', true);
+    let sMsg = nestReplaceTags(buildSysMsg(msg), 'code');
+    let uMsg = nestReplaceTags(nestReplaceTags(msg, 'usrmsg', true), 'code');
     /*
     let sMsgKeys=[];
     let depth=0;
