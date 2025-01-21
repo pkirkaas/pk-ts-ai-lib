@@ -30,7 +30,7 @@ import {
   //chatTask,
   mkTogetherModelChoices, askTogetherModel,  AllMsgs, sGeminiChat, wrappedSchemaStr,
   //geminiChat,
-  genAIChat,getAllMsgsByObj,
+  genAIChat,getAllMsgsByObj, buildMsg,
   anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
    //fncTask, getCommonTs, getTxtMsg,
    getEmptyFncMD, expandMsgs, findEmbeddeds,
@@ -81,6 +81,14 @@ let tstSrcs = {
 };
 
 let fncs = {
+  async tstNewMsg(...args) {
+    if (isEmpty(args)) {
+      args.push('text-popup');
+    }
+    let res = buildMsg(...args);
+    dbgWrt(res);
+    console.log(res);
+  },
   tstWrapCode(key?:string)  {
     if (!key) {
       key = "commonlib";

@@ -5,7 +5,7 @@
 
 //PkLib imports
 import {
-  PkError, isFile, JSON5Stringify, JSONStringify, writeData,  uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, Strings,
+  PkError, isFile, JSON5Stringify, JSONStringify, writeData,  uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, Strings, uniqueKeys, taggedMatches, 
   ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich, mkArray,
 } from 'pk-ts-node-lib';
 
@@ -13,6 +13,8 @@ import {
 import {
   getFileMsgObj, 
   WrapCodeParams,
+  WrapCodeObjs,
+  MsgObj,
  // wrapCode,
  // Strings,
   wrapCodeNew,
@@ -116,8 +118,192 @@ export const wrapPairs = {
     open: '{|',
     close: '|}',
   },
-
 };
+
+export const msgTypes = Object.keys(wrapPairs).filter(key => key !== 'comment');
+export const txtMsgTypes = msgTypes.filter(key => key !== 'code');
+
+export function wrapKeyType(key:string, msgType:string): string {
+  assertMsgType(msgType);
+  let {open, close} = wrapPairs[msgType];
+  return `${open}${key}${close}`;
+}
+/**
+ * Builds a MsgObj for a given msg type - hard coded for now
+ * @param msgType:string - 'sysmsg' | 'usrmsg' | 'code'
+ * @param msgObj?:MsgObj - object of msg keys & msg strings to add to default
+ */
+export function getMsgObj(msgType:string, msgObj:MsgObj = {}):MsgObj {
+  if (!msgTypes.includes(msgType)) {
+    throw new PkError(`in getMsgObj; invalid msgType:`, msgType);
+  }
+  let msgSrcs = [msgObj];
+  switch(msgType) {
+    case 'sysmsg':
+      msgSrcs.push(systemMessages);
+      break;
+    case 'usrmsg':
+      msgSrcs.push(usrMessages, getFileMsgObj());
+      break;
+    case 'code':
+      msgSrcs.push(codeFiles);
+      break;
+    default:
+      throw new PkError(`in getMsgObj; invalid msgType:`, msgType);
+  }
+  if (!uniqueKeys(msgSrcs)) {
+    throw new PkError(`in getMsgObj; duplicate keys in msgSrcs:`, msgSrcs);
+  }
+  let ret:MsgObj = Object.assign({},...msgSrcs);
+  return ret;
+}
+
+export function extractMsgTags(str:string, msgType:string):string[] {
+  assertMsgType(msgType);
+  let {open, close} = wrapPairs[msgType];
+  let tags = uniqueVals(taggedMatches(str,open,close));
+  let msgObj = getMsgObj(msgType);
+  let msgKeys = Object.keys(msgObj);
+  let unfound = inArr1NinArr2(tags,msgKeys);
+  if (unfound.length) {
+    throw new PkError(`Tags in string of msgType: [${msgType}] not found in msg keys:`, {unfound, msgKeys});
+  }
+  return tags;
+}
+export type BuiltMsg = {
+  sMsg:string,
+  uMsg:string,
+};
+
+export function assertMsgType(msgType:string) {
+  if (!msgTypes.includes(msgType)) {
+    throw new PkError(`in expandMsgsNew; invalid msgType:`, msgType);
+  }
+}
+
+export function tagReplace(tag:string, msgType:string, strip?:any):string {
+  assertMsgType(msgType);
+  let replace='';
+  if (strip) {
+    return replace;
+  }
+  let msgObj = getMsgObj(msgType);
+  let val = msgObj[tag];
+  if (!val) {
+    throw new PkError(`tag: [${tag}] not found for msgType: [${msgType}]`);
+  }
+
+  if (msgType==='code') {
+    replace=wrapCodeNew(val);
+  //} else if (msgType === 'sysmsg'){
+   // replace='';
+  } else if ((msgType === 'usrmsg') || (msgType==='sysmsg')) {
+    replace = val as string;
+  } else {
+    throw new PkError(`Unhandled msgtype [${msgType}]`);
+  }
+  return replace;
+}
+
+/**
+ * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
+ * @param msgs:string[] - Array of msgs or msg keys
+ */
+export function buildMsg(...msgs:string[]) {
+  let msgType = 'usrmsg';
+  let msgStr = '\n';
+  let umsgObj = getMsgObj(msgType);
+  let umsgKeys = Object.keys(umsgObj);
+
+  for (let msg of msgs) {
+    if (wordCnt(msg) >1) { // Literal message string
+      msgStr+=`${msg}\n`;
+    } else if (umsgKeys.includes(msg)) {
+      msgStr += wrapKeyType(msg,msgType);
+    } else {
+      throw new PkError(`in buildMsg - msg [${msg}] not in umsgKeys`);
+    }
+  } // We have a tagged umessage string, with uMsg, sMsg, code & comment tags
+  // Substitute uMsg tags w. expansions
+  let usrMsg = nestReplaceTags(msgStr,msgType);
+  //let sMsg = stripComments(buildSysMsg(usrMsg));
+  //let uMsg =  stripComments(nestReplaceTags(usrMsg,'sysmsg', true));
+  let sMsg = buildSysMsg(usrMsg);
+  let uMsg =  nestReplaceTags(usrMsg,'sysmsg', true);
+  return {uMsg, sMsg};
+}
+
+export function nestReplaceTags(msgStr:string, msgType:string, strip?:any):string {
+  assertMsgType(msgType);
+  let depth=0;
+  let depthLimit=10;
+  let msgTags = extractMsgTags(msgStr, msgType);
+  let usedTags=[];
+  while (msgTags.length) {
+    if (depth++ > depthLimit) {
+      throw new PkError(`Depth Exceeded:`,{msgTags});
+    }
+    for (let tag of msgTags) {
+      if (usedTags.includes(tag)) {
+        continue;
+      }
+      let wrapped = wrapKeyType(tag,msgType);
+      let rep = tagReplace(tag, msgType, strip);
+      usedTags.push(tag);
+      msgStr = msgStr.replaceAll(wrapped, rep);
+    }
+    msgTags = extractMsgTags(msgStr, msgType);
+  }
+  //return nestReplaceTags(stripComments(msgStr),'code');
+  return stripComments(msgStr);
+}
+
+export function buildSysMsg(msg:string):string {
+  let msgType = 'sysmsg';
+  let sysTags = extractMsgTags(msg,msgType);
+  let sysMsgStr = '';
+  for (let sysTag of sysTags) {
+    sysMsgStr += wrapKeyType(sysTag,msgType);
+  }
+  sysMsgStr = nestReplaceTags(sysMsgStr,msgType);
+  return sysMsgStr;
+}
+
+export function partitionMsg(msg:string):BuiltMsg {
+  let sMsg = buildSysMsg(msg);
+  let uMsg = nestReplaceTags(msg,'usrmsg', true);
+  /*
+  let sMsgKeys=[];
+  let depth=0;
+  let depthLimit=10;
+  let msgTags = extractMsgTags(msg, 'sysmsg');
+  while (msgTags.length) {
+    if (depth++ > depthLimit) {
+      throw new PkError(`Depth Exceeded:`,{msgTags});
+    }
+    for (let tag of msgTags) {
+      let wrapped = wrapKeyType(tag,'sysmsg');
+      let rep = tagReplace(tag, 'sysmsg');
+      msg = msg.replaceAll(wrapped, rep);
+    }
+    msgTags = extractMsgTags(msg, 'sysmsg');
+  }
+    */
+
+
+
+  return {uMsg, sMsg};
+}
+
+export function expandMsgNew(msg:string,msgType:string):string {
+  if (!msgTypes.includes(msgType)) {
+    throw new PkError(`in expandMsgsNew; invalid msgType:`, msgType);
+  }
+  let srcMsgObj = getMsgObj(msgType);
+  let msgStr = '\n';
+
+  return msgStr;
+}
 
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
@@ -302,7 +488,7 @@ This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript func
 /**
  * Keys w. source code file path, to be wrapped in triple backticks
  */
-export let codeFiles = {
+export let codeFiles:WrapCodeObjs = {
   fsb: 'Q:/Common/Software-Dev/Pythons/similar-images/src/file-system-browser.py',
   fncSchema: './src/FncSchemas/fnc2schema.json',
   ssrSrc: {

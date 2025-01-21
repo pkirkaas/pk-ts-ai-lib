@@ -73,6 +73,9 @@ export type WrapCodeObj = {
 };
 export type WrapCodeParam = string | WrapCodeObj;
 export type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
+export type WrapCodeObjs = {
+    [key: string]: WrapCodeParams;
+};
 export declare function isWrapCodeObj(src: any): src is WrapCodeObj;
 /**
  * Wraps code in markdown code blocks

@@ -149,6 +149,7 @@ export type WrapCodeObj =
 
 export type WrapCodeParam = string | WrapCodeObj;
 export type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
+export type WrapCodeObjs = { [key: string]: WrapCodeParams };
 
 export function isWrapCodeObj(src: any): src is WrapCodeObj {
   return isSimpleObject(src) && 'fpaths' in src;

@@ -13,11 +13,12 @@ export * from './lib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
+import { WrapCodeParams } from './fileops.js';
 import fncSchema from './FncSchemas/fnc2schema.json';
 export { fncSchema };
 export type Strings = string | string[];
 export type MsgObj = {
-    [key: string]: string;
+    [key: string]: WrapCodeParams;
 };
 /**
  * The Function Task message, for either single function or array of functions.

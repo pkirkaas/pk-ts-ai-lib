@@ -2,6 +2,7 @@
  * Building messages for chat
  */
 import { Strings } from 'pk-ts-node-lib';
+import { WrapCodeObjs, MsgObj } from './init.js';
 /**
  * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
  * @param msgStr - string to test
@@ -48,6 +49,34 @@ export declare const wrapPairs: {
         close: string;
     };
 };
+export declare const msgTypes: string[];
+export declare const txtMsgTypes: string[];
+export declare function wrapKeyType(key: string, msgType: string): string;
+/**
+ * Builds a MsgObj for a given msg type - hard coded for now
+ * @param msgType:string - 'sysmsg' | 'usrmsg' | 'code'
+ * @param msgObj?:MsgObj - object of msg keys & msg strings to add to default
+ */
+export declare function getMsgObj(msgType: string, msgObj?: MsgObj): MsgObj;
+export declare function extractMsgTags(str: string, msgType: string): string[];
+export type BuiltMsg = {
+    sMsg: string;
+    uMsg: string;
+};
+export declare function assertMsgType(msgType: string): void;
+export declare function tagReplace(tag: string, msgType: string, strip?: any): string;
+/**
+ * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
+ * @param msgs:string[] - Array of msgs or msg keys
+ */
+export declare function buildMsg(...msgs: string[]): {
+    uMsg: string;
+    sMsg: string;
+};
+export declare function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string;
+export declare function buildSysMsg(msg: string): string;
+export declare function partitionMsg(msg: string): BuiltMsg;
+export declare function expandMsgNew(msg: string, msgType: string): string;
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
  * to msg strings.
@@ -64,57 +93,7 @@ export declare let wrappedSchemaStr: string;
 /**
  * Keys w. source code file path, to be wrapped in triple backticks
  */
-export declare let codeFiles: {
-    fsb: string;
-    fncSchema: string;
-    ssrSrc: {
-        fpaths: string;
-        desc: string;
-    };
-    nextconfs: {
-        fpaths: string[];
-        desc: string;
-    };
-    commonlib: {
-        fpaths: string;
-        root: string;
-        excPatterns: string[];
-        debug: boolean;
-        desc: string;
-    };
-    cssmodules: {
-        desc: string;
-        fpaths: string;
-    }[];
-    fetsconfig: {
-        fpaths: string;
-        desc: string;
-    };
-    fepackage: {
-        fpaths: string;
-        desc: string;
-    };
-    daisynav: {
-        fpaths: string;
-        desc: string;
-    };
-    pknav: {
-        fpaths: string;
-        desc: string;
-    };
-    pkfelib: {
-        desc: string;
-        fpaths: string[];
-    };
-    mynextapp: {
-        desc: string;
-        fpaths: string[];
-    };
-    nmnav: {
-        desc: string;
-        fpaths: string;
-    };
-};
+export declare let codeFiles: WrapCodeObjs;
 export declare let defaultSysMsg: string;
 export declare let systemMessages: {
     default: string;

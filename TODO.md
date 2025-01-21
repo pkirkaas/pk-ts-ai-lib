@@ -4,4 +4,4 @@
 - Make msgStr overloaded to support more msg arg types - also system
 - Create generic chat function that calls specific chat functions based provider
 - Refactor provider constants
-- Check commit
+- Complete new buildMsg by adding wrapCode, and test w. lots of weird msg keys/vals

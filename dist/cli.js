@@ -12,7 +12,7 @@ import { codeFiles, initMsgsDB, processMsgsDB, wrapCodeNew, getModelList, getLlm
 //chatTask,
 mkTogetherModelChoices, AllMsgs, sGeminiChat, 
 //geminiChat,
-genAIChat, getAllMsgsByObj, hfChat, expandMsgs, findEmbeddeds, getModelObjs, 
+genAIChat, getAllMsgsByObj, buildMsg, hfChat, expandMsgs, findEmbeddeds, getModelObjs, 
 // tstFncJsons,
 filterTogetherModels, //getExpandedMsgs,
 anthropicChatCached, } from './init.js';
@@ -45,6 +45,14 @@ let tstSrcs = {
     //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
 };
 let fncs = {
+    async tstNewMsg(...args) {
+        if (isEmpty(args)) {
+            args.push('text-popup');
+        }
+        let res = buildMsg(...args);
+        dbgWrt(res);
+        console.log(res);
+    },
     tstWrapCode(key) {
         if (!key) {
             key = "commonlib";
