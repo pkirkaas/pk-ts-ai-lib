@@ -6,7 +6,7 @@
 import { dtFmt, PkError, asNumeric, ask, dateToTimestamp, } from 'pk-ts-node-lib';
 // Local imports
 // Exports
-import { getRawModelObjs, processModelList, } from './init.js';
+import { getRawModelObjs, filterModelObjArr, } from './init.js';
 /**
  * Filters array of TogetherAI models based on the provided filter.
  * @param name:string - filter by substring model name
@@ -56,7 +56,7 @@ export async function filterTogetherModels({ name, date, type, context, price, o
     if (type) {
         models = models.filter(model => model.type == type);
     }
-    models = processModelList(models, opts);
+    models = filterModelObjArr(models, opts);
     return models;
 }
 /**

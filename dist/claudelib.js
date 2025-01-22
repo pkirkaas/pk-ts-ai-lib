@@ -9,6 +9,11 @@ import Anthropic from '@anthropic-ai/sdk';
 import { ask, writeData, JSON5Stringify, isEmpty, parseArgs, } from 'pk-ts-node-lib';
 // Local Imports
 import { getProviderConfig, expandMsgs, getLlmProvider, LogItem, initChatLog, mkLogDets, } from './init.js';
+/**
+ * Cached Claude Chat called from chatBase
+ */
+export async function chatClaudeBase() {
+}
 //export async function anthropicChat(msgs: Strings, opts: AnthropicConfig = {}) {
 // Experiment with caching
 export async function anthropicChatCached(...args) {

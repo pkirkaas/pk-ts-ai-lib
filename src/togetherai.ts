@@ -17,7 +17,7 @@ import {
 
 
 import {
-  getRawModelObjs,processModelList,
+  getRawModelObjs, filterModelObjArr,
 } from './init.js';
 
 /**
@@ -44,7 +44,7 @@ export async function filterTogetherModels({ name, date, type, context, price, o
     }
     if (model.object !== 'model') {
       throw new PkError(`Unexpected object:`, { model });
-    } 
+    }
 
     model.createdDt = dtFmt('short', (model.created * 1000));
   }
@@ -71,14 +71,14 @@ export async function filterTogetherModels({ name, date, type, context, price, o
   if (type) {
     models = models.filter(model => model.type == type);
   }
-  models = processModelList(models, opts);
+  models = filterModelObjArr(models, opts);
   return models;
 }
 
 /** 
  * Accepts filters for TogetherAI models, finds models,  and returns array of models matching filters & formatted for inquirer choices
  */
-export async function askTogetherModel({ name, date, type, context, price, org, opts, }:any) {
+export async function askTogetherModel({ name, date, type, context, price, org, opts, }: any) {
   let models = await filterTogetherModels({ name, date, type, context, price, org, opts, });
   let choices = mkTogetherModelChoices(models);
   let answer = await ask(`What model to use for TogetherAI?`, { choices });
@@ -120,7 +120,7 @@ export function togetherModelStrDsc(model) {
 export function mkTogetherModelChoice(model) {
   let value = model.id;
   let name = togetherModelStrDsc(model);
-  return {name, value};
+  return { name, value };
 }
 
 export function mkTogetherModelChoices(models) {

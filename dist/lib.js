@@ -9,7 +9,7 @@ import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray
 // Local Imports
 import { expandMsgs, 
 //mkMsgStr,
-fncSchema, providers, } from './init.js';
+fncSchema, buildMsg, providers, } from './init.js';
 export let llmProvider; //Session provider 
 export function getApiKey(provider = null) {
     provider = getLlmProvider(provider);
@@ -25,26 +25,18 @@ export function mkModelListOpts(opts = {}) {
     opts = { ...listOptsDef, ...opts };
     return opts;
 }
-/**
- * Process model list - sort, format, filter - expects array of model objects
- * with at least a key of 'id'
- * Returns a processed model list - filtered, sorted, formatted
- *
- */
-export function processModelList(modelObjs, opts = {}) {
-    if (isEmpty(opts)) {
-        opts = {};
-    }
+export function filterModelObjArr(modelObjs, opts = {}) {
     let listOptsDef = { sort: 'created', format: true, filter: '', };
     let { sort, format, filter } = { ...listOptsDef, ...opts };
     if (filter) {
+        let filters = mkArray(filter);
         modelObjs = modelObjs.filter((modelObj) => {
             if (modelObj.id) {
                 //return modelObj.id.toLowerCase().includes(filter.toLowerCase());
-                return strIncludesAny(modelObj.id, filter, true);
+                return strIncludesAny(modelObj.id, filters, true);
             }
             else if (modelObj.name) {
-                return strIncludesAny(modelObj.name, filter, true);
+                return strIncludesAny(modelObj.name, filters, true);
                 //return modelObj.name.toLowerCase().includes(filter.toLowerCase());
             }
             else { // What to filter on?
@@ -109,6 +101,49 @@ export function getServerUrl(provider = null) {
     return config.baseURL;
 }
 ;
+export function mkChatParams(chatSrc) {
+    if (isSimpleObject(chatSrc) && chatSrc.sMsg && chatSrc.uMsg) {
+        return chatSrc;
+    }
+    let strArr = mkArray(chatSrc);
+    let chatParams = buildMsg(...strArr);
+    return chatParams;
+}
+/**
+ * Returns the model to use for provider
+ * @param provider:string - the provider
+ * @param model?:Strings - if empty, the default. If Strings, the model name or filters
+ * If more than one model matches filters, asks user
+ * @return:string model name
+ */
+export async function baseGetModel(provider, model) {
+    let config = getProviderConfig(provider);
+    if (!model) {
+        return config.model;
+    }
+    let filters = mkArray(model);
+}
+/**
+ * Returns all models for provider, based on model filter
+ */
+/*
+export async function basegetModelObjsOai(provider: string, model?: Strings): Promise<any[]> {
+  let config = getProviderConfig(provider);
+
+}
+  */
+/**
+ * BaseChat to chat with any supported provider
+ * @param chatSrc:ChatParams|Strings -  either ChatParams or Strings to build chat params
+ * @param provider:string - which provider to use
+ * @param opts:GenObj - custom opts for this chat. Opt keys:
+ *   model:string -
+ */
+export async function baseChat(chatSrc, provider, opts = {}) {
+    let chatParams = mkChatParams(chatSrc);
+    provider = getLlmProvider(provider);
+    let providerConfig = getProviderConfig(provider);
+}
 export function validateJson(data) {
     if (typeof data === 'string') {
         data = JSON.parse(data);

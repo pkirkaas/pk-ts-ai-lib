@@ -10,6 +10,10 @@ import { WrapCodeObjs, MsgObj } from './init.js';
  */
 export declare function findEmbeddeds(msgStr: any): any[];
 /**
+ * Throws if any embeds remain in string
+ */
+export declare function assertEmbeddeds(str: string): void;
+/**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
  */

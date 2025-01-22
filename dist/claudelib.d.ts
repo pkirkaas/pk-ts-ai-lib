@@ -7,6 +7,10 @@ export interface AnthropicConfig {
     temperature?: number;
     max_tokens?: number;
 }
+/**
+ * Cached Claude Chat called from chatBase
+ */
+export declare function chatClaudeBase(): Promise<void>;
 export declare function anthropicChatCached(...args: any[]): Promise<any[]>;
 export declare function anthropicChat(...args: any[]): Promise<{
     role: string;

@@ -7,7 +7,7 @@ import OpenAI from "openai";
 import { ask, writeData, isEmpty, parseArgs, mkArray, } from 'pk-ts-node-lib';
 import { isObject, isSimpleObject, PkError, } from 'pk-ts-common-lib';
 // Local Imports
-import { processModelList, getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
+import { filterModelObjArr, getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
 /**
  * Some providers work better with a direct call to the OpenAI API than
  * using the openai cliient
@@ -53,7 +53,7 @@ export async function getRawModelObjs(provider = 'together', opts = {}) {
             throw new PkError(`Invalid 'models' list response from ${url} - `, { respJson });
         }
     } // respJson should be array of model def objects - filter, format & sort
-    modelObjs = processModelList(modelObjs, opts);
+    modelObjs = filterModelObjArr(modelObjs, opts);
     return modelObjs;
 }
 export async function getRawModelList(provider = 'together', opts = {}) {
@@ -79,15 +79,15 @@ export function getOaiClient(provider = null) {
  * @param filter - Whether to filter the models by filter string. Defaults to '' (no filter).
  * @returns {Promise<ModelInfo[]>} - Array of model objects - ids/names
  */
-export async function getModelObjs(provider, opts = {}) {
+export async function getModelObjsOai(provider, opts = {}) {
     let client = getOaiClient(provider);
     let modelObjs = (await client.models.list()).data;
-    modelObjs = processModelList(modelObjs, opts);
+    modelObjs = filterModelObjArr(modelObjs, opts);
     return modelObjs;
 }
 /** Retuns string array of model ids/names  */
 export async function getModelList(provider = null, opts = {}) {
-    let modelObjs = await getModelObjs(provider, opts);
+    let modelObjs = await getModelObjsOai(provider, opts);
     let modelList = modelObjs.map((modelObj) => modelObj.id);
     return modelList;
 }

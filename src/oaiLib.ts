@@ -10,7 +10,7 @@ import type { ChatCompletionMessageParam } from "openai/resources/chat/completio
 
 // PK Lib Imports
 import {
-  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes,  writeData,  askConfirm, isEmpty, multiAsk, parseArgs, mkArray,
+  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, isEmpty, multiAsk, parseArgs, mkArray,
 } from 'pk-ts-node-lib';
 
 import {
@@ -20,9 +20,9 @@ import {
 
 // Local Imports
 import {
-  mkStamp,  mkModelListOpts, processModelList,
+  mkStamp, mkModelListOpts, filterModelObjArr,
   getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets,
-  systemMessages, usrMessages, providers, timeout,  defaultSysMsg, AllMsgs, initChatLog,
+  systemMessages, usrMessages, providers, timeout, defaultSysMsg, AllMsgs, initChatLog,
   wordCnt, expandMsgs, Strings, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 
@@ -33,23 +33,23 @@ import {
  * Annoyingly, switch on 'provider' to get right call - currently,
  * gengemini & together
  */
-export async function getRawModelObjs(provider = 'together',opts:GenObj={}) {
+export async function getRawModelObjs(provider = 'together', opts: GenObj = {}) {
   provider = getLlmProvider(provider);
   let apiKey = getApiKey(provider);
   let baseURL = getServerUrl(provider);
-  let options:GenObj = {
+  let options: GenObj = {
     method: 'GET',
     headers: {
       accept: 'application/json',
     }
   };
-  let url = `${baseURL}/models`
+  let url = `${baseURL}/models`;
   if (provider === 'gengemini') {
     url = `${url}?key=${apiKey}&page_size=1000&pageSize=1000`;
   } else {
     options.headers.Authorization = `Bearer ${apiKey}`;
   }
-  let modelObjs:GenObj[]=[];
+  let modelObjs: GenObj[] = [];
   //let url = `${baseURL}/models?key=${apiKey}`;
   console.log(`About to fetch models for [${provider}] from:
      URL: [${url}], apiKey: [${apiKey}] & opts:`, opts);
@@ -69,11 +69,11 @@ export async function getRawModelObjs(provider = 'together',opts:GenObj={}) {
       throw new PkError(`Invalid 'models' list response from ${url} - `, { respJson });
     }
   } // respJson should be array of model def objects - filter, format & sort
-  modelObjs = processModelList(modelObjs, opts);
+  modelObjs = filterModelObjArr(modelObjs, opts);
   return modelObjs;
 }
 
-export async function getRawModelList(provider = 'together',opts:GenObj = {}) {
+export async function getRawModelList(provider = 'together', opts: GenObj = {}) {
   let modelObjArr = await getRawModelObjs(provider, opts);
   let modelList = modelObjArr.map((modelObj) => modelObj.id);
   return modelList;
@@ -102,22 +102,22 @@ export function getOaiClient(provider = null) {
  * @param filter - Whether to filter the models by filter string. Defaults to '' (no filter).
  * @returns {Promise<ModelInfo[]>} - Array of model objects - ids/names
  */
-export async function getModelObjs(provider, opts: GenObj = {}) {
+export async function getModelObjsOai(provider, opts: GenObj = {}) {
   let client = getOaiClient(provider);
   let modelObjs: GenObj[] = (await client.models.list()).data;
-  modelObjs = processModelList(modelObjs, opts);
+  modelObjs = filterModelObjArr(modelObjs, opts);
   return modelObjs;
 }
 /** Retuns string array of model ids/names  */
-export async function getModelList(provider = null, opts:GenObj = {}) {
-  let modelObjs = await getModelObjs(provider, opts);
+export async function getModelList(provider = null, opts: GenObj = {}) {
+  let modelObjs = await getModelObjsOai(provider, opts);
   let modelList = modelObjs.map((modelObj) => modelObj.id);
   return modelList;
 }
 
-export async function askModel(provider=null, opts:GenObj = {}) {
+export async function askModel(provider = null, opts: GenObj = {}) {
   provider = getLlmProvider(provider);
-  let answer = await ask(`What model to use for provider [${provider}]?`, { choices: await getModelList(provider,opts) });
+  let answer = await ask(`What model to use for provider [${provider}]?`, { choices: await getModelList(provider, opts) });
   return answer;
 }
 /**
@@ -125,9 +125,9 @@ export async function askModel(provider=null, opts:GenObj = {}) {
  * @param {number} idx - index of model to return - default 0
  * @returns {string} - model string
  */
-export async function getModelByIdx(idx = 0, provider = null,  opts:GenObj = {}) {
+export async function getModelByIdx(idx = 0, provider = null, opts: GenObj = {}) {
   provider = getLlmProvider(provider);
-  let modelList = await getModelList(provider,opts);
+  let modelList = await getModelList(provider, opts);
   return modelList[idx];
 }
 
@@ -166,7 +166,7 @@ export function parseChatRes(resp) {
   if (message.function_call) {
     const functionName = message.function_call.name;
     const functionArgs = JSON.parse(message.function_call.arguments);
-    return {functionName, functionArgs};
+    return { functionName, functionArgs };
   }
   throw new PkError(`Message not content or function_call:`, { resp, message });
 }
@@ -195,9 +195,9 @@ export async function chat(...args) {
     followup: "How to ask for followup - 'input' (default), 'editor' (open in editor), 'multi' - multiline,  'none' (no followup)",
   };
   console.log(`in chat - args:`, args);
-  let {arr:msgs, opts} = parseArgs(args);
+  let { arr: msgs, opts } = parseArgs(args);
   msgs = mkArray(msgs);
-  let {provider="openai", sMsg, dropSchema, filter, followup} = opts;
+  let { provider = "openai", sMsg, dropSchema, filter, followup } = opts;
   provider = getLlmProvider(provider);
   let config = getProviderConfig(provider);
   let chatconfig = config.defaultOpts || {};
@@ -212,7 +212,7 @@ export async function chat(...args) {
 
   let messages: ChatCompletionMessageParam[];
   let client = getOaiClient(provider);
-  let models = await getModelList(provider,{filter});
+  let models = await getModelList(provider, { filter });
   let model;
   if (models.length === 1) {
     model = models[0];
@@ -221,9 +221,9 @@ export async function chat(...args) {
   }
   //let model = await ask(`For [${provider}]: Which model?`, { choices: models });
   //let chatinfo = `[${provider}:${model}]-${dtFmt('dt')}`;
-  let { stamp, usrmsg, sysmsg, outpath, label, chatinfo } = await mkLogDets({provider, model, msgs, sMsg, chatconfig,});
+  let { stamp, usrmsg, sysmsg, outpath, label, chatinfo } = await mkLogDets({ provider, model, msgs, sMsg, chatconfig, });
   //let uMsg = usrmsg;
-  messages = await mkMsgArr({ uMsg:usrmsg, sMsg  });
+  messages = await mkMsgArr({ uMsg: usrmsg, sMsg });
   //await askConfirm(chatinfo);
   //await tmpConfirm(chatinfo);
   // 
@@ -232,7 +232,7 @@ export async function chat(...args) {
   //writeData(`# Chat Session: ${chatinfo}\n\n**Init Msgs:**\n${JSON5Stringify(messages)}\n\n`, outpath);
 
   //let usrMsg: string;
-  let followupCnt=0;
+  let followupCnt = 0;
   while (true) {
     followupCnt++;
     let response = await client.chat.completions.create({

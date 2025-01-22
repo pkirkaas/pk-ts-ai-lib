@@ -15,8 +15,8 @@ import _ from "lodash";
 // pk-lib imports
 
 import {
-  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv,  isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm,
-  writeData,  pkToDate, dtFmt, GenObj, 
+  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm,
+  writeData, pkToDate, dtFmt, GenObj,
 } from 'pk-ts-node-lib';
 
 import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPropsWithTypes, objInfo, } from 'pk-ts-common-lib';
@@ -26,17 +26,17 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 import {
   codeFiles,
   initMsgsDB, processMsgsDB, wrapCodeNew, WrapCodeParam, WrapCodeParams,
-  askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, mkMsgArr, getRawModelObjs, getRawModelList,
+  askLlmProvider, getServerUrl, getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes, chat, mkMsgArr, getRawModelObjs, getRawModelList,
   //chatTask,
-  mkTogetherModelChoices, askTogetherModel,  AllMsgs, sGeminiChat, wrappedSchemaStr,
+  mkTogetherModelChoices, askTogetherModel, AllMsgs, sGeminiChat, wrappedSchemaStr,
   //geminiChat,
-  genAIChat,getAllMsgsByObj, buildMsg,
+  genAIChat, getAllMsgsByObj, buildMsg,
   anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
-   //fncTask, getCommonTs, getTxtMsg,
-   getEmptyFncMD, expandMsgs, findEmbeddeds,
-   systemMessages, providers, timeout, 
+  //fncTask, getCommonTs, getTxtMsg,
+  getEmptyFncMD, expandMsgs, findEmbeddeds,
+  systemMessages, providers, timeout,
   // claudeChatTask,
-  validateJson,  getByName, getFncsMD, getModelObjs,
+  validateJson, getByName, getFncsMD, getModelObjsOai,
   //populateBody, populateBodies,
   // fncNameMsg, //mkMsgStr,
   tstMsgKeys, dbReport,
@@ -52,15 +52,15 @@ export let msgKeys = {
 
 };
 
-export async function parseChatArgs(args, chatOpts:any={}) {
+export async function parseChatArgs(args, chatOpts: any = {}) {
   if (typeof chatOpts === 'string') {
-    chatOpts = {provider: chatOpts};
+    chatOpts = { provider: chatOpts };
   }
   if (!isSimpleObject(chatOpts)) {
     throw new PkError(`chatDefaults must be an object`);
-  } 
+  }
   //if (isEmpty
-  let optDefaults = {sMsg:'default', dropSchema: false, forceAsk: false, ...chatOpts};
+  let optDefaults = { sMsg: 'default', dropSchema: false, forceAsk: false, ...chatOpts };
   let { arr: msgs, opts, } = parseArgs(args, optDefaults);
   //let { filter, provider, sMsg = 'default', dropSchema = false, forceAsk = false, } = opts;
   if (opts.provider) {
@@ -74,9 +74,10 @@ export async function parseChatArgs(args, chatOpts:any={}) {
 }
 
 let tstSrcs = {
-  common1: { fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
-    excPatterns:['/tstcli', '.md', '/References/',],
-   },
+  common1: {
+    fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
+    excPatterns: ['/tstcli', '.md', '/References/',],
+  },
   //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
 };
 
@@ -89,7 +90,7 @@ let fncs = {
     dbgWrt(res);
     console.log(res);
   },
-  tstWrapCode(key?:string)  {
+  tstWrapCode(key?: string) {
     if (!key) {
       key = "commonlib";
     }
@@ -105,7 +106,7 @@ let fncs = {
       //console.log({key,srcs});
     }
       */
-    dbgWrt(res,'tstWrapCode');
+    dbgWrt(res, 'tstWrapCode');
     console.log(`\nDone w. tstWrapCode\n`);
 
   },
@@ -143,7 +144,7 @@ let fncs = {
     let { msgs, opts, } = await parseChatArgs(args, { provider: "openai" });
     msgs.push('default');
     console.log(`in tstMkMsgArr:`, { msgs, opts });
-    let res = await mkMsgArr(msgs, );
+    let res = await mkMsgArr(msgs,);
     console.log(`in tstMkMsgArr:`, { res });
   },
   tstMsgs: async (...args) => {
@@ -154,7 +155,7 @@ let fncs = {
     console.log(`in tstMsgs:`, { keys });
   },
 
-  rawModels : async (...args) => {
+  rawModels: async (...args) => {
     let provider = args[0] || 'gengemini';
     provider = getLlmProvider(provider);
     console.log(`in rawModels:`, { provider });
@@ -176,13 +177,13 @@ let fncs = {
   chatAnthropic: async (...args) => {
     let { msgs, opts } = await parseChatArgs(args);
     //let resp = await anthropicChat(...msgs,opts);
-    let resp = await anthropicChatCached(...msgs,opts);
+    let resp = await anthropicChatCached(...msgs, opts);
     console.log(resp);
   },
   chatSGemini: async (...args) => {
     let { msgs, opts } = await parseChatArgs(args);
     //let { arr: msgs, opts } = parseArgs(args);
-    let resp = await sGeminiChat(...msgs,opts);
+    let resp = await sGeminiChat(...msgs, opts);
     console.log(resp);
   },
 
@@ -195,7 +196,7 @@ let fncs = {
 
   //getModelList: async (provider?: string, ...args) => {
   getModelList: async (...args) => {
-    console.log(`in getModelList:`, {args});
+    console.log(`in getModelList:`, { args });
     let { arr, opts } = parseArgs(args);
     let provider = arr[0] || 'openai';
     provider = getLlmProvider(provider);
@@ -216,12 +217,12 @@ let fncs = {
   },
   */
 
-  getModelObjs: async (provider?: string, ...args) => {
+  getModelObjsOai: async (provider?: string, ...args) => {
     provider = provider || 'openai';
     provider = getLlmProvider(provider);
     let { opts } = parseArgs(args);
-    //let res = await getModelObjs(provider,{format:false, filter:'4o', sort:true});
-    let res = await getModelObjs(provider, { filter: '4o' });
+    //let res = await getModelObjsOai(provider,{format:false, filter:'4o', sort:true});
+    let res = await getModelObjsOai(provider, { filter: '4o' });
     console.log(`Models for ${provider}:`, res);
   },
 
@@ -239,7 +240,7 @@ let fncs = {
     //let msgStr = mkMsgStr(...msgs);
     let msgStr = await expandMsgs(...msgs, opts);
     let fpath = "./tmp/expanded-msgStr-1.json5";
-    writeData({msgs, msgStr}, fpath);
+    writeData({ msgs, msgStr }, fpath);
     //let msgStr = expandMsg(msgs[0]);
     console.log(`tstMsgStr Res in: ${fpath}`);
     stdOut(msgStr);

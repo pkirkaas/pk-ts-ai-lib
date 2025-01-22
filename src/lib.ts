@@ -8,25 +8,25 @@ import setTitle from 'console-title';
 import path from 'path';
 import fs from 'fs-extra';
 //import * as slugify from 'slugify';
-import  slugify  from 'slugify';
+import slugify from 'slugify';
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from "lodash";
 
 // PkLib Imports
 
 import {
-  GenObj, typeOf,  writeData, ajvSchema, isSimpleObject, PkError, isEmpty,mkArray, Strings,
+  GenObj, typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, Strings,
   ask, multiAsk, dtFmt, parseArgs, JSON5Stringify, JSONStringify, inArr1NinArr2, strIncludesAny,
 } from 'pk-ts-node-lib';
 
 // Local Imports
 
 import {
-  oaiChatTask, geminiChatTask, claudeChatTask,  expandMsgs,
+  oaiChatTask, geminiChatTask, claudeChatTask, expandMsgs,
   //mkMsgStr,
-  fncSchema,
+  fncSchema, buildMsg,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, AllMsgs, initChatLog,
-  wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities, 
+  wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 
 export let llmProvider: string; //Session provider 
@@ -54,20 +54,23 @@ export function mkModelListOpts(opts: any = {}) {
  * Returns a processed model list - filtered, sorted, formatted
  * 
  */
-export function processModelList(modelObjs: GenObj[], opts: GenObj = {}) {
-  if (isEmpty(opts)) {
-    opts = {};
-  }
+export type ModelListOpts = {
+  sort?: string, // model obj key to sort by
+  filter?: Strings, // model names or substrings to filter on
+  format?: any,
+};
+export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {}) {
   let listOptsDef = { sort: 'created', format: true, filter: '', };
   let { sort, format, filter } = { ...listOptsDef, ...opts };
 
   if (filter) {
+    let filters = mkArray(filter);
     modelObjs = modelObjs.filter((modelObj) => {
       if (modelObj.id) {
         //return modelObj.id.toLowerCase().includes(filter.toLowerCase());
-        return strIncludesAny(modelObj.id, filter, true);
+        return strIncludesAny(modelObj.id, filters, true);
       } else if (modelObj.name) {
-        return strIncludesAny(modelObj.name, filter, true);
+        return strIncludesAny(modelObj.name, filters, true);
         //return modelObj.name.toLowerCase().includes(filter.toLowerCase());
       } else { // What to filter on?
         return true;
@@ -99,7 +102,6 @@ export function processModelList(modelObjs: GenObj[], opts: GenObj = {}) {
     });
   }
   return modelObjs;
-
 }
 
 /**
@@ -140,6 +142,59 @@ export interface IMsgsParams {
   uMsg?: string | string[] | null;
   sMsg?: string | string[] | null;
 };
+
+export type ChatParams = {
+  sMsg: string,
+  uMsg: string,
+};
+
+export function mkChatParams(chatSrc: ChatParams | Strings): ChatParams {
+  if (isSimpleObject(chatSrc) && chatSrc.sMsg && chatSrc.uMsg) {
+    return chatSrc as ChatParams;
+  }
+  let strArr = mkArray(chatSrc as Strings);
+  let chatParams = buildMsg(...strArr);
+  return chatParams;
+}
+
+/**
+ * Returns the model to use for provider
+ * @param provider:string - the provider
+ * @param model?:Strings - if empty, the default. If Strings, the model name or filters
+ * If more than one model matches filters, asks user
+ * @return:string model name
+ */
+export async function baseGetModel(provider: string, model?: Strings): Promise<string> {
+  let config = getProviderConfig(provider);
+  if (!model) {
+    return config.model;
+  }
+  let filters = mkArray(model);
+
+}
+
+/**
+ * Returns all models for provider, based on model filter
+ */
+/*
+export async function basegetModelObjsOai(provider: string, model?: Strings): Promise<any[]> {
+  let config = getProviderConfig(provider);
+
+}
+  */
+
+/**
+ * BaseChat to chat with any supported provider
+ * @param chatSrc:ChatParams|Strings -  either ChatParams or Strings to build chat params
+ * @param provider:string - which provider to use
+ * @param opts:GenObj - custom opts for this chat. Opt keys:
+ *   model:string - 
+ */
+export async function baseChat(chatSrc: ChatParams | Strings, provider: string, opts: GenObj = {}) {
+  let chatParams = mkChatParams(chatSrc);
+  provider = getLlmProvider(provider);
+  let providerConfig = getProviderConfig(provider);
+}
 
 export function validateJson(data) {
   if (typeof data === 'string') {
@@ -272,7 +327,7 @@ return `Done w. allThree, output: [${outPath}]`;
 //export function mkMsgArr(uMsgs:string | string[]='', sysMsgs:string | string[]=''):ChatCompletionMessageParam[] {
 export async function mkMsgArr(msgSrc: Strings | null | IMsgsParams): Promise<ChatCompletionMessageParam[]> {
 
-  let uMsg:Strings, sMsg:Strings;
+  let uMsg: Strings, sMsg: Strings;
   if (isSimpleObject(msgSrc)) {
     ({ uMsg, sMsg } = msgSrc as IMsgsParams);
   } else if ((typeof msgSrc === 'string') || Array.isArray(msgSrc)) {
@@ -323,7 +378,7 @@ interface LogDetails {
   sMsg?: Strings; // Optional property with default value later
   chatconfig?: Record<string, any>; // Optional property
 }
-export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatconfig = {} }:LogDetails) {
+export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatconfig = {} }: LogDetails) {
   if (isEmpty(msgs)) {
     let msg = await ask(`What is your question for [${provider}]?`);
     msgs = [msg];
@@ -356,7 +411,7 @@ export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatc
   return { label, stamp, usrmsg, sysmsg, chatinfo, outpath, sysMsgKeys, usrMsgKeys };
 }
 
-export function addRound(outpath:string, round:number, usr?:string, assistant?:string) {
+export function addRound(outpath: string, round: number, usr?: string, assistant?: string) {
 }
 
 /**

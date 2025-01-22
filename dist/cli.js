@@ -12,7 +12,7 @@ import { codeFiles, initMsgsDB, processMsgsDB, wrapCodeNew, getModelList, getLlm
 //chatTask,
 mkTogetherModelChoices, AllMsgs, sGeminiChat, 
 //geminiChat,
-genAIChat, getAllMsgsByObj, buildMsg, hfChat, expandMsgs, findEmbeddeds, getModelObjs, 
+genAIChat, getAllMsgsByObj, buildMsg, hfChat, expandMsgs, findEmbeddeds, getModelObjsOai, 
 // tstFncJsons,
 filterTogetherModels, //getExpandedMsgs,
 anthropicChatCached, } from './init.js';
@@ -39,7 +39,8 @@ export async function parseChatArgs(args, chatOpts = {}) {
     return { msgs, opts };
 }
 let tstSrcs = {
-    common1: { fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
+    common1: {
+        fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
         excPatterns: ['/tstcli', '.md', '/References/',],
     },
     //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
@@ -170,12 +171,12 @@ let fncs = {
       console.log(short);
     },
     */
-    getModelObjs: async (provider, ...args) => {
+    getModelObjsOai: async (provider, ...args) => {
         provider = provider || 'openai';
         provider = getLlmProvider(provider);
         let { opts } = parseArgs(args);
-        //let res = await getModelObjs(provider,{format:false, filter:'4o', sort:true});
-        let res = await getModelObjs(provider, { filter: '4o' });
+        //let res = await getModelObjsOai(provider,{format:false, filter:'4o', sort:true});
+        let res = await getModelObjsOai(provider, { filter: '4o' });
         console.log(`Models for ${provider}:`, res);
     },
     tstMsgStr: async (...args) => {

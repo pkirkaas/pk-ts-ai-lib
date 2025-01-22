@@ -29,6 +29,19 @@ export function findEmbeddeds(msgStr) {
     return embeddeds;
 }
 /**
+ * Throws if any embeds remain in string
+ */
+export function assertEmbeddeds(str) {
+    let msgTypes = Object.keys(wrapPairs);
+    for (let msgType of msgTypes) {
+        let { open, close } = wrapPairs[msgType];
+        let tags = taggedMatches(str, open, close);
+        if (tags.length) {
+            throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+        }
+    }
+}
+/**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
  */
@@ -166,8 +179,6 @@ export function tagReplace(tag, msgType, strip) {
     }
     if (msgType === 'code') {
         replace = wrapCodeNew(val);
-        //} else if (msgType === 'sysmsg'){
-        // replace='';
     }
     else if ((msgType === 'usrmsg') || (msgType === 'sysmsg')) {
         replace = val;
@@ -199,10 +210,10 @@ export function buildMsg(...msgs) {
     } // We have a tagged umessage string, with uMsg, sMsg, code & comment tags
     // Substitute uMsg tags w. expansions
     let usrMsg = nestReplaceTags(msgStr, msgType);
-    //let sMsg = stripComments(buildSysMsg(usrMsg));
-    //let uMsg =  stripComments(nestReplaceTags(usrMsg,'sysmsg', true));
     let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code');
     let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
+    assertEmbeddeds(sMsg);
+    assertEmbeddeds(uMsg);
     return { uMsg, sMsg };
 }
 export function nestReplaceTags(msgStr, msgType, strip) {

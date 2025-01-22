@@ -28,6 +28,11 @@ export interface AnthropicConfig {
   max_tokens?: number,
 }
 
+/**
+ * Cached Claude Chat called from chatBase
+ */
+export async function chatClaudeBase() {
+}
 //export async function anthropicChat(msgs: Strings, opts: AnthropicConfig = {}) {
 // Experiment with caching
 export async function anthropicChatCached(...args ) {

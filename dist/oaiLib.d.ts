@@ -22,7 +22,7 @@ export declare function getOaiClient(provider?: any): OpenAI;
  * @param filter - Whether to filter the models by filter string. Defaults to '' (no filter).
  * @returns {Promise<ModelInfo[]>} - Array of model objects - ids/names
  */
-export declare function getModelObjs(provider: any, opts?: GenObj): Promise<import("pk-ts-node-lib").GenericObject[]>;
+export declare function getModelObjsOai(provider: any, opts?: GenObj): Promise<import("pk-ts-node-lib").GenericObject[]>;
 /** Retuns string array of model ids/names  */
 export declare function getModelList(provider?: any, opts?: GenObj): Promise<any[]>;
 export declare function askModel(provider?: any, opts?: GenObj): Promise<any>;

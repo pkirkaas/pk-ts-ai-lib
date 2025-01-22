@@ -15,7 +15,12 @@ export declare function mkModelListOpts(opts?: any): any;
  * Returns a processed model list - filtered, sorted, formatted
  *
  */
-export declare function processModelList(modelObjs: GenObj[], opts?: GenObj): import("pk-ts-node-lib").GenericObject[];
+export type ModelListOpts = {
+    sort?: string;
+    filter?: Strings;
+    format?: any;
+};
+export declare function filterModelObjArr(modelObjs: GenObj[], opts?: ModelListOpts): import("pk-ts-node-lib").GenericObject[];
 /**
  * Return the provider key (lms, ollama)
  * @param {string} provider - ollama' - if null, use llmProvider if set, else ask
@@ -28,6 +33,30 @@ export interface IMsgsParams {
     uMsg?: string | string[] | null;
     sMsg?: string | string[] | null;
 }
+export type ChatParams = {
+    sMsg: string;
+    uMsg: string;
+};
+export declare function mkChatParams(chatSrc: ChatParams | Strings): ChatParams;
+/**
+ * Returns the model to use for provider
+ * @param provider:string - the provider
+ * @param model?:Strings - if empty, the default. If Strings, the model name or filters
+ * If more than one model matches filters, asks user
+ * @return:string model name
+ */
+export declare function baseGetModel(provider: string, model?: Strings): Promise<string>;
+/**
+ * Returns all models for provider, based on model filter
+ */
+/**
+ * BaseChat to chat with any supported provider
+ * @param chatSrc:ChatParams|Strings -  either ChatParams or Strings to build chat params
+ * @param provider:string - which provider to use
+ * @param opts:GenObj - custom opts for this chat. Opt keys:
+ *   model:string -
+ */
+export declare function baseChat(chatSrc: ChatParams | Strings, provider: string, opts?: GenObj): Promise<void>;
 export declare function validateJson(data: any): import("pk-ts-node-lib").SimpleObject;
 export declare function mkRepPath(lbl?: string, ext?: string): string;
 export declare function writeLog(str: any, { lbl, ext }?: GenObj): void;
