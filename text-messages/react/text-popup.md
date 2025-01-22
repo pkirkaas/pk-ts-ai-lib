@@ -1,5 +1,7 @@
-{| React Text Popup Input Component |}
+{| React Text Popup Input Component
 [[rcomp]]
+ |}
+ [[tstnest]]
 
 {{commonlib}}
 Your task is to create a React pop-up component that is launched from a web page when a button is clicked. 

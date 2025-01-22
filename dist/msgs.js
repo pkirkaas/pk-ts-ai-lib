@@ -201,8 +201,8 @@ export function buildMsg(...msgs) {
     let usrMsg = nestReplaceTags(msgStr, msgType);
     //let sMsg = stripComments(buildSysMsg(usrMsg));
     //let uMsg =  stripComments(nestReplaceTags(usrMsg,'sysmsg', true));
-    let sMsg = buildSysMsg(usrMsg);
-    let uMsg = nestReplaceTags(usrMsg, 'sysmsg', true);
+    let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code');
+    let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
     return { uMsg, sMsg };
 }
 export function nestReplaceTags(msgStr, msgType, strip) {
@@ -552,6 +552,11 @@ Before you respond, you will review your solution again, and PLEASE, PLEASE take
 
 `;
 export let systemMessages = {
+    tstdef: `test default sys`,
+    tstnest: `[[tstdef]]
+  {{commonlib}}
+  Tst Nest after tstdef inc
+  `,
     default: defaultSysMsg,
     code: `[[default]] 
 The context is a new software application in very early stages of development and prototyping. Therefore, backward compatibility is not a concern. Production optimization or deployment is not a concern. Performance is not a concern. Legacy code or package support is not a concern. We want to make use of the latest features of all libraries and packages, including beta versions and release candidates. Stability of library packages is not a concern. 

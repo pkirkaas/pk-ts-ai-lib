@@ -5,3 +5,4 @@
 - Create generic chat function that calls specific chat functions based provider
 - Refactor provider constants
 - Complete new buildMsg by adding wrapCode, and test w. lots of weird msg keys/vals
+- Clean build msg, esp for code, & checking for remaining tags

@@ -96,6 +96,8 @@ export declare let wrappedSchemaStr: string;
 export declare let codeFiles: WrapCodeObjs;
 export declare let defaultSysMsg: string;
 export declare let systemMessages: {
+    tstdef: string;
+    tstnest: string;
     default: string;
     code: string;
     python: string;
