@@ -7,3 +7,4 @@
 - Complete new buildMsg by adding wrapCode, and test w. lots of weird msg keys/vals
 - Clean build msg, esp for code, & checking for remaining tags
 - Abstract client libs in subdir, add client to provider constants - most use OpenAI client, even if other providers - then easier to abstract rest
+- Continue abstract client libs, testing lms, commander script
