@@ -14,6 +14,7 @@ export * from './lib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
+export * from './llmLibs/clientLibs.js';
 
 // NPM Imports
 import mime from 'mime';

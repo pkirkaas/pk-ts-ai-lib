@@ -13,6 +13,7 @@ export * from './lib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
+export * from './llmLibs/clientLibs.js';
 //PkLib imports
 import { PkError, isObject, mkArray, } from 'pk-ts-node-lib';
 import { getLogDS, } from './sqliteLib/index.js';
