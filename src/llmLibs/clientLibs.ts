@@ -10,6 +10,8 @@
 // NPM Imports
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from "openai";
+import { openai } from "@ai-sdk/openai"
+//import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from 'lodash';
 //import setTitle from 'console-title';

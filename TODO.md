@@ -9,3 +9,5 @@
 - Abstract client libs in subdir, add client to provider constants - most use OpenAI client, even if other providers - then easier to abstract rest
 - Continue abstract client libs, testing lms, commander script
 - OR - Pivot to Vercel AI SDK
+- Really work the Vercel AI SDK
+- Implement new tests in Commander

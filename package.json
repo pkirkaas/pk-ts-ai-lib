@@ -21,7 +21,14 @@
     "clean": "rm -rf ./dist ./node_modules package-lock.json && npm i && tsc"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "*",
+    "@ai-sdk/deepseek": "*",
     "@ai-sdk/google": "*",
+    "@ai-sdk/openai": "*",
+    "@ai-sdk/openai-compatible": "*",
+    "@ai-sdk/provider": "^1.0.6",
+    "@ai-sdk/togetherai": "*",
+    "@ai-sdk/xai": "*",
     "@anthropic-ai/sdk": "*",
     "@anthropic-ai/vertex-sdk": "*",
     "@google-cloud/aiplatform": "*",
