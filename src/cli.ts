@@ -44,6 +44,8 @@ import {
   filterTogetherModels, showTogetherModel, showTogetherModels, //oaiChatTask,
   allThree, //getExpandedMsgs,
   anthropicChatCached,
+  // New Client Classes/Implementation
+  OpenAiClient,ClaudeClient,
 } from './init.js';
 
 // Implementations
@@ -73,15 +75,12 @@ export async function parseChatArgs(args, chatOpts: any = {}) {
   return { msgs, opts };
 }
 
-let tstSrcs = {
-  common1: {
-    fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
-    excPatterns: ['/tstcli', '.md', '/References/',],
-  },
-  //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
-};
-
 let fncs = {
+  async tstClient(provider="openai") {
+    let client = new OpenAiClient(provider);
+    let models = await client.filterModels();
+    console.log({models});
+  },
   async tstNewMsg(...args) {
     if (isEmpty(args)) {
       args.push('text-popup');

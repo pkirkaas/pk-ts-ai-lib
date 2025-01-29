@@ -28,7 +28,7 @@ export declare const defaultGenerationConfig: {
 };
 export declare const providers: {
     lms: {
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
         defaultOpts: {
             temperature: number;
@@ -51,7 +51,7 @@ export declare const providers: {
         };
     };
     ollama: {
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
         defaultOpts: {
             temperature: number;
@@ -62,7 +62,7 @@ export declare const providers: {
         clientLib: typeof OpenAI;
     };
     openai: {
-        baseUrl: string;
+        baseURL: string;
         clientLib: typeof OpenAI;
         defaultFilter: string;
         defaultOpts: {
@@ -75,12 +75,12 @@ export declare const providers: {
         defaultModel: string;
     };
     together: {
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
     };
     anthropic: {
         clientLib: typeof Anthropic;
-        baseUrl: string;
+        baseURL: string;
         type: string;
         model: string;
         apiKey: string;
@@ -95,7 +95,7 @@ export declare const providers: {
         type: string;
         model: string;
         models: string[];
-        baseUrl: string;
+        baseURL: string;
         project: string;
         defaultGenerationConfig: {
             temperature: number;
@@ -128,12 +128,12 @@ export declare const providers: {
     };
     nebius: {
         clientLib: typeof OpenAI;
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
     };
     nvidia: {
         clientLib: typeof OpenAI;
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
     };
 };

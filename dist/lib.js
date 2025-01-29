@@ -5,7 +5,7 @@ import setTitle from 'console-title';
 //import * as slugify from 'slugify';
 import slugify from 'slugify';
 // PkLib Imports
-import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, ask, dtFmt, JSON5Stringify, inArr1NinArr2, strIncludesAny, } from 'pk-ts-node-lib';
+import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, JSON5Stringify, inArr1NinArr2, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
 import { expandMsgs, 
 //mkMsgStr,
@@ -45,17 +45,24 @@ export function filterModelObjArr(modelObjs, opts = {}) {
         });
     }
     if (sort) {
+        let sortBy;
+        if (isString(sort)) {
+            sortBy = sort;
+        }
+        else {
+            sortBy = 'created';
+        }
         let cmpFnc = (a, b) => {
-            if (a[sort] === b[sort]) {
+            if (a[sortBy] === b[sortBy]) {
                 return 0;
             }
-            if (!(a[sort])) {
+            if (!(a[sortBy])) {
                 return -1;
             }
-            if ((!b[sort])) {
+            if ((!b[sortBy])) {
                 return 1;
             }
-            return b[sort] > a[sort] ? -1 : 1;
+            return b[sortBy] > a[sortBy] ? -1 : 1;
         };
         modelObjs.sort(cmpFnc);
     }

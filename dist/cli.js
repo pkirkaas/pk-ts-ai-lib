@@ -15,7 +15,9 @@ mkTogetherModelChoices, AllMsgs, sGeminiChat,
 genAIChat, getAllMsgsByObj, buildMsg, hfChat, expandMsgs, findEmbeddeds, getModelObjsOai, 
 // tstFncJsons,
 filterTogetherModels, //getExpandedMsgs,
-anthropicChatCached, } from './init.js';
+anthropicChatCached, 
+// New Client Classes/Implementation
+OpenAiClient, } from './init.js';
 // Implementations
 export let msgKeys = {};
 export async function parseChatArgs(args, chatOpts = {}) {
@@ -38,14 +40,12 @@ export async function parseChatArgs(args, chatOpts = {}) {
     }
     return { msgs, opts };
 }
-let tstSrcs = {
-    common1: {
-        fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common", desc: 'Common1', root: 'C:/www/TypeScriptLibs/Pk-Ts-Common',
-        excPatterns: ['/tstcli', '.md', '/References/',],
-    },
-    //common2: ["C:/www/TypeScriptLibs/Pk-Ts-Common"],
-};
 let fncs = {
+    async tstClient(provider = "openai") {
+        let client = new OpenAiClient(provider);
+        let models = await client.filterModels();
+        console.log({ models });
+    },
     async tstNewMsg(...args) {
         if (isEmpty(args)) {
             args.push('text-popup');

@@ -41,7 +41,7 @@ export const defaultGenerationConfig = { // For Google/VertexAI
 
 export const providers = {
   lms: {
-    baseUrl: `http://localhost:${LMS_PORT}/v1`,
+    baseURL: `http://localhost:${LMS_PORT}/v1`,
     apiKey: 'lms',
     defaultOpts: {
       ...oaiCodeParams,
@@ -60,7 +60,7 @@ export const providers = {
     },
   },
   ollama: {
-    baseUrl: `http://localhost:${OLLAMA_PORT}/v1`,
+    baseURL: `http://localhost:${OLLAMA_PORT}/v1`,
     apiKey: 'ollama',
     defaultOpts: {
       ...oaiCodeParams,
@@ -69,7 +69,7 @@ export const providers = {
     clientLib: OpenAI,
   },
   openai: {
-    baseUrl: 'https://api.openai.com/v1',
+    baseURL: 'https://api.openai.com/v1',
     clientLib: OpenAI,
     defaultFilter: 'latest',
     defaultOpts: {
@@ -80,12 +80,12 @@ export const providers = {
     defaultModel: 'chatgpt-4o-latest',
   },
   together: {
-    baseUrl: "https://api.together.xyz/v1",
+    baseURL: "https://api.together.xyz/v1",
     apiKey: process.env.TOGETHER_API_KEY,
   },
   anthropic: {
     clientLib: Anthropic,
-    baseUrl: "",
+    baseURL: "",
     type: "vertex",
     model: 'claude-3-5-sonnet-latest',
     apiKey: process.env.ANTHROPIC_API_KEY,
@@ -103,7 +103,7 @@ export const providers = {
       'gemini-1.5-pro-exp-0827',
       'gemini-1.5-pro-002',
     ],
-    baseUrl: "https://generativelanguage.googleapis.com/v1beta",
+    baseURL: "https://generativelanguage.googleapis.com/v1beta",
     project: 'stalwart-veld-438120-v7',
     defaultGenerationConfig,
     apiKey: process.env.GEMINI_API_KEY,
@@ -120,12 +120,12 @@ export const providers = {
   },
   nebius: {
     clientLib: OpenAI,
-    baseUrl: "https://api.studio.nebius.ai/v1/",
+    baseURL: "https://api.studio.nebius.ai/v1/",
     apiKey: process.env.NEBIUS_API_KEY,
   },
   nvidia: {
     clientLib: OpenAI,
-    baseUrl: 'https://integrate.api.nvidia.com/v1',
+    baseURL: 'https://integrate.api.nvidia.com/v1',
     apiKey: process.env.NVIDIA_API_KEY,
   },
 

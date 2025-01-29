@@ -16,7 +16,7 @@ export declare function mkModelListOpts(opts?: any): any;
  *
  */
 export type ModelListOpts = {
-    sort?: string;
+    sort?: string | boolean;
     filter?: Strings;
     format?: any;
 };
@@ -80,7 +80,7 @@ export declare function mkMsgArr(msgSrc: Strings | null | IMsgsParams): Promise<
  */
 export declare function getProviders(list?: boolean): string[] | {
     lms: {
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
         defaultOpts: {
             temperature: number;
@@ -103,7 +103,7 @@ export declare function getProviders(list?: boolean): string[] | {
         };
     };
     ollama: {
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
         defaultOpts: {
             temperature: number;
@@ -114,7 +114,7 @@ export declare function getProviders(list?: boolean): string[] | {
         clientLib: typeof import("openai").OpenAI;
     };
     openai: {
-        baseUrl: string;
+        baseURL: string;
         clientLib: typeof import("openai").OpenAI;
         defaultFilter: string;
         defaultOpts: {
@@ -127,12 +127,12 @@ export declare function getProviders(list?: boolean): string[] | {
         defaultModel: string;
     };
     together: {
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
     };
     anthropic: {
         clientLib: typeof import("@anthropic-ai/sdk").Anthropic;
-        baseUrl: string;
+        baseURL: string;
         type: string;
         model: string;
         apiKey: string;
@@ -147,7 +147,7 @@ export declare function getProviders(list?: boolean): string[] | {
         type: string;
         model: string;
         models: string[];
-        baseUrl: string;
+        baseURL: string;
         project: string;
         defaultGenerationConfig: {
             temperature: number;
@@ -180,12 +180,12 @@ export declare function getProviders(list?: boolean): string[] | {
     };
     nebius: {
         clientLib: typeof import("openai").OpenAI;
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
     };
     nvidia: {
         clientLib: typeof import("openai").OpenAI;
-        baseUrl: string;
+        baseURL: string;
         apiKey: string;
     };
 };

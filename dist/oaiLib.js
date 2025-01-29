@@ -1,7 +1,6 @@
 /** Lib for OpenAI API compliant basic local chatbot w. llm-studio  & ollama
  *
 */
-// NPM Package Imports
 import OpenAI from "openai";
 // PK Lib Imports
 import { ask, writeData, isEmpty, parseArgs, mkArray, } from 'pk-ts-node-lib';

@@ -16,6 +16,7 @@ import _ from "lodash";
 
 import {
   GenObj, typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, Strings,
+  isString,
   ask, multiAsk, dtFmt, parseArgs, JSON5Stringify, JSONStringify, inArr1NinArr2, strIncludesAny,
 } from 'pk-ts-node-lib';
 
@@ -55,7 +56,7 @@ export function mkModelListOpts(opts: any = {}) {
  * 
  */
 export type ModelListOpts = {
-  sort?: string, // model obj key to sort by
+  sort?: string|boolean, // model obj key to sort by
   filter?: Strings, // model names or substrings to filter on
   format?: any,
 };
@@ -78,17 +79,23 @@ export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {})
     });
   }
   if (sort) {
+    let sortBy:string;
+    if (isString(sort)) {
+      sortBy=sort;
+    } else {
+      sortBy='created';
+    }
     let cmpFnc = (a, b) => { // Sort by key value
-      if (a[sort] === b[sort]) {
+      if (a[sortBy] === b[sortBy]) {
         return 0;
       }
-      if (!(a[sort])) {
+      if (!(a[sortBy])) {
         return -1;
       }
-      if ((!b[sort])) {
+      if ((!b[sortBy])) {
         return 1;
       }
-      return b[sort] > a[sort] ? -1 : 1;
+      return b[sortBy] > a[sortBy] ? -1 : 1;
     };
     modelObjs.sort(cmpFnc);
   }

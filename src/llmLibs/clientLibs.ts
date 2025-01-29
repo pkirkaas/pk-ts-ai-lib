@@ -17,16 +17,16 @@ import _ from 'lodash';
 
 //PkLib Imports
 import {
-  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes,  writeData,  askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk,
-  parseArgs,
+  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk,
+  parseArgs, GenObj, isString, mkArray, strIncludesAny,
 } from 'pk-ts-node-lib';
 
 // Local Imports
 
 
 import {
-  mkMsgArr, getProviderConfig, expandMsgs, getLlmProvider,
-   defaultSysMsg, Strings, logEntities, LogItem, initChatLog,
+  mkMsgArr, getProviderConfig, expandMsgs, getLlmProvider, ModelListOpts,
+  defaultSysMsg, Strings, logEntities, LogItem, initChatLog,
   chatEntities, ChatLog, ChatItem, mkStamp, mkLogDets,
 } from '../init.js';
 
@@ -44,24 +44,99 @@ export interface AnthropicConfig {
  * New instance for every new interaction, different providers might use the same API client
  */
 export abstract class BaseClient {
-  client:object; // The initialized API Client SDK
-  provider:string; // The provider name for the default provider config, with URL, default opts, etc
-  chatFilePath:string; // The file patch for the specific chat log. Initialized in 'chat' method.
-  constructor(provider:string) {
-    this.provider = provider;
+  //client:object; // The initialized API Client SDK
+  client: GenObj; // The initialized API Client SDK
+  provider: string; // The provider name for the default provider config, with URL, default opts, etc
+  chatFilePath: string; // The file patch for the specific chat log. Initialized in 'chat' method.
+  constructor(provider: string) {
+    this.provider = getLlmProvider(provider);
+  }
+
+  get providerConfig(): GenObj {
+    return getProviderConfig(this.provider);
   }
 
   async baseChat(msg) {
   }
 
-  async getModels(...args) {
+  /**
+   * Returns the models available for the provider
+   */
+  async getModels(...args): Promise<GenObj[]> {
+    return [{}];
   }
-  
+
+
+
+  /**
+   * Returns the models for the provider, optionally filtered/processed:
+   * @param opts.filter?:Strings - substring(s) to filter model names
+   * @param opts.format?:any - format models? - Currently, just format created date
+   * @param opts.sort?:string - sort by ModelObject key 
+   * @return Array of Model Objects
+   */
+  async filterModels(opts: ModelListOpts = {}):Promise<GenObj[]> {
+    let modelObjs = await this.getModels();
+    let listOptsDef = { sort: 'created', format: true, filter: '', };
+    let { sort, format, filter } = { ...listOptsDef, ...opts };
+
+    if (filter) {
+      let filters = mkArray(filter);
+      modelObjs = modelObjs.filter((modelObj) => {
+        if (modelObj.id) {
+          return strIncludesAny(modelObj.id, filters, true);
+        } else if (modelObj.name) {
+          return strIncludesAny(modelObj.name, filters, true);
+        } else { // What to filter on?
+          return true;
+        }
+      });
+    }
+    if (sort) {
+      let sortBy: string;
+      if (isString(sort)) {
+        sortBy = sort;
+      } else {
+        sortBy = 'created';
+      }
+      let cmpFnc = (a, b) => { // Sort by key value
+        if (a[sortBy] === b[sortBy]) {
+          return 0;
+        }
+        if (!(a[sortBy])) {
+          return -1;
+        }
+        if ((!b[sortBy])) {
+          return 1;
+        }
+        return b[sortBy] > a[sortBy] ? -1 : 1;
+      };
+      modelObjs.sort(cmpFnc);
+    }
+    if (format) {
+      modelObjs = modelObjs.map((modelObj) => {
+        if (modelObj.created) {
+          modelObj.createdAt = dtFmt('short', modelObj.created * 1000);
+        }
+        return modelObj;
+      });
+    }
+    return modelObjs;
+  }
+
+
 }
 
 export class OpenAiClient extends BaseClient {
-  constructor(provider:string) {
+  constructor(provider: string) {
     super(provider);
+    let { baseURL, apiKey } = this.providerConfig; let clientCreateParams = { apiKey, baseURL, };
+    console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
+    this.client = new OpenAI(clientCreateParams);
+  }
+  async getModels(...args): Promise<GenObj[]> {
+    let modelObjs: GenObj[] = (await this.client.models.list()).data;
+    return modelObjs;
   }
 }
 
