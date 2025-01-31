@@ -49,7 +49,7 @@ export const providers = {
     },
     clientLib: OpenAI,
   },
-  grok: {
+  xai: {
     apiKey: process.env.GROK_API_KEY,
     clientLib: OpenAI,
     baseURL: "https://api.x.ai/v1",
@@ -79,7 +79,7 @@ export const providers = {
     apiKey: process.env.OPENAI_API_KEY,
     defaultModel: 'chatgpt-4o-latest',
   },
-  together: {
+  togetherai: {
     baseURL: "https://api.together.xyz/v1",
     apiKey: process.env.TOGETHER_API_KEY,
   },

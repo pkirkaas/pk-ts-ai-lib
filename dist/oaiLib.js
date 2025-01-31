@@ -6,7 +6,11 @@ import OpenAI from "openai";
 import { ask, writeData, isEmpty, parseArgs, mkArray, } from 'pk-ts-node-lib';
 import { isObject, isSimpleObject, PkError, } from 'pk-ts-common-lib';
 // Local Imports
-import { filterModelObjArr, getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
+import { filterModelObjArr, getProviderConfig, 
+// getApiKey, 
+getLlmProvider, 
+// getServerUrl, 
+mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
 /**
  * Some providers work better with a direct call to the OpenAI API than
  * using the openai cliient
@@ -15,8 +19,9 @@ import { filterModelObjArr, getProviderConfig, getApiKey, getLlmProvider, getSer
  */
 export async function getRawModelObjs(provider = 'together', opts = {}) {
     provider = getLlmProvider(provider);
-    let apiKey = getApiKey(provider);
-    let baseURL = getServerUrl(provider);
+    let { baseURL, apiKey } = getProviderConfig(provider);
+    //let apiKey = getApiKey(provider);
+    // let baseURL = getServerUrl(provider);
     let options = {
         method: 'GET',
         headers: {
@@ -62,8 +67,10 @@ export async function getRawModelList(provider = 'together', opts = {}) {
 }
 export function getOaiClient(provider = null) {
     provider = getLlmProvider(provider);
-    let baseURL = getServerUrl(provider);
-    let apiKey = getApiKey(provider);
+    let providerConfig = getProviderConfig(provider);
+    //let baseURL = getServerUrl(provider);
+    //let apiKey = getApiKey(provider);
+    let { baseURL, apiKey } = providerConfig;
     let clientCreateParams = { apiKey, baseURL, timeout, };
     console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
     let client = new OpenAI(clientCreateParams);

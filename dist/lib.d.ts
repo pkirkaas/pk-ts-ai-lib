@@ -4,7 +4,6 @@
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import { GenObj, Strings } from 'pk-ts-node-lib';
 export declare let llmProvider: string;
-export declare function getApiKey(provider?: any): any;
 /**
  * Make options for model list - sort, format, filter
  */
@@ -28,7 +27,6 @@ export declare function filterModelObjArr(modelObjs: GenObj[], opts?: ModelListO
  */
 export declare function getLlmProvider(provider?: any): any;
 export declare function getProviderConfig(provider?: any): any;
-export declare function getServerUrl(provider?: any): any;
 export interface IMsgsParams {
     uMsg?: string | string[] | null;
     sMsg?: string | string[] | null;
@@ -90,7 +88,7 @@ export declare function getProviders(list?: boolean): string[] | {
         };
         clientLib: typeof import("openai").OpenAI;
     };
-    grok: {
+    xai: {
         apiKey: string;
         clientLib: typeof import("openai").OpenAI;
         baseURL: string;
@@ -126,7 +124,7 @@ export declare function getProviders(list?: boolean): string[] | {
         apiKey: string;
         defaultModel: string;
     };
-    together: {
+    togetherai: {
         baseURL: string;
         apiKey: string;
     };

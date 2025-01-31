@@ -8,7 +8,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ask, stdOut, writeData, mkArray, isEmpty, } from 'pk-ts-node-lib';
 import { extractOpts, } from 'pk-ts-common-lib';
 // Local Imports
-import { getApiKey, getProviderConfig, parseSingleGeminiResponse, 
+import { getProviderConfig, parseSingleGeminiResponse, 
 //mkMsgStr,
 getLlmProvider, initChatLog, mkLogDets, } from './init.js';
 export async function getGenAIModels(opts = {}) {
@@ -84,8 +84,8 @@ export async function genAIChat(msg = [], opts = {}) {
 export async function getGenAIClient(provider = "gengemini", opts = {}) {
     //let {provider="gengemini",   sMsg, dropSchema, followup,} = opts;
     provider = getLlmProvider(provider);
-    //let config = getProviderConfig(provider);
-    let apiKey = getApiKey(provider);
+    let config = getProviderConfig(provider);
+    let { apiKey } = config;
     const genAI = new GoogleGenerativeAI(apiKey);
     return genAI;
 }

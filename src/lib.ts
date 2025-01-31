@@ -33,12 +33,14 @@ import {
 export let llmProvider: string; //Session provider 
 
 
+/*
 export function getApiKey(provider = null) {
   provider = getLlmProvider(provider);
   let config = getProviderConfig(provider);
   let apiKey = config.apiKey;
   return apiKey;
 }
+  */
 
 /**
  * Make options for model list - sort, format, filter
@@ -137,11 +139,13 @@ export function getProviderConfig(provider = null) {
   return providers[provider];
 }
 
+/*
 export function getServerUrl(provider = null) {
   provider = getLlmProvider(provider);
   let config = getProviderConfig(provider);
   return config.baseURL;
 }
+  */
 
 
 

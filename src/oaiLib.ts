@@ -18,7 +18,11 @@ import {
 // Local Imports
 import {
   mkStamp, mkModelListOpts, filterModelObjArr,
-  getProviderConfig, getApiKey, getLlmProvider, getServerUrl, mkMsgArr, mkLogDets,
+  getProviderConfig, 
+ // getApiKey, 
+  getLlmProvider, 
+ // getServerUrl, 
+  mkMsgArr, mkLogDets,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, AllMsgs, initChatLog,
   wordCnt, expandMsgs, Strings, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
@@ -32,8 +36,9 @@ import {
  */
 export async function getRawModelObjs(provider = 'together', opts: GenObj = {}) {
   provider = getLlmProvider(provider);
-  let apiKey = getApiKey(provider);
-  let baseURL = getServerUrl(provider);
+  let {baseURL, apiKey} = getProviderConfig(provider);
+  //let apiKey = getApiKey(provider);
+ // let baseURL = getServerUrl(provider);
   let options: GenObj = {
     method: 'GET',
     headers: {
@@ -81,8 +86,14 @@ export async function getRawModelList(provider = 'together', opts: GenObj = {}) 
 
 export function getOaiClient(provider = null) {
   provider = getLlmProvider(provider);
-  let baseURL = getServerUrl(provider);
-  let apiKey = getApiKey(provider);
+  let providerConfig = getProviderConfig(provider);
+
+
+  //let baseURL = getServerUrl(provider);
+  //let apiKey = getApiKey(provider);
+
+  let {baseURL, apiKey} = providerConfig;
+
   let clientCreateParams = { apiKey, baseURL, timeout, };
   console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
   let client = new OpenAI(clientCreateParams);

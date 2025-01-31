@@ -38,7 +38,7 @@ export declare const providers: {
         };
         clientLib: typeof OpenAI;
     };
-    grok: {
+    xai: {
         apiKey: string;
         clientLib: typeof OpenAI;
         baseURL: string;
@@ -74,7 +74,7 @@ export declare const providers: {
         apiKey: string;
         defaultModel: string;
     };
-    together: {
+    togetherai: {
         baseURL: string;
         apiKey: string;
     };

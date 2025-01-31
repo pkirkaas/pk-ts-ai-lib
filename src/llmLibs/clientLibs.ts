@@ -48,10 +48,14 @@ export interface AnthropicConfig {
 export abstract class BaseClient {
   //client:object; // The initialized API Client SDK
   client: GenObj; // The initialized API Client SDK
+  sdkClient:GenObj;
   provider: string; // The provider name for the default provider config, with URL, default opts, etc
   chatFilePath: string; // The file patch for the specific chat log. Initialized in 'chat' method.
   constructor(provider: string) {
     this.provider = getLlmProvider(provider);
+    //let clientLib = this.providerConfig.clientLib || OpenAI;
+    let  {clientLib=OpenAI, baseURL, apiKey} = this.providerConfig;
+    this.client = clientLib
   }
 
   get providerConfig(): GenObj {

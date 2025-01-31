@@ -6,6 +6,7 @@ import { ModelListOpts } from '../init.js';
  */
 export declare abstract class BaseClient {
     client: GenObj;
+    sdkClient: GenObj;
     provider: string;
     chatFilePath: string;
     constructor(provider: string);

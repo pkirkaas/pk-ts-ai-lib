@@ -11,6 +11,7 @@ export * from './hflib.js';
 export * from './vertex.js';
 export * from './genailib.js';
 export * from './lib.js';
+export * from './aisdklib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';

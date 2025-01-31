@@ -24,7 +24,7 @@ import {
 
 // Local Imports
 import {
-  getApiKey, 
+  //getApiKey, 
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, getProviderConfig, parseSingleGeminiResponse,
   //mkMsgStr,
   getLlmProvider,
@@ -109,8 +109,8 @@ export async function genAIChat(msg: Strings = [], opts: GenObj = {}) {
 export async function getGenAIClient(provider = "gengemini", opts: GenObj = {}) {
   //let {provider="gengemini",   sMsg, dropSchema, followup,} = opts;
   provider = getLlmProvider(provider);
-  //let config = getProviderConfig(provider);
-  let apiKey = getApiKey(provider);
+  let config = getProviderConfig(provider);
+  let {apiKey} = config;
   const genAI = new GoogleGenerativeAI(apiKey);
   return genAI;
 

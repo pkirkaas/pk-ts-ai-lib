@@ -11,12 +11,14 @@ import { expandMsgs,
 //mkMsgStr,
 fncSchema, buildMsg, providers, } from './init.js';
 export let llmProvider; //Session provider 
+/*
 export function getApiKey(provider = null) {
-    provider = getLlmProvider(provider);
-    let config = getProviderConfig(provider);
-    let apiKey = config.apiKey;
-    return apiKey;
+  provider = getLlmProvider(provider);
+  let config = getProviderConfig(provider);
+  let apiKey = config.apiKey;
+  return apiKey;
 }
+  */
 /**
  * Make options for model list - sort, format, filter
  */
@@ -101,11 +103,6 @@ export function getLlmProvider(provider = null) {
 export function getProviderConfig(provider = null) {
     provider = getLlmProvider(provider);
     return providers[provider];
-}
-export function getServerUrl(provider = null) {
-    provider = getLlmProvider(provider);
-    let config = getProviderConfig(provider);
-    return config.baseURL;
 }
 ;
 export function mkChatParams(chatSrc) {
