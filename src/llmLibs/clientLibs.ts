@@ -40,7 +40,6 @@ export interface AnthropicConfig {
 }
   */
 
-
 /**
  * Abstract Client class to provide common interface to different API clients - OpenAI & Anthropic for now, maybe Vertex, LMS, etc
  * New instance for every new interaction, different providers might use the same API client
@@ -53,9 +52,14 @@ export abstract class BaseClient {
   chatFilePath: string; // The file patch for the specific chat log. Initialized in 'chat' method.
   constructor(provider: string) {
     this.provider = getLlmProvider(provider);
+    this.createNativeClient();
     //let clientLib = this.providerConfig.clientLib || OpenAI;
+  }
+
+  // Constructor actions that can be overridden in subclasses
+  createNativeClient(...args) {
     let  {clientLib=OpenAI, baseURL, apiKey} = this.providerConfig;
-    this.client = clientLib
+    this.client = new clientLib({baseURL,apiKey});
   }
 
   get providerConfig(): GenObj {
@@ -69,7 +73,8 @@ export abstract class BaseClient {
    * Returns the models available for the provider
    */
   async getModels(...args): Promise<GenObj[]> {
-    return [{}];
+    let modelObjs: GenObj[] = (await this.client.models.list()).data;
+    return modelObjs;
   }
 
 
@@ -134,24 +139,40 @@ export abstract class BaseClient {
 }
 
 export class OpenAiClient extends BaseClient {
+  /*
   constructor(provider: string) {
     super(provider);
-    let { baseURL, apiKey } = this.providerConfig; let clientCreateParams = { apiKey, baseURL, };
+    let { baseURL, apiKey } = this.providerConfig;
+    let clientCreateParams = { apiKey, baseURL, };
     console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
     this.client = new OpenAI(clientCreateParams);
   }
-  async getModels(...args): Promise<GenObj[]> {
-    let modelObjs: GenObj[] = (await this.client.models.list()).data;
-    return modelObjs;
-  }
+    */
 }
 
 export class ClaudeClient extends BaseClient {
 }
 
 
+export const clientClasses = {
+  OpenAiClient,
+  ClaudeClient,
+};
 
+export function getClientClass(provider) {
+  provider = getLlmProvider(provider);
+  let config = getProviderConfig(provider);
+  let clientClass = config.clientClass || OpenAiClient;
+  return clientClass;
+}
 
+export function getClient(provider:string) {
+  provider = getLlmProvider(provider);
+  let config = getProviderConfig(provider);
+  let clientClass = getClientClass(provider);
+  let client = new clientClass(provider);
+  return client;
+}
 
 
 

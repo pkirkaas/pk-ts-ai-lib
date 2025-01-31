@@ -24,9 +24,13 @@ export class BaseClient {
     chatFilePath; // The file patch for the specific chat log. Initialized in 'chat' method.
     constructor(provider) {
         this.provider = getLlmProvider(provider);
+        this.createNativeClient();
         //let clientLib = this.providerConfig.clientLib || OpenAI;
+    }
+    // Constructor actions that can be overridden in subclasses
+    createNativeClient(...args) {
         let { clientLib = OpenAI, baseURL, apiKey } = this.providerConfig;
-        this.client = clientLib;
+        this.client = new clientLib({ baseURL, apiKey });
     }
     get providerConfig() {
         return getProviderConfig(this.provider);
@@ -37,7 +41,8 @@ export class BaseClient {
      * Returns the models available for the provider
      */
     async getModels(...args) {
-        return [{}];
+        let modelObjs = (await this.client.models.list()).data;
+        return modelObjs;
     }
     /**
      * Returns the models for the provider, optionally filtered/processed:
@@ -98,18 +103,24 @@ export class BaseClient {
     }
 }
 export class OpenAiClient extends BaseClient {
-    constructor(provider) {
-        super(provider);
-        let { baseURL, apiKey } = this.providerConfig;
-        let clientCreateParams = { apiKey, baseURL, };
-        console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
-        this.client = new OpenAI(clientCreateParams);
-    }
-    async getModels(...args) {
-        let modelObjs = (await this.client.models.list()).data;
-        return modelObjs;
-    }
 }
 export class ClaudeClient extends BaseClient {
+}
+export const clientClasses = {
+    OpenAiClient,
+    ClaudeClient,
+};
+export function getClientClass(provider) {
+    provider = getLlmProvider(provider);
+    let config = getProviderConfig(provider);
+    let clientClass = config.clientClass || OpenAiClient;
+    return clientClass;
+}
+export function getClient(provider) {
+    provider = getLlmProvider(provider);
+    let config = getProviderConfig(provider);
+    let clientClass = getClientClass(provider);
+    let client = new clientClass(provider);
+    return client;
 }
 //# sourceMappingURL=clientLibs.js.map

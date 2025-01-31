@@ -86,13 +86,7 @@ export async function getRawModelList(provider = 'together', opts: GenObj = {}) 
 
 export function getOaiClient(provider = null) {
   provider = getLlmProvider(provider);
-  let providerConfig = getProviderConfig(provider);
-
-
-  //let baseURL = getServerUrl(provider);
-  //let apiKey = getApiKey(provider);
-
-  let {baseURL, apiKey} = providerConfig;
+  let {baseURL, apiKey} = getProviderConfig(provider);
 
   let clientCreateParams = { apiKey, baseURL, timeout, };
   console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);

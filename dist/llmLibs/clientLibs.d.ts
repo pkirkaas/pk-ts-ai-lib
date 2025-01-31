@@ -10,6 +10,7 @@ export declare abstract class BaseClient {
     provider: string;
     chatFilePath: string;
     constructor(provider: string);
+    createNativeClient(...args: any[]): void;
     get providerConfig(): GenObj;
     baseChat(msg: any): Promise<void>;
     /**
@@ -26,9 +27,13 @@ export declare abstract class BaseClient {
     filterModels(opts?: ModelListOpts): Promise<GenObj[]>;
 }
 export declare class OpenAiClient extends BaseClient {
-    constructor(provider: string);
-    getModels(...args: any[]): Promise<GenObj[]>;
 }
 export declare class ClaudeClient extends BaseClient {
 }
+export declare const clientClasses: {
+    OpenAiClient: typeof OpenAiClient;
+    ClaudeClient: typeof ClaudeClient;
+};
+export declare function getClientClass(provider: any): any;
+export declare function getClient(provider: string): any;
 //# sourceMappingURL=clientLibs.d.ts.map

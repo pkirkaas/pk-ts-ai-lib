@@ -13,7 +13,7 @@ import type { Command as CommandType } from 'commander';
 //Local Imports
 
 import {
-  providers, AiSdk,
+  providers, AiSdk, OpenAiClient, getClient,
 } from './init.js';
 
 let program = new Command()
@@ -27,9 +27,12 @@ let modelsCmd = new Command('models')
   .action( async(filter, options) => {
     let opts = program.opts();
     let {provider} = opts;
-    let connection = new AiSdk(provider);
-    let models = await connection.getModels();
-    console.log("In ModelsCmd", {filter, options, opts, connection, models,});
+    let client = getClient(provider);
+    //let models = await client.getModels();
+    let models = await client.filterModels();
+//    let connection = new AiSdk(provider);
+//    let models = await connection.getModels();
+    console.log("In ModelsCmd", {filter, options, opts,  models,});
   });
 
   program.addCommand(modelsCmd);

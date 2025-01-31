@@ -11,3 +11,5 @@
 - OR - Pivot to Vercel AI SDK
 - Really work the Vercel AI SDK
 - Implement new tests in Commander
+- Continue abstraction combining client classes & sdk clients
+- NORMALIZE/IMPROVE naming/exports
