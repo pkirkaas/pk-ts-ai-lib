@@ -3,7 +3,7 @@
  */
 
 import {
-   defaultSysMsg, OpenAiClient, ClaudeClient, TogetherClient,
+  defaultSysMsg, OpenAiClient, ClaudeClient, TogetherClient,
 } from './init.js';
 
 import { VertexAI } from '@google-cloud/vertexai';
@@ -45,18 +45,18 @@ export const providers = {
     apiKey: 'lms',
     defaultOpts: {
       ...oaiCodeParams,
-     // max_tokens: 8192,
+      // max_tokens: 8192,
     },
     //clientLib: OpenAI,
   },
   xai: {
     apiKey: process.env.GROK_API_KEY,
-   // clientLib: OpenAI,
+    // clientLib: OpenAI,
     baseURL: "https://api.x.ai/v1",
     model: "grok-beta",
     defaultOpts: {
       ...oaiCodeParams,
-     // max_tokens: 8192,
+      // max_tokens: 8192,
     },
   },
   ollama: {
@@ -64,17 +64,17 @@ export const providers = {
     apiKey: 'ollama',
     defaultOpts: {
       ...oaiCodeParams,
-     // max_tokens: 8192,
+      // max_tokens: 8192,
     },
-   // clientLib: OpenAI,
+    // clientLib: OpenAI,
   },
   openai: {
     baseURL: 'https://api.openai.com/v1',
-   // clientLib: OpenAI,
+    // clientLib: OpenAI,
     defaultFilter: 'latest',
     defaultOpts: {
       ...oaiCodeParams,
-     // max_tokens: 8192,
+      // max_tokens: 8192,
     },
     apiKey: process.env.OPENAI_API_KEY,
     defaultModel: 'chatgpt-4o-latest',
@@ -82,11 +82,11 @@ export const providers = {
   togetherai: {
     baseURL: "https://api.together.xyz/v1",
     apiKey: process.env.TOGETHER_API_KEY,
-    pkClientClass:TogetherClient,
+    pkClientClass: TogetherClient,
   },
   anthropic: {
     clientLib: Anthropic,
-    pkClientClass:ClaudeClient,
+    pkClientClass: ClaudeClient,
     //baseURL: "",
     //type: "vertex",
     model: 'claude-3-5-sonnet-latest',

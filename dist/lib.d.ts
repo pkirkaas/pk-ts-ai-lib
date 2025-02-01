@@ -18,6 +18,7 @@ export type ModelListOpts = {
     sort?: string | boolean;
     filter?: Strings;
     format?: any;
+    type?: string;
 };
 export declare function filterModelObjArr(modelObjs: GenObj[], opts?: ModelListOpts): import("pk-ts-node-lib").GenericObject[];
 /**

@@ -61,6 +61,7 @@ export type ModelListOpts = {
   sort?: string|boolean, // model obj key to sort by
   filter?: Strings, // model names or substrings to filter on
   format?: any,
+  type?:string, // For together - types can be 'chat', 'image', etc.
 };
 export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {}) {
   let listOptsDef = { sort: 'created', format: true, filter: '', };

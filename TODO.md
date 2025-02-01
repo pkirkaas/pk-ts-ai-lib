@@ -11,3 +11,4 @@
 - Continue abstraction combining client classes & sdk clients
 - NORMALIZE/IMPROVE naming/exports
 - customize filterModels for TogetherAI - so many models, types, etc
+- Also maybe pick/omit opt keys for filterModels - maybe custom per provider, like pricing for Together?

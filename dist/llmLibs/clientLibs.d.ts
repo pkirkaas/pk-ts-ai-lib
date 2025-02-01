@@ -25,6 +25,7 @@ export declare abstract class BaseClient {
      * @param opts.filter?:Strings - substring(s) to filter model names
      * @param opts.format?:any - format models? - Currently, just format created date
      * @param opts.sort?:string - sort by ModelObject key
+     * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat'
      * @return Array of Model Objects
      */
     filterModels(opts?: ModelListOpts): Promise<GenObj[]>;

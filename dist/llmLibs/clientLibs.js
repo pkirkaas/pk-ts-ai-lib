@@ -98,12 +98,13 @@ export class BaseClient {
      * @param opts.filter?:Strings - substring(s) to filter model names
      * @param opts.format?:any - format models? - Currently, just format created date
      * @param opts.sort?:string - sort by ModelObject key
+     * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat'
      * @return Array of Model Objects
      */
     async filterModels(opts = {}) {
         let modelObjs = await this.getModels();
         let listOptsDef = { sort: 'created', format: true, filter: '', };
-        let { sort, format, filter } = { ...listOptsDef, ...opts };
+        let { sort, format, filter, type, } = { ...listOptsDef, ...opts };
         if (filter) {
             let filters = mkArray(filter);
             modelObjs = modelObjs.filter((modelObj) => {
@@ -147,6 +148,9 @@ export class BaseClient {
                 }
                 return modelObj;
             });
+        }
+        if (type) {
+            modelObjs = modelObjs.filter((modelObj) => modelObj.type === type);
         }
         return modelObjs;
     }

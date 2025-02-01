@@ -17,10 +17,12 @@ let modelsCmd = new Command('models')
     let { provider } = opts;
     let client = getPkClient(provider);
     //let models = await client.getModels();
+    //let models = await client.filterModels({type:'chat'});
     let models = await client.filterModels();
+    let cnt = models.length;
     //    let connection = new AiSdk(provider);
     //    let models = await connection.getModels();
-    console.log("In ModelsCmd", { filter, options, opts, models, });
+    console.log("In ModelsCmd", { filter, options, opts, models, cnt, });
 });
 program.addCommand(modelsCmd);
 await program.parseAsync(process.argv);
