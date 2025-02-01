@@ -17,7 +17,7 @@ import { getRawModelObjs, filterModelObjArr, } from './init.js';
  * @param context:number - filter by model context >= context * 1000
  */
 export async function filterTogetherModels({ name, date, type, context, price, org, opts }) {
-    let models = await getRawModelObjs('together');
+    let models = await getRawModelObjs('togetherai');
     if (!Array.isArray(models)) {
         throw new PkError(`Models not array:`, { models });
     }

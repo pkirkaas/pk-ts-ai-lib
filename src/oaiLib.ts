@@ -32,9 +32,9 @@ import {
  * Some providers work better with a direct call to the OpenAI API than
  * using the openai cliient
  * Annoyingly, switch on 'provider' to get right call - currently,
- * gengemini & together
+ * gengemini & togetherai
  */
-export async function getRawModelObjs(provider = 'together', opts: GenObj = {}) {
+export async function getRawModelObjs(provider = 'togetherai', opts: GenObj = {}) {
   provider = getLlmProvider(provider);
   let {baseURL, apiKey} = getProviderConfig(provider);
   //let apiKey = getApiKey(provider);
@@ -59,7 +59,9 @@ export async function getRawModelObjs(provider = 'together', opts: GenObj = {}) 
   let respJson = await resp.json();
   //let toRespJson = typeOf(respJson);
   //console.log(`respJson:`, { toRespJson, respJson });
-  if (isSimpleObject(respJson)) {
+  if (Array.isArray(respJson)) {
+      return respJson;
+  } else if (isSimpleObject(respJson)) {
     if (('object' in respJson) && ('data' in respJson)) {
       modelObjs = respJson.data;
       if (!Array.isArray(modelObjs)) {
@@ -75,7 +77,7 @@ export async function getRawModelObjs(provider = 'together', opts: GenObj = {}) 
   return modelObjs;
 }
 
-export async function getRawModelList(provider = 'together', opts: GenObj = {}) {
+export async function getRawModelList(provider = 'togetherai', opts: GenObj = {}) {
   let modelObjArr = await getRawModelObjs(provider, opts);
   let modelList = modelObjArr.map((modelObj) => modelObj.id);
   return modelList;

@@ -33,7 +33,7 @@ import { providers, getLlmProvider,
 
 // Exports
 
-export const aiSdkClients =  {
+export const aiSdkClients =  { // Keyed by 'providers' key
   togetherai: {client:togetherai, create:createTogetherAI,},
   openai: {client:openai, create:createOpenAI,},
   anthropic: {client:anthropic, create:createAnthropic,},

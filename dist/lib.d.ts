@@ -86,11 +86,9 @@ export declare function getProviders(list?: boolean): string[] | {
             frequency_penalty: number;
             presence_penalty: number;
         };
-        clientLib: typeof import("openai").OpenAI;
     };
     xai: {
         apiKey: string;
-        clientLib: typeof import("openai").OpenAI;
         baseURL: string;
         model: string;
         defaultOpts: {
@@ -109,11 +107,9 @@ export declare function getProviders(list?: boolean): string[] | {
             frequency_penalty: number;
             presence_penalty: number;
         };
-        clientLib: typeof import("openai").OpenAI;
     };
     openai: {
         baseURL: string;
-        clientLib: typeof import("openai").OpenAI;
         defaultFilter: string;
         defaultOpts: {
             temperature: number;
@@ -127,11 +123,11 @@ export declare function getProviders(list?: boolean): string[] | {
     togetherai: {
         baseURL: string;
         apiKey: string;
+        pkClientClass: typeof import("./init.js").TogetherClient;
     };
     anthropic: {
         clientLib: typeof import("@anthropic-ai/sdk").Anthropic;
-        baseURL: string;
-        type: string;
+        pkClientClass: typeof import("./init.js").ClaudeClient;
         model: string;
         apiKey: string;
         defaultOpts: {

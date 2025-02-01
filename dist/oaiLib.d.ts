@@ -8,9 +8,9 @@ import { Strings } from './init.js';
  * Some providers work better with a direct call to the OpenAI API than
  * using the openai cliient
  * Annoyingly, switch on 'provider' to get right call - currently,
- * gengemini & together
+ * gengemini & togetherai
  */
-export declare function getRawModelObjs(provider?: string, opts?: GenObj): Promise<import("pk-ts-node-lib").GenericObject[]>;
+export declare function getRawModelObjs(provider?: string, opts?: GenObj): Promise<any[]>;
 export declare function getRawModelList(provider?: string, opts?: GenObj): Promise<any[]>;
 export declare function getOaiClient(provider?: any): OpenAI;
 /**

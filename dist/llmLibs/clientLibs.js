@@ -2,9 +2,9 @@ import OpenAI from "openai";
 //import setTitle from 'console-title';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { dtFmt, isString, mkArray, strIncludesAny, } from 'pk-ts-node-lib';
+import { dtFmt, isSimpleObject, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
-import { getProviderConfig, getLlmProvider, } from '../init.js';
+import { getProviderConfig, getLlmProvider, aiSdkClients, } from '../init.js';
 /*
 export interface AnthropicConfig {
   system?: string,
@@ -13,13 +13,14 @@ export interface AnthropicConfig {
 }
   */
 /**
- * Abstract Client class to provide common interface to different API clients - OpenAI & Anthropic for now, maybe Vertex, LMS, etc
+ * Abstract Client class to provide common interface to different API clients -
+ * Base/Default to OpenAI
+ * Override for Anthropic, etc
  * New instance for every new interaction, different providers might use the same API client
  */
 export class BaseClient {
     //client:object; // The initialized API Client SDK
     client; // The initialized API Client SDK
-    sdkClient;
     provider; // The provider name for the default provider config, with URL, default opts, etc
     chatFilePath; // The file patch for the specific chat log. Initialized in 'chat' method.
     constructor(provider) {
@@ -32,6 +33,12 @@ export class BaseClient {
         let { clientLib = OpenAI, baseURL, apiKey } = this.providerConfig;
         this.client = new clientLib({ baseURL, apiKey });
     }
+    get sdkClient() {
+        let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
+        let { apiKey, baseURL, } = this.providerConfig;
+        let sdkClient = aisdk.create({ apiKey, baseURL });
+        return sdkClient;
+    }
     get providerConfig() {
         return getProviderConfig(this.provider);
     }
@@ -42,6 +49,48 @@ export class BaseClient {
      */
     async getModels(...args) {
         let modelObjs = (await this.client.models.list()).data;
+        return modelObjs;
+    }
+    async getRawModels(...args) {
+        let { baseURL, apiKey } = this.providerConfig;
+        let options = {
+            method: 'GET',
+            headers: {
+                accept: 'application/json',
+            }
+        };
+        let url = `${baseURL}/models`;
+        if (this.provider === 'gengemini') {
+            url = `${url}?key=${apiKey}&page_size=1000&pageSize=1000`;
+        }
+        else {
+            options.headers.Authorization = `Bearer ${apiKey}`;
+        }
+        let modelObjs = [];
+        //let url = `${baseURL}/models?key=${apiKey}`;
+        console.log(`About to fetch models for [${this.provider}] from:
+     URL: [${url}], apiKey: [${apiKey}]`);
+        let resp = await fetch(url, options);
+        let respJson = await resp.json();
+        let toRespJson = typeOf(respJson);
+        //console.log(`respJson:`, { toRespJson, respJson });
+        if (Array.isArray(respJson)) {
+            return respJson;
+        }
+        else if (isSimpleObject(respJson)) {
+            if (('object' in respJson) && ('data' in respJson)) {
+                modelObjs = respJson.data;
+                if (!Array.isArray(modelObjs)) {
+                    throw new PkError(`Invalid 'models' list w keys 'object', 'data' - response from ${url} - not array`, { modelObjs });
+                }
+            }
+            else if ('models' in respJson) {
+                modelObjs = respJson.models;
+            }
+            else {
+                throw new PkError(`Invalid 'models' list response from ${url} - `, { respJson });
+            }
+        } // respJson should be array of model def objects - filter, format & sort
         return modelObjs;
     }
     /**
@@ -102,24 +151,40 @@ export class BaseClient {
         return modelObjs;
     }
 }
+/**
+ * The default pk client
+ */
 export class OpenAiClient extends BaseClient {
 }
 export class ClaudeClient extends BaseClient {
 }
+/**
+ * Uses OpenAI API client, but custom methods/implementations
+ */
+export class TogetherClient extends BaseClient {
+    async getModels(...args) {
+        console.log(`In Overridden TogetherClient getModels`);
+        return await this.getRawModels(...args);
+    }
+}
 export const clientClasses = {
     OpenAiClient,
     ClaudeClient,
+    TogetherClient,
 };
-export function getClientClass(provider) {
+export function getPkClientClass(provider) {
     provider = getLlmProvider(provider);
     let config = getProviderConfig(provider);
-    let clientClass = config.clientClass || OpenAiClient;
+    let clientClass = config.pkClientClass || OpenAiClient;
     return clientClass;
 }
-export function getClient(provider) {
+/**
+ *
+ */
+export function getPkClient(provider) {
     provider = getLlmProvider(provider);
     let config = getProviderConfig(provider);
-    let clientClass = getClientClass(provider);
+    let clientClass = getPkClientClass(provider);
     let client = new clientClass(provider);
     return client;
 }

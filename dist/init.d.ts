@@ -3,6 +3,7 @@
  */
 export * from './oaiLib.js';
 export * from './msgs.js';
+export * from './llmLibs/clientLibs.js';
 export * from './constants.js';
 export * from './fileops.js';
 export * from './togetherai.js';
@@ -14,7 +15,6 @@ export * from './aisdklib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
-export * from './llmLibs/clientLibs.js';
 import { WrapCodeParams } from './fileops.js';
 import fncSchema from './FncSchemas/fnc2schema.json';
 export { fncSchema };

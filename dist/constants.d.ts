@@ -1,6 +1,7 @@
 /**
  * Predefined constants & options, like system messages, etc
  */
+import { ClaudeClient, TogetherClient } from './init.js';
 import { VertexAI } from '@google-cloud/vertexai';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from "openai";
@@ -36,11 +37,9 @@ export declare const providers: {
             frequency_penalty: number;
             presence_penalty: number;
         };
-        clientLib: typeof OpenAI;
     };
     xai: {
         apiKey: string;
-        clientLib: typeof OpenAI;
         baseURL: string;
         model: string;
         defaultOpts: {
@@ -59,11 +58,9 @@ export declare const providers: {
             frequency_penalty: number;
             presence_penalty: number;
         };
-        clientLib: typeof OpenAI;
     };
     openai: {
         baseURL: string;
-        clientLib: typeof OpenAI;
         defaultFilter: string;
         defaultOpts: {
             temperature: number;
@@ -77,11 +74,11 @@ export declare const providers: {
     togetherai: {
         baseURL: string;
         apiKey: string;
+        pkClientClass: typeof TogetherClient;
     };
     anthropic: {
         clientLib: typeof Anthropic;
-        baseURL: string;
-        type: string;
+        pkClientClass: typeof ClaudeClient;
         model: string;
         apiKey: string;
         defaultOpts: {
