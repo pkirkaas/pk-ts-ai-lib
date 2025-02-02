@@ -11,6 +11,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from "openai";
 import { openai } from "@ai-sdk/openai";
+import { generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
+} from 'ai';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from 'lodash';
@@ -20,7 +22,7 @@ import _ from 'lodash';
 //PkLib Imports
 import {
   getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk, isSimpleObject,
-  parseArgs, GenObj, isString, mkArray, strIncludesAny, PkError, typeOf,
+  parseArgs, GenObj, isString, mkArray, strIncludesAny, PkError, typeOf, 
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -41,6 +43,22 @@ export interface AnthropicConfig {
 }
   */
 
+// Type to represent a message in the conversation history
+export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
+/*
+export interface SdkMessage {
+  role: 'user' | 'assistant' | 'system',
+  content: string,
+}
+  */
+
+// Type to hold the chat context
+export type SdkMessages = SdkMessage[];
+
+export interface GetModelParams {
+  filter:Strings,
+};
+
 /**
  * Abstract Client class to provide common interface to different API clients -
  * Base/Default to OpenAI
@@ -52,6 +70,8 @@ export abstract class BaseClient {
   client: GenObj; // The initialized API Client SDK
   provider: string; // The provider name for the default provider config, with URL, default opts, etc
   chatFilePath: string; // The file patch for the specific chat log. Initialized in 'chat' method.
+  temperature:number;
+  modelName:string;
   constructor(provider: string) {
     this.provider = getLlmProvider(provider);
     this.createNativeClient();
@@ -62,11 +82,19 @@ export abstract class BaseClient {
   createNativeClient(...args) {
     let { clientLib = OpenAI, baseURL, apiKey } = this.providerConfig;
     this.client = new clientLib({ baseURL, apiKey });
+    return this.client;
   }
-  get sdkClient(): GenObj {
+  get sdkClient(): any { // Maybe replace w. function to allow settings/opts?
+    let sdkClient:any;
     let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
     let { apiKey, baseURL, } = this.providerConfig;
-    let sdkClient = aisdk.create({ apiKey, baseURL });
+    if(this.provider==='openai') { // strict
+      let compatibility = 'strict';
+      let reasoningEffort = 'high';
+     sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort });
+    } else {
+     sdkClient = aisdk.create({ apiKey, baseURL });
+    }
     return sdkClient;
   }
 
@@ -74,7 +102,63 @@ export abstract class BaseClient {
     return getProviderConfig(this.provider);
   }
 
-  async baseChat(msg) {
+  async nativeChat(msg) {
+  }
+
+  /**
+   * Possibly interactive method to set this.modelName & return the model name, based on provider & params
+   * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
+   */
+  async getModelName(filter?:Strings):Promise<string> {
+    if ((!filter || (filter === 'current')) && this.modelName) {
+      return this.modelName;
+    }
+    let providerConfig = this.providerConfig;
+    if (!filter || (filter === 'default')) {
+      this.modelName = providerConfig?.model || providerConfig?.defaultModel;
+      if (this.modelName) {
+        return this.modelName;
+      }
+    }
+    let models = await this.filterModels({filter});
+    let names = this.modelObjsToNames(models);
+    if (!Array.isArray(names) || !names.length) {
+      throw new PkError(`For provider: [${this.provider}] no models found for filter:`,filter);
+    }
+    if (names.length === 1) {
+      this.modelName = names[0];
+      return this.modelName;
+    }
+    // Several matching models - choose
+    let modelName = await ask(`Choose a model for provider [${this.provider}]`,{choices:names});
+    this.modelName = modelName;
+    return this.modelName;
+  }
+
+  /**
+   * Array of model objects to string array of model names
+   */
+  modelObjsToNames(models:any[]):string[] {
+    let names = models.map((model) => model.name || model.id);
+    return names;
+  }
+
+  async singleSdkChat(messages:SdkMessages, temperature:number, modelName:string) {
+    let model = this.sdkClient(modelName);
+    //@ts-ignore
+    let response = await generateText({messages, temperature, model});
+    return response;
+  }
+
+  /**
+   * Interactive multi-turn chat using non-interactive singleSdkChat
+   */
+  async sdkChat({user,system,modelName,temperature}) {
+    let providerConfig = this.providerConfig;
+    modelName = modelName || this.modelName;
+    temperature = temperature || this.temperature || providerConfig?.defaultOpts?.temperature || 0;
+    let sdkClient = this.sdkClient;
+
   }
 
   /**
@@ -128,7 +212,7 @@ export abstract class BaseClient {
 
   /**
    * Returns the models for the provider, optionally filtered/processed:
-   * @param opts.filter?:Strings - substring(s) to filter model names
+   * @param opts.filter?:Strings - substring(s) to filter model names, or 'all' or empty for all
    * @param opts.format?:any - format models? - Currently, just format created date
    * @param opts.sort?:string - sort by ModelObject key 
    * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat' 
@@ -139,7 +223,7 @@ export abstract class BaseClient {
     let listOptsDef = { sort: 'created', format: true, filter: '', };
     let { sort, format, filter, type, } = { ...listOptsDef, ...opts };
 
-    if (filter) {
+    if (filter && filter !== 'all') {
       let filters = mkArray(filter);
       modelObjs = modelObjs.filter((modelObj) => {
         if (modelObj.id) {
