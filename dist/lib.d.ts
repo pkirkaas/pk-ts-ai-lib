@@ -3,7 +3,6 @@
  */
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import { GenObj, Strings } from 'pk-ts-node-lib';
-export declare let llmProvider: string;
 /**
  * Make options for model list - sort, format, filter
  */
@@ -207,7 +206,7 @@ export declare function addRound(outpath: string, round: number, usr?: string, a
  */
 export declare function stringifyMsgs(msgs: any): any;
 export declare function mkStamp(pre?: string): string;
-export declare function askLlmProvider(): Promise<string>;
+export declare function askLlmProvider(): Promise<any>;
 /**
  * Strips opening & closing backticks from text response
  */

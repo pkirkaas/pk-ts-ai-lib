@@ -3,10 +3,66 @@ import { generateText, } from 'ai';
 //import setTitle from 'console-title';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { ask, dtFmt, isSimpleObject, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
+import { ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
-import { getProviderConfig, getLlmProvider, aiSdkClients, } from '../init.js';
+import { getProviderConfig, getLlmProvider, buildMsg, aiSdkClients, } from '../init.js';
 ;
+/**
+ * Log chats - to file and/or DB
+ */
+export class ChatLogger {
+    provider;
+    modelName;
+    uMsg;
+    msgKeys;
+    chatConfig;
+    sMsg;
+    stamp;
+    outPath;
+    label;
+    chatinfo;
+    followupCnt = 0;
+    divider = '\n\n# Conversation:\n\n---\n\n';
+    logInited = false;
+    title;
+    constructor({ provider, modelName, chatConfig = {}, uMsg, sMsg, msgKeys = [], outPath = '' }) {
+        this.provider = provider;
+        this.modelName = modelName;
+        this.sMsg = sMsg;
+        this.uMsg = uMsg;
+        this.chatConfig = chatConfig;
+        this.stamp = `${Date.now()}`;
+        if (isEmpty(msgKeys)) {
+            msgKeys = uMsg;
+        }
+        this.msgKeys = mkArray(msgKeys);
+        this.label = this.msgKeys.join('-').substring(0, 25);
+        this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
+        this.title = `${this.provider} - ${this.label}`;
+        this.outPath = outPath || `./out/chats/${dtFmt('html')}/${this.label}/${this.label}--${this.provider}-${this.stamp}.md`;
+    }
+    initFile(args) {
+        if (!this.logInited) {
+            writeData(`# ${this.title}\n\n<title>${this.title}</title>\n\n` +
+                `# Chat Session: ${this.chatinfo}\n\n**chatConfig:**\n\`\`\`\n${JSON5Stringify(this.chatConfig)}\n\`\`\`` +
+                `\n\n**Sys Msg:**\n${this.sMsg}\n\n**User Msg**:\n${this.uMsg}\n\n${this.divider}\n\n`, this.outPath);
+            this.logInited = true;
+            stdOut(`\nLogging [${this.title}] chat to: [${this.outPath}]\n`);
+        }
+    }
+    /**
+     * Write message to log file - type "user" or "assistant"
+     */
+    wrtUsr(msg) {
+        this.initFile();
+        this.followupCnt++;
+        writeData(`\n\n---\n\n# Followup to ${this.provider} ${this.followupCnt}:\n\n**User:**\n${msg}\n\n`, this.outPath, true);
+    }
+    wrtAssistant(msg) {
+        this.initFile();
+        writeData(`\n\n**${this.provider} Assistant:**\n\n${msg}\n`, this.outPath, true);
+    }
+}
 /**
  * Abstract Client class to provide common interface to different API clients -
  * Base/Default to OpenAI
@@ -34,14 +90,15 @@ export class BaseClient {
     get sdkClient() {
         let sdkClient;
         let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
+        let name = this.provider;
         let { apiKey, baseURL, } = this.providerConfig;
         if (this.provider === 'openai') { // strict
             let compatibility = 'strict';
             let reasoningEffort = 'high';
-            sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort });
+            sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort, name, });
         }
         else {
-            sdkClient = aisdk.create({ apiKey, baseURL });
+            sdkClient = aisdk.create({ apiKey, baseURL, name });
         }
         return sdkClient;
     }
@@ -86,6 +143,19 @@ export class BaseClient {
         let names = models.map((model) => model.name || model.id);
         return names;
     }
+    /**
+     * Returns single chat response as object w. keys:
+     * text:string - the text response
+     * toolCalls
+     * toolResults
+     * finishReason
+     * usage
+     * warnings
+     * request
+     * response
+     * steps
+     *
+     */
     async singleSdkChat(messages, temperature, modelName) {
         let model = this.sdkClient(modelName);
         //@ts-ignore
@@ -95,11 +165,34 @@ export class BaseClient {
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    async sdkChat({ user, system, modelName, temperature }) {
+    //async sdkChat({user,system,modelName,temperature}) {
+    async sdkChat(msgs, modelName, temperature) {
+        let msgKeys = mkArray(msgs);
+        let { uMsg, sMsg } = buildMsg(msgKeys);
         let providerConfig = this.providerConfig;
-        modelName = modelName || this.modelName;
+        //modelName = modelName || this.modelName;
+        modelName = await this.getModelName(modelName);
         temperature = temperature || this.temperature || providerConfig?.defaultOpts?.temperature || 0;
-        let sdkClient = this.sdkClient;
+        if (!uMsg) {
+            uMsg = await ask(`What to ask [${this.provider}]?`);
+        }
+        let messages = [
+            { role: 'system', content: sMsg },
+            { role: 'user', content: uMsg, },
+        ];
+        let chatConfig = { temperature };
+        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys });
+        while (uMsg) {
+            let response = await this.singleSdkChat(messages, temperature, modelName);
+            let assistant = response.text;
+            messages.push({ role: 'assistant', content: assistant });
+            stdOut(`\n\n${assistant}\n\n`);
+            chatLog.wrtAssistant(assistant);
+            uMsg = await ask(`Followup for ${this.provider}?`);
+            messages.push({ role: 'user', content: uMsg });
+            chatLog.wrtUsr(uMsg);
+        }
+        return messages;
     }
     /**
      * Returns the models available for the provider

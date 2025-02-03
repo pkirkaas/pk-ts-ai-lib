@@ -87,9 +87,9 @@ let fncs = {
     if (isEmpty(args)) {
       args.push('text-popup');
     }
-    let res = buildMsg(...args);
-    dbgWrt(res);
-    console.log(res);
+    let {uMsg, sMsg} = buildMsg(args);
+    dbgWrt({what:"tstBuildMsg", args, uMsg, sMsg,}, 'buildMsg' );
+    console.log("Tested buildMsg");
   },
   tstWrapCode(key?: string) {
     if (!key) {

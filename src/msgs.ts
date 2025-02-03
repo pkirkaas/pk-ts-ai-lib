@@ -5,18 +5,18 @@
 
 //PkLib imports
 import {
-  PkError, isFile, JSON5Stringify, JSONStringify, writeData,  uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, Strings, uniqueKeys, taggedMatches, 
+  PkError, isFile, JSON5Stringify, JSONStringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, Strings, uniqueKeys, taggedMatches,
   ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich, mkArray,
 } from 'pk-ts-node-lib';
 
 // Local Imports
 import {
-  getFileMsgObj, 
+  getFileMsgObj,
   WrapCodeParams,
   WrapCodeObjs,
   MsgObj,
- // wrapCode,
- // Strings,
+  // wrapCode,
+  // Strings,
   wrapCodeNew,
 } from './init.js';
 
@@ -42,15 +42,17 @@ export function findEmbeddeds(msgStr) {
 }
 
 /**
- * Throws if any embeds remain in string
+ * Throws if any embeds remain in string(s)
  */
-export function assertEmbeddeds(str:string) {
-  let msgTypes = Object.keys(wrapPairs);
-  for (let msgType of msgTypes) {
-    let {open, close} = wrapPairs[msgType];
-    let tags = taggedMatches(str,open,close);
-    if (tags.length) {
-      throw new PkError(`Remaining tags in msgStr`,{msgType, tags});
+export function assertEmbeddeds(...strs: string[]) {
+  for (let str of strs) {
+    let msgTypes = Object.keys(wrapPairs);
+    for (let msgType of msgTypes) {
+      let { open, close } = wrapPairs[msgType];
+      let tags = taggedMatches(str, open, close);
+      if (tags.length) {
+        throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+      }
     }
   }
 }
@@ -100,7 +102,7 @@ export function embedToKey(embed) {
  */
 export function getMsgKeys() {
   //let keyObjs = [getAllMsgs(), codeFiles];
-  let keyObjs = [getAllMsgs(), ];
+  let keyObjs = [getAllMsgs(),];
   let allKeys = [];
   for (let keyObj of keyObjs) {
     allKeys = allKeys.concat(Object.keys(keyObj));
@@ -136,9 +138,9 @@ export const wrapPairs = {
 export const msgTypes = Object.keys(wrapPairs).filter(key => key !== 'comment');
 export const txtMsgTypes = msgTypes.filter(key => key !== 'code');
 
-export function wrapKeyType(key:string, msgType:string): string {
+export function wrapKeyType(key: string, msgType: string): string {
   assertMsgType(msgType);
-  let {open, close} = wrapPairs[msgType];
+  let { open, close } = wrapPairs[msgType];
   return `${open}${key}${close}`;
 }
 /**
@@ -146,12 +148,12 @@ export function wrapKeyType(key:string, msgType:string): string {
  * @param msgType:string - 'sysmsg' | 'usrmsg' | 'code'
  * @param msgObj?:MsgObj - object of msg keys & msg strings to add to default
  */
-export function getMsgObj(msgType:string, msgObj:MsgObj = {}):MsgObj {
+export function getMsgObj(msgType: string, msgObj: MsgObj = {}): MsgObj {
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in getMsgObj; invalid msgType:`, msgType);
   }
   let msgSrcs = [msgObj];
-  switch(msgType) {
+  switch (msgType) {
     case 'sysmsg':
       msgSrcs.push(systemMessages);
       break;
@@ -167,36 +169,36 @@ export function getMsgObj(msgType:string, msgObj:MsgObj = {}):MsgObj {
   if (!uniqueKeys(msgSrcs)) {
     throw new PkError(`in getMsgObj; duplicate keys in msgSrcs:`, msgSrcs);
   }
-  let ret:MsgObj = Object.assign({},...msgSrcs);
+  let ret: MsgObj = Object.assign({}, ...msgSrcs);
   return ret;
 }
 
-export function extractMsgTags(str:string, msgType:string):string[] {
+export function extractMsgTags(str: string, msgType: string): string[] {
   assertMsgType(msgType);
-  let {open, close} = wrapPairs[msgType];
-  let tags = uniqueVals(taggedMatches(str,open,close));
+  let { open, close } = wrapPairs[msgType];
+  let tags = uniqueVals(taggedMatches(str, open, close));
   let msgObj = getMsgObj(msgType);
   let msgKeys = Object.keys(msgObj);
-  let unfound = inArr1NinArr2(tags,msgKeys);
+  let unfound = inArr1NinArr2(tags, msgKeys);
   if (unfound.length) {
-    throw new PkError(`Tags in string of msgType: [${msgType}] not found in msg keys:`, {unfound, msgKeys});
+    throw new PkError(`Tags in string of msgType: [${msgType}] not found in msg keys:`, { unfound, msgKeys });
   }
   return tags;
 }
 export type BuiltMsg = {
-  sMsg:string,
-  uMsg:string,
+  sMsg: string,
+  uMsg: string,
 };
 
-export function assertMsgType(msgType:string) {
+export function assertMsgType(msgType: string) {
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in expandMsgsNew; invalid msgType:`, msgType);
   }
 }
 
-export function tagReplace(tag:string, msgType:string, strip?:any):string {
+export function tagReplace(tag: string, msgType: string, strip?: any): string {
   assertMsgType(msgType);
-  let replace='';
+  let replace = '';
   if (strip) {
     return replace;
   }
@@ -206,61 +208,70 @@ export function tagReplace(tag:string, msgType:string, strip?:any):string {
     throw new PkError(`tag: [${tag}] not found for msgType: [${msgType}]`);
   }
 
-  if (msgType==='code') {
-    replace=wrapCodeNew(val);
-  } else if ((msgType === 'usrmsg') || (msgType==='sysmsg')) {
+  if (msgType === 'code') {
+    replace = wrapCodeNew(val);
+  } else if ((msgType === 'usrmsg') || (msgType === 'sysmsg')) {
     replace = val as string;
   } else {
     throw new PkError(`Unhandled msgtype [${msgType}]`);
   }
-  return replace;
+  return `\n${replace}\n`;
 }
 
 /**
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
- * @param msgs:string[] - Array of msgs or msg keys
+ * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export function buildMsg(...msgs:string[]) {
+export function buildMsg(msgx: Strings): { uMsg: string, sMsg: string; } {
+  let msgs = mkArray(msgx);
   let msgType = 'usrmsg';
   let msgStr = '\n';
   let umsgObj = getMsgObj(msgType);
   let umsgKeys = Object.keys(umsgObj);
 
   for (let msg of msgs) {
-    if (wordCnt(msg) >1) { // Literal message string
-      msgStr+=`${msg}\n`;
+    if (wordCnt(msg) > 1) { // Literal message string
+      msgStr += `${msg}\n`;
     } else if (umsgKeys.includes(msg)) {
-      msgStr += wrapKeyType(msg,msgType);
+      msgStr += wrapKeyType(msg, msgType);
     } else {
       throw new PkError(`in buildMsg - msg [${msg}] not in umsgKeys`);
     }
   } // We have a tagged umessage string, with uMsg, sMsg, code & comment tags
   // Substitute uMsg tags w. expansions
-  let usrMsg = nestReplaceTags(msgStr,msgType);
-  let sMsg = nestReplaceTags(buildSysMsg(usrMsg),'code');
-  let uMsg =  nestReplaceTags(nestReplaceTags(usrMsg,'sysmsg', true),'code');
-  assertEmbeddeds(sMsg);
-  assertEmbeddeds(uMsg);
-  return {uMsg, sMsg};
+  let usrMsg = nestReplaceTags(msgStr, msgType);
+  let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
+  let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
+  //assertEmbeddeds(sMsg);
+  //assertEmbeddeds(uMsg);
+  assertEmbeddeds(uMsg, sMsg);
+  return { uMsg, sMsg };
 }
 
-export function nestReplaceTags(msgStr:string, msgType:string, strip?:any):string {
+export function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string {
   assertMsgType(msgType);
-  let depth=0;
-  let depthLimit=10;
+  msgStr = stripComments(msgStr);
+  let depth = 0;
+  let depthLimit = 10;
   let msgTags = extractMsgTags(msgStr, msgType);
-  let usedTags=[];
+  let usedTags = [];
   while (msgTags.length) {
     if (depth++ > depthLimit) {
-      throw new PkError(`Depth Exceeded:`,{msgTags});
+      throw new PkError(`Depth Exceeded:`, { msgStr, msgType, msgTags });
     }
     for (let tag of msgTags) {
-      if (usedTags.includes(tag)) {
-        continue;
-      }
-      let wrapped = wrapKeyType(tag,msgType);
+      let wrapped = wrapKeyType(tag, msgType);
       let rep = tagReplace(tag, msgType, strip);
-      usedTags.push(tag);
+      if (usedTags.includes(tag)) {
+        rep = tagReplace(tag, msgType, true);
+        //let rep = tagReplace(tag, msgType, true);
+      //  msgStr = msgStr.replaceAll(wrapped, rep);
+       // continue;
+      } else {
+        usedTags.push(tag);
+      }
+      //let rep = tagReplace(tag, msgType, strip);
+      //usedTags.push(tag);
       msgStr = msgStr.replaceAll(wrapped, rep);
     }
     msgTags = extractMsgTags(msgStr, msgType);
@@ -269,20 +280,20 @@ export function nestReplaceTags(msgStr:string, msgType:string, strip?:any):strin
   return stripComments(msgStr);
 }
 
-export function buildSysMsg(msg:string):string {
+export function buildSysMsg(msg: string): string {
   let msgType = 'sysmsg';
-  let sysTags = extractMsgTags(msg,msgType);
+  let sysTags = extractMsgTags(msg, msgType);
   let sysMsgStr = '';
   for (let sysTag of sysTags) {
-    sysMsgStr += wrapKeyType(sysTag,msgType);
+    sysMsgStr += wrapKeyType(sysTag, msgType);
   }
-  sysMsgStr = nestReplaceTags(sysMsgStr,msgType);
+  sysMsgStr = nestReplaceTags(sysMsgStr, msgType);
   return sysMsgStr;
 }
 
-export function partitionMsg(msg:string):BuiltMsg {
+export function partitionMsg(msg: string): BuiltMsg {
   let sMsg = nestReplaceTags(buildSysMsg(msg), 'code');
-  let uMsg = nestReplaceTags(nestReplaceTags(msg,'usrmsg', true),'code');
+  let uMsg = nestReplaceTags(nestReplaceTags(msg, 'usrmsg', true), 'code');
   /*
   let sMsgKeys=[];
   let depth=0;
@@ -303,10 +314,10 @@ export function partitionMsg(msg:string):BuiltMsg {
 
 
 
-  return {uMsg, sMsg};
+  return { uMsg, sMsg };
 }
 
-export function expandMsgNew(msg:string,msgType:string):string {
+export function expandMsgNew(msg: string, msgType: string): string {
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in expandMsgsNew; invalid msgType:`, msgType);
   }
@@ -499,7 +510,7 @@ This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript func
 /**
  * Keys w. source code file path, to be wrapped in triple backticks
  */
-export let codeFiles:WrapCodeObjs = {
+export let codeFiles: WrapCodeObjs = {
   fsb: 'Q:/Common/Software-Dev/Pythons/similar-images/src/file-system-browser.py',
   fncSchema: './src/FncSchemas/fnc2schema.json',
   ssrSrc: {
@@ -519,8 +530,8 @@ export let codeFiles:WrapCodeObjs = {
   commonlib: {
     fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common",
     root: "C:/www/TypeScriptLibs/Pk-Ts-Common",
-    excPatterns:[".md",".sh", "tstcli",],
-    debug:true,
+    excPatterns: [".md", ".sh", "tstcli",],
+    debug: true,
     desc: 'Common TypeScript/JavaScript Library Sources and Configuration Files:',
   },
   cssmodules: [{
@@ -542,33 +553,33 @@ export let codeFiles:WrapCodeObjs = {
   },
 
   daisynav: {
-    fpaths:"C:/www/TypeScriptLibs/Pk-Ts-Fe/src/components/daisyui/daisynav.tsx",
+    fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Fe/src/components/daisyui/daisynav.tsx",
     desc: "Example of responsive DaisyUI navigation bar",
   },
 
   pknav: {
     //fpaths:"C:/www/TypeScriptLibs/Pk-Ts-Fe/src/components/daisyui/anavbar.tsx",
-    fpaths:"C:/www/TypeScriptLibs/Pk-Ts-Fe/src/components/daisyui/antnav2.tsx",
+    fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Fe/src/components/daisyui/antnav2.tsx",
     desc: "Attempt at a responsive, reusable navigation bar",
   },
 
   pkfelib: {
     desc: "The configuration files for the `pk-ts-fe-lib` library:",
     fpaths: [
-  "C:/www/TypeScriptLibs/Pk-Ts-Fe/tailwind.config.ts",
-  "C:/www/TypeScriptLibs/Pk-Ts-Fe/vite.config.ts",
-  "C:/www/TypeScriptLibs/Pk-Ts-Fe/postcss.config.js",
-  "C:/www/TypeScriptLibs/Pk-Ts-Fe/package.json",
+      "C:/www/TypeScriptLibs/Pk-Ts-Fe/tailwind.config.ts",
+      "C:/www/TypeScriptLibs/Pk-Ts-Fe/vite.config.ts",
+      "C:/www/TypeScriptLibs/Pk-Ts-Fe/postcss.config.js",
+      "C:/www/TypeScriptLibs/Pk-Ts-Fe/package.json",
     ],
   },
 
   mynextapp: {
     desc: "The configuration files for the `my-next-app`, which imports the `pk-ts-fe-lib` library:",
     fpaths: [
-  "C:/www/NodeTests/NextTests/ssr/next-2/tailwind.config.ts",
-  "C:/www/NodeTests/NextTests/ssr/next-2/next.config.ts",
-  "C:/www/NodeTests/NextTests/ssr/next-2/package.json",
-  "C:/www/NodeTests/NextTests/ssr/next-2/postcss.config.mjs",
+      "C:/www/NodeTests/NextTests/ssr/next-2/tailwind.config.ts",
+      "C:/www/NodeTests/NextTests/ssr/next-2/next.config.ts",
+      "C:/www/NodeTests/NextTests/ssr/next-2/package.json",
+      "C:/www/NodeTests/NextTests/ssr/next-2/postcss.config.mjs",
     ],
   },
 
@@ -613,7 +624,7 @@ Before you respond, you will review your solution again, and PLEASE, PLEASE take
 
 export let systemMessages = {
   tstdef: `test default sys`,
-  tstnest:`[[tstdef]]
+  tstnest: `[[tstdef]]
   {{commonlib}}
   Tst Nest after tstdef inc
   `,
@@ -801,7 +812,7 @@ You will provide a complete, working, and tested PyQt6 GUI application in Python
 
   react: `[[ts]]  You have particular expertise in the latest features of the new React version (>= 19) for SSR, particularly \`React Server Components\` and \`React Server Actions\`,  using the latest \`NesxJS\` version >= 15,  as well as all the latest react npm libraries.`,
 
-  rcomp:`[[react]] Your task is to create a reusable, configurable, customizable React component as described below. Use existing React libraries and components as building blocks where appropriate, again focusing on simplicity and ease of use/implementation for a single developer. Bundle size is NOT a concern. Minimizing the number of lines of custom code/implementation IS a priority.
+  rcomp: `[[react]] Your task is to create a reusable, configurable, customizable React component as described below. Use existing React libraries and components as building blocks where appropriate, again focusing on simplicity and ease of use/implementation for a single developer. Bundle size is NOT a concern. Minimizing the number of lines of custom code/implementation IS a priority.
 
   Use the latest features of the new React version (>= 19), in a NextJS application, taking advantage of the latest NextJS framework for SSR & RSC, particularly \`React Server Components\` and \`React Server Actions\`.
   

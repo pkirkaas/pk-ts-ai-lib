@@ -10,7 +10,6 @@ import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray
 import { expandMsgs, 
 //mkMsgStr,
 fncSchema, buildMsg, providers, } from './init.js';
-export let llmProvider; //Session provider 
 /*
 export function getApiKey(provider = null) {
   provider = getLlmProvider(provider);
@@ -86,14 +85,10 @@ export function filterModelObjArr(modelObjs, opts = {}) {
  */
 export function getLlmProvider(provider = null) {
     if (!provider) {
-        provider = llmProvider;
-    }
-    if (!provider) {
         provider = askLlmProvider();
     }
     if (provider && Object.keys(providers).includes(provider)) {
         setTitle(provider);
-        llmProvider = provider;
         return provider;
     }
     else {
@@ -110,7 +105,7 @@ export function mkChatParams(chatSrc) {
         return chatSrc;
     }
     let strArr = mkArray(chatSrc);
-    let chatParams = buildMsg(...strArr);
+    let chatParams = buildMsg(strArr);
     return chatParams;
 }
 /**
@@ -360,11 +355,8 @@ export function mkStamp(pre) {
 }
 export async function askLlmProvider() {
     let choices = getProviders();
-    //@ts-ignore
-    let answer = await ask('What LLM Provider to use?', { choices });
-    llmProvider = answer;
-    console.log({ answer });
-    return llmProvider;
+    let provider = await ask('What LLM Provider to use?', { choices });
+    return provider;
 }
 ;
 /**

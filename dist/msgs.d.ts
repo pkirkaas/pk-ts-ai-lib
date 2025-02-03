@@ -10,9 +10,9 @@ import { WrapCodeObjs, MsgObj } from './init.js';
  */
 export declare function findEmbeddeds(msgStr: any): any[];
 /**
- * Throws if any embeds remain in string
+ * Throws if any embeds remain in string(s)
  */
-export declare function assertEmbeddeds(str: string): void;
+export declare function assertEmbeddeds(...strs: string[]): void;
 /**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
@@ -71,9 +71,9 @@ export declare function assertMsgType(msgType: string): void;
 export declare function tagReplace(tag: string, msgType: string, strip?: any): string;
 /**
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
- * @param msgs:string[] - Array of msgs or msg keys
+ * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export declare function buildMsg(...msgs: string[]): {
+export declare function buildMsg(msgx: Strings): {
     uMsg: string;
     sMsg: string;
 };

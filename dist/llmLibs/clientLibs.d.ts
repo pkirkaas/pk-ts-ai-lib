@@ -7,6 +7,40 @@ export interface GetModelParams {
     filter: Strings;
 }
 /**
+ * Log chats - to file and/or DB
+ */
+export declare class ChatLogger {
+    provider: string;
+    modelName: string;
+    uMsg: string;
+    msgKeys: string[];
+    chatConfig: GenObj;
+    sMsg: string;
+    stamp: string;
+    outPath: string;
+    label: string;
+    chatinfo: string;
+    followupCnt: number;
+    divider: string;
+    logInited: boolean;
+    title: string;
+    constructor({ provider, modelName, chatConfig, uMsg, sMsg, msgKeys, outPath }: {
+        provider: any;
+        modelName: any;
+        chatConfig?: {};
+        uMsg: any;
+        sMsg: any;
+        msgKeys?: any[];
+        outPath?: string;
+    });
+    initFile(args?: any): void;
+    /**
+     * Write message to log file - type "user" or "assistant"
+     */
+    wrtUsr(msg: string): void;
+    wrtAssistant(msg: string): void;
+}
+/**
  * Abstract Client class to provide common interface to different API clients -
  * Base/Default to OpenAI
  * Override for Anthropic, etc
@@ -32,16 +66,24 @@ export declare abstract class BaseClient {
      * Array of model objects to string array of model names
      */
     modelObjsToNames(models: any[]): string[];
+    /**
+     * Returns single chat response as object w. keys:
+     * text:string - the text response
+     * toolCalls
+     * toolResults
+     * finishReason
+     * usage
+     * warnings
+     * request
+     * response
+     * steps
+     *
+     */
     singleSdkChat(messages: SdkMessages, temperature: number, modelName: string): Promise<import("ai").GenerateTextResult<import("ai").ToolSet, never>>;
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    sdkChat({ user, system, modelName, temperature }: {
-        user: any;
-        system: any;
-        modelName: any;
-        temperature: any;
-    }): Promise<void>;
+    sdkChat(msgs: Strings, modelName?: string, temperature?: number): Promise<SdkMessages>;
     /**
      * Returns the models available for the provider
      */

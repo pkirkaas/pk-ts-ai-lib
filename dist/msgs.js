@@ -29,15 +29,17 @@ export function findEmbeddeds(msgStr) {
     return embeddeds;
 }
 /**
- * Throws if any embeds remain in string
+ * Throws if any embeds remain in string(s)
  */
-export function assertEmbeddeds(str) {
-    let msgTypes = Object.keys(wrapPairs);
-    for (let msgType of msgTypes) {
-        let { open, close } = wrapPairs[msgType];
-        let tags = taggedMatches(str, open, close);
-        if (tags.length) {
-            throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+export function assertEmbeddeds(...strs) {
+    for (let str of strs) {
+        let msgTypes = Object.keys(wrapPairs);
+        for (let msgType of msgTypes) {
+            let { open, close } = wrapPairs[msgType];
+            let tags = taggedMatches(str, open, close);
+            if (tags.length) {
+                throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+            }
         }
     }
 }
@@ -186,13 +188,14 @@ export function tagReplace(tag, msgType, strip) {
     else {
         throw new PkError(`Unhandled msgtype [${msgType}]`);
     }
-    return replace;
+    return `\n${replace}\n`;
 }
 /**
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
- * @param msgs:string[] - Array of msgs or msg keys
+ * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export function buildMsg(...msgs) {
+export function buildMsg(msgx) {
+    let msgs = mkArray(msgx);
     let msgType = 'usrmsg';
     let msgStr = '\n';
     let umsgObj = getMsgObj(msgType);
@@ -210,29 +213,38 @@ export function buildMsg(...msgs) {
     } // We have a tagged umessage string, with uMsg, sMsg, code & comment tags
     // Substitute uMsg tags w. expansions
     let usrMsg = nestReplaceTags(msgStr, msgType);
-    let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code');
+    let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
     let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
-    assertEmbeddeds(sMsg);
-    assertEmbeddeds(uMsg);
+    //assertEmbeddeds(sMsg);
+    //assertEmbeddeds(uMsg);
+    assertEmbeddeds(uMsg, sMsg);
     return { uMsg, sMsg };
 }
 export function nestReplaceTags(msgStr, msgType, strip) {
     assertMsgType(msgType);
+    msgStr = stripComments(msgStr);
     let depth = 0;
     let depthLimit = 10;
     let msgTags = extractMsgTags(msgStr, msgType);
     let usedTags = [];
     while (msgTags.length) {
         if (depth++ > depthLimit) {
-            throw new PkError(`Depth Exceeded:`, { msgTags });
+            throw new PkError(`Depth Exceeded:`, { msgStr, msgType, msgTags });
         }
         for (let tag of msgTags) {
-            if (usedTags.includes(tag)) {
-                continue;
-            }
             let wrapped = wrapKeyType(tag, msgType);
             let rep = tagReplace(tag, msgType, strip);
-            usedTags.push(tag);
+            if (usedTags.includes(tag)) {
+                rep = tagReplace(tag, msgType, true);
+                //let rep = tagReplace(tag, msgType, true);
+                //  msgStr = msgStr.replaceAll(wrapped, rep);
+                // continue;
+            }
+            else {
+                usedTags.push(tag);
+            }
+            //let rep = tagReplace(tag, msgType, strip);
+            //usedTags.push(tag);
             msgStr = msgStr.replaceAll(wrapped, rep);
         }
         msgTags = extractMsgTags(msgStr, msgType);

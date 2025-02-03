@@ -30,8 +30,6 @@ import {
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 
-export let llmProvider: string; //Session provider 
-
 
 /*
 export function getApiKey(provider = null) {
@@ -121,14 +119,10 @@ export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {})
  */
 export function getLlmProvider(provider = null) {
   if (!provider) {
-    provider = llmProvider;
-  }
-  if (!provider) {
     provider = askLlmProvider();
   }
   if (provider && Object.keys(providers).includes(provider)) {
     setTitle(provider);
-    llmProvider = provider;
     return provider;
   } else {
     throw new PkError(`No provider found for ${provider}`);
@@ -165,7 +159,7 @@ export function mkChatParams(chatSrc: ChatParams | Strings): ChatParams {
     return chatSrc as ChatParams;
   }
   let strArr = mkArray(chatSrc as Strings);
-  let chatParams = buildMsg(...strArr);
+  let chatParams = buildMsg(strArr);
   return chatParams;
 }
 
@@ -450,11 +444,8 @@ export function mkStamp(pre?: string) {
 
 export async function askLlmProvider() {
   let choices = getProviders();
-  //@ts-ignore
-  let answer = await ask('What LLM Provider to use?', { choices });
-  llmProvider = answer;
-  console.log({ answer });
-  return llmProvider;
+  let provider  = await ask('What LLM Provider to use?', { choices });
+  return provider;
 };
 
 
