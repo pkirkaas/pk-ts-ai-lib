@@ -2,6 +2,9 @@
  * Building messages for chat
  */
 
+// NPM Imports
+
+import fs from 'node:fs';
 
 //PkLib imports
 import {
@@ -180,7 +183,7 @@ export function extractMsgTags(str: string, msgType: string): string[] {
   let msgObj = getMsgObj(msgType);
   let msgKeys = Object.keys(msgObj);
   let unfound = inArr1NinArr2(tags, msgKeys);
-  if (unfound.length) {
+  if (unfound.length && (msgType!=='code')) {
     throw new PkError(`Tags in string of msgType: [${msgType}] not found in msg keys:`, { unfound, msgKeys });
   }
   return tags;
@@ -204,8 +207,15 @@ export function tagReplace(tag: string, msgType: string, strip?: any): string {
   }
   let msgObj = getMsgObj(msgType);
   let val = msgObj[tag];
-  if (!val) {
-    throw new PkError(`tag: [${tag}] not found for msgType: [${msgType}]`);
+  if (!val) { //NEW - Allow actual file paths for code, not just tags
+    if (msgType === 'code') {
+      val = tag.trim();
+      if (!fs.existsSync(val)) {
+        throw new PkError(`Code File: [${val}] not found for msgType: [${msgType}]`);
+      }
+    } else {
+      throw new PkError(`tag: [${tag}] not found for msgType: [${msgType}]`);
+    }
   }
 
   if (msgType === 'code') {
@@ -745,13 +755,17 @@ Our initial approach is to define a JSON schema to explicitly define all the met
   tscodetrain: `[[aicodetrain]] The first The first step is to analyze the code base, and split it into smaller chunks, and extract the metadata for each function, and store the metadata in a vector database.
   `,
 
-  js: `[[code]] You are an expert in advanced techniques with modern JavaScript ('ES2022' and greater) software development and engineering, using the \`npm\` package management system, advanced configuration with \`package.json\`, and all relevant, latest versions of 'npm' packages. Prefer 'ESM' 'import' module syntax  over 'CommonJS' 'require' module syntax. For all \`npm\` packages you suggest, use the latest versions and include the \`npm install\` command for the packages in your responses.
+  js: `[[code]] You are an expert in advanced techniques with modern JavaScript ('ES2022' and greater) software development and engineering, using the \`npm\` package management system, advanced configuration with \`package.json\`, and all relevant, latest versions of 'npm' packages. 
+  
+  All your code suggestions should use the modern  \`ESM\` \`import\` module syntax  over \`CommonJS\` \`require\` module syntax.
+  
+  For all \`npm\` packages you suggest, use the latest versions and include the \`npm install\` command for the packages in your responses.
   `,
 
   ts: `[[js]] You are an expert in advanced techniques with modern TypeScript (version >= 5.6) software development and engineering, including advanced typescript build configurations and options with \`tsconfig.json\`.
   `,
 
-  node: `[[ts]] You are an expert in configuration, operation, options for the latest Node.js (version >= 23) development and engineering, and all relevant, latest versions of 'npm' packages. Prefer 'ESM' 'import' module syntax  over 'CommonJS' 'require' module syntax.
+  node: `[[ts]] You are an expert in configuration, operation, options for the latest Node.js (version >= 23) development and engineering, and all relevant, latest versions of \`npm\` packages.
   `,
 
 

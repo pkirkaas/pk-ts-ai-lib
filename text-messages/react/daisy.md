@@ -4,7 +4,7 @@ I am creating a reusable, responsive Navbar component using DaisyUI v ^4, with r
 
 React-daisyui provides a responsive `Navbar` component, and an example implementation as below:
 
-[[daisynav]]
+{{daisynav}}
 
 But the example they provide is not `DRY` or very configurable. For example, notice that to provide the responsive behavior,  they provide a `Dropdown` component for small displays, and a `Menu` component for larger displays, which duplicates the list/link menu structure of the `Dropdown`.
 
@@ -14,7 +14,7 @@ One of the `props` should be an abstract navigation structure that can be used f
 
 Here is one attempt at a `PkNavbar` component:
 
-[[pknav]]
+{{pknav}}
 
 {|
 
