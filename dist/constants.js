@@ -67,6 +67,7 @@ export const providers = {
         },
         apiKey: process.env.OPENAI_API_KEY,
         defaultModel: 'chatgpt-4o-latest',
+        //model:"o3-mini-2025-01-31", // No access?
     },
     togetherai: {
         baseURL: "https://api.together.xyz/v1",

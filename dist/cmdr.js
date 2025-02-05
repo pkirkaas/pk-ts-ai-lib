@@ -21,6 +21,7 @@ let modelsCmd = new Command('models')
     //let models = await client.getModels();
     //let models = await client.filterModels({type:'chat'});
     let models = await client.filterModels();
+    dbgWrt(models, `${provider}-models`);
     let names = client.modelObjsToNames(models);
     let cnt = models.length;
     //    let connection = new AiSdk(provider);
