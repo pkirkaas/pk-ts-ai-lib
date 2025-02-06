@@ -1,6 +1,7 @@
 /**
  * Predefined constants & options, like system messages, etc
  */
+// Local Imports
 import { defaultSysMsg, ClaudeClient, TogetherClient, } from './init.js';
 import { VertexAI } from '@google-cloud/vertexai';
 import Anthropic from '@anthropic-ai/sdk';
@@ -60,13 +61,13 @@ export const providers = {
     openai: {
         baseURL: 'https://api.openai.com/v1',
         // clientLib: OpenAI,
-        defaultFilter: 'latest',
+        filters: 'latest',
         defaultOpts: {
             ...oaiCodeParams,
             // max_tokens: 8192,
         },
         apiKey: process.env.OPENAI_API_KEY,
-        defaultModel: 'chatgpt-4o-latest',
+        model: 'chatgpt-4o-latest',
         //model:"o3-mini-2025-01-31", // No access?
     },
     togetherai: {
@@ -88,16 +89,15 @@ export const providers = {
         },
     },
     gengemini: {
-        type: "genai",
         model: 'gemini-2.0-flash-exp',
         //model: 'gemini-1.5-pro-002',
-        models: [
+        filters: [
             'gemini-1.5-pro-exp-0827',
             'gemini-1.5-pro-002',
         ],
         baseURL: "https://generativelanguage.googleapis.com/v1beta",
         project: 'stalwart-veld-438120-v7',
-        defaultGenerationConfig,
+        defaultOpts: { ...defaultGenerationConfig },
         apiKey: process.env.GEMINI_API_KEY,
         location: 'us-central1',
     },
@@ -106,7 +106,7 @@ export const providers = {
         clientLib: VertexAI,
         model: 'gemini-1.5-pro-002',
         project: 'stalwart-veld-438120-v7',
-        defaultGenerationConfig,
+        defaultOpts: { ...defaultGenerationConfig },
         apiKey: process.env.GEMINI_API_KEY,
         location: 'us-central1',
     },

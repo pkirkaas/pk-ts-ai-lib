@@ -25,7 +25,7 @@ export declare function filterModelObjArr(modelObjs: GenObj[], opts?: ModelListO
  * @returns {string}
  */
 export declare function getLlmProvider(provider?: any): any;
-export declare function getProviderConfig(provider?: any): any;
+export declare function getProviderConfig(provider?: any): import("./constants.js").ProviderConfig;
 export interface IMsgsParams {
     uMsg?: string | string[] | null;
     sMsg?: string | string[] | null;
@@ -47,113 +47,7 @@ export declare function matchPattern(str: string, patterns: Strings): boolean;
 /** Return providers - array of strings or configs
  * @param {boolean} list - if true, return array of strings, else return object
  */
-export declare function getProviders(list?: boolean): string[] | {
-    lms: {
-        baseURL: string;
-        apiKey: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-    };
-    xai: {
-        apiKey: string;
-        baseURL: string;
-        model: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-    };
-    ollama: {
-        baseURL: string;
-        apiKey: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-    };
-    openai: {
-        baseURL: string;
-        defaultFilter: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-        apiKey: string;
-        defaultModel: string;
-    };
-    togetherai: {
-        baseURL: string;
-        apiKey: string;
-        pkClientClass: typeof import("./init.js").TogetherClient;
-    };
-    anthropic: {
-        clientLib: typeof import("@anthropic-ai/sdk").Anthropic;
-        pkClientClass: typeof import("./init.js").ClaudeClient;
-        model: string;
-        apiKey: string;
-        defaultOpts: {
-            max_tokens: number;
-            system: string;
-            temperature: number;
-            top_p: number;
-        };
-    };
-    gengemini: {
-        type: string;
-        model: string;
-        models: string[];
-        baseURL: string;
-        project: string;
-        defaultGenerationConfig: {
-            temperature: number;
-            top_p: number;
-            top_k: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-            maxOutputTokens: number;
-            candidateCount: number;
-        };
-        apiKey: string;
-        location: string;
-    };
-    gemini: {
-        type: string;
-        clientLib: typeof import("@google-cloud/vertexai").VertexAI;
-        model: string;
-        project: string;
-        defaultGenerationConfig: {
-            temperature: number;
-            top_p: number;
-            top_k: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-            maxOutputTokens: number;
-            candidateCount: number;
-        };
-        apiKey: string;
-        location: string;
-    };
-    nebius: {
-        clientLib: typeof import("openai").OpenAI;
-        baseURL: string;
-        apiKey: string;
-    };
-    nvidia: {
-        clientLib: typeof import("openai").OpenAI;
-        baseURL: string;
-        apiKey: string;
-    };
-};
+export declare function getProviders(list?: boolean): import("./constants.js").Providers | string[];
 /**
  * Takes a msg key or array of msg keys & returns a string of the message keys
  */

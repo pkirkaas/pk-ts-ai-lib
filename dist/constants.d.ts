@@ -1,10 +1,7 @@
 /**
  * Predefined constants & options, like system messages, etc
  */
-import { ClaudeClient, TogetherClient } from './init.js';
-import { VertexAI } from '@google-cloud/vertexai';
-import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from "openai";
+import { GenObj, Strings } from 'pk-ts-node-lib';
 export declare let LMS_PORT: string;
 export declare let OLLAMA_PORT: string;
 export declare let oaiCodeParams: {
@@ -27,112 +24,21 @@ export declare const defaultGenerationConfig: {
     maxOutputTokens: number;
     candidateCount: number;
 };
-export declare const providers: {
-    lms: {
-        baseURL: string;
-        apiKey: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-    };
-    xai: {
-        apiKey: string;
-        baseURL: string;
-        model: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-    };
-    ollama: {
-        baseURL: string;
-        apiKey: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-    };
-    openai: {
-        baseURL: string;
-        defaultFilter: string;
-        defaultOpts: {
-            temperature: number;
-            top_p: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-        };
-        apiKey: string;
-        defaultModel: string;
-    };
-    togetherai: {
-        baseURL: string;
-        apiKey: string;
-        pkClientClass: typeof TogetherClient;
-    };
-    anthropic: {
-        clientLib: typeof Anthropic;
-        pkClientClass: typeof ClaudeClient;
-        model: string;
-        apiKey: string;
-        defaultOpts: {
-            max_tokens: number;
-            system: string;
-            temperature: number;
-            top_p: number;
-        };
-    };
-    gengemini: {
-        type: string;
-        model: string;
-        models: string[];
-        baseURL: string;
-        project: string;
-        defaultGenerationConfig: {
-            temperature: number;
-            top_p: number;
-            top_k: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-            maxOutputTokens: number;
-            candidateCount: number;
-        };
-        apiKey: string;
-        location: string;
-    };
-    gemini: {
-        type: string;
-        clientLib: typeof VertexAI;
-        model: string;
-        project: string;
-        defaultGenerationConfig: {
-            temperature: number;
-            top_p: number;
-            top_k: number;
-            frequency_penalty: number;
-            presence_penalty: number;
-            maxOutputTokens: number;
-            candidateCount: number;
-        };
-        apiKey: string;
-        location: string;
-    };
-    nebius: {
-        clientLib: typeof OpenAI;
-        baseURL: string;
-        apiKey: string;
-    };
-    nvidia: {
-        clientLib: typeof OpenAI;
-        baseURL: string;
-        apiKey: string;
-    };
+export type ProviderConfig = {
+    baseURL?: string;
+    apiKey?: string;
+    defaultOpts?: GenObj;
+    model?: string;
+    filters?: Strings;
+    clientLib?: any;
+    pkClientClass?: any;
+    type?: string;
+    location?: string;
+    project?: string;
 };
+export type Providers = {
+    [key: string]: ProviderConfig;
+};
+export declare const providers: Providers;
 export declare const timeout: number;
 //# sourceMappingURL=constants.d.ts.map

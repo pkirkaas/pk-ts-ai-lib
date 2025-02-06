@@ -93,6 +93,7 @@ export declare let systemMessages: {
     pyqt: string;
     win: string;
     tsfnc: string;
+    pureJson: string;
     tsanalyze: string;
     auto: string;
     tsfncbody: string;

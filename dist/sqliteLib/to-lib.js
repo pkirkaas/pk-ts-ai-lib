@@ -135,7 +135,7 @@ export async function processMsgsDB(dropSchema = false) {
 /** Init the table of function defs if empty, return the DataSource */
 export async function initFncDets(provider, model) {
     let config = getProviderConfig(provider);
-    model = model || config.model || config.defaultModel;
+    model = model || config.model;
     let dbName = 'to-common-dec';
     let dbPath = getDbPath(provider, model, dbName);
     //let config: GenObj = getToConfig('sqlite', { database: dbPath, entities: fncEntities, });
@@ -206,7 +206,7 @@ export async function getEmptyFncMD({ provider, model, arr } = {}) {
  */
 export async function getFncsMD({ provider, model, opts } = {}) {
     let config = getProviderConfig(provider);
-    model = model || config.model || config.defaultModel;
+    model = model || config.model;
     if (!model) {
         throw new PkError(`in dbReport, No Model for provider`, { provider, model, opts });
     }
@@ -220,7 +220,7 @@ export async function getFncsMD({ provider, model, opts } = {}) {
 }
 export async function dbReport({ provider, model, opts } = {}) {
     let config = getProviderConfig(provider);
-    model = model || config.model || config.defaultModel;
+    model = model || config.model;
     if (!model) {
         throw new PkError(`in dbReport, No Model for provider`, { provider, model, opts });
     }

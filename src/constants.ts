@@ -2,6 +2,14 @@
  * Predefined constants & options, like system messages, etc
  */
 
+// NPM Imports
+
+// Pk Lib Imports
+import {GenObj, Strings,
+} from 'pk-ts-node-lib';
+
+// Local Imports
+
 import {
   defaultSysMsg, OpenAiClient, ClaudeClient, TogetherClient,
 } from './init.js';
@@ -39,7 +47,25 @@ export const defaultGenerationConfig = { // For Google/VertexAI
   candidateCount: 1,
 };
 
-export const providers = {
+export type ProviderConfig = {
+  baseURL?:string,
+  apiKey?:string,
+  defaultOpts?:GenObj,
+  model?: string,
+  filters?:Strings,
+  clientLib?:any,
+  pkClientClass?:any,
+  type?:string,
+  location?:string,
+  project?:string,
+
+
+
+}
+
+export type Providers = { [key: string]: ProviderConfig };
+
+export const providers:Providers = {
   lms: {
     baseURL: `http://localhost:${LMS_PORT}/v1`,
     apiKey: 'lms',
@@ -71,13 +97,13 @@ export const providers = {
   openai: {
     baseURL: 'https://api.openai.com/v1',
     // clientLib: OpenAI,
-    defaultFilter: 'latest',
+    filters: 'latest',
     defaultOpts: {
       ...oaiCodeParams,
       // max_tokens: 8192,
     },
     apiKey: process.env.OPENAI_API_KEY,
-    defaultModel: 'chatgpt-4o-latest',
+    model: 'chatgpt-4o-latest',
     //model:"o3-mini-2025-01-31", // No access?
   },
   togetherai: {
@@ -99,16 +125,15 @@ export const providers = {
     },
   },
   gengemini: { // Use Gemini API instead of VertexAI
-    type: "genai",
     model: 'gemini-2.0-flash-exp',
     //model: 'gemini-1.5-pro-002',
-    models: [
+    filters: [
       'gemini-1.5-pro-exp-0827',
       'gemini-1.5-pro-002',
     ],
     baseURL: "https://generativelanguage.googleapis.com/v1beta",
     project: 'stalwart-veld-438120-v7',
-    defaultGenerationConfig,
+    defaultOpts: {...defaultGenerationConfig},
     apiKey: process.env.GEMINI_API_KEY,
     location: 'us-central1',
   },
@@ -117,7 +142,7 @@ export const providers = {
     clientLib: VertexAI,
     model: 'gemini-1.5-pro-002',
     project: 'stalwart-veld-438120-v7',
-    defaultGenerationConfig,
+    defaultOpts: {...defaultGenerationConfig},
     apiKey: process.env.GEMINI_API_KEY,
     location: 'us-central1',
   },
