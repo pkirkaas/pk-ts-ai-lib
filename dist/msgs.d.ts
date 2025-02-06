@@ -4,11 +4,6 @@
 import { Strings } from 'pk-ts-node-lib';
 import { WrapCodeObjs, MsgObj } from './init.js';
 /**
- * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
- * @param msgStr - string to test
- * @return array of remaining embeddeds
- */
-/**
  * Throws if any embeds remain in string(s)
  */
 export declare function assertEmbeddeds(...strs: string[]): void;
@@ -38,6 +33,11 @@ export declare const wrapPairs: {
 export declare const msgTypes: string[];
 export declare const txtMsgTypes: string[];
 export declare function wrapKeyType(key: string, msgType: string): string;
+export declare function wordCnt(str: string): number;
+/**
+ * Test all the message keys in the system
+ */
+export declare function tstMsgs(typex?: Strings): void;
 /**
  * Builds a MsgObj for a given msg type - hard coded for now
  * @param msgType:string - 'sysmsg' | 'usrmsg' | 'code'
@@ -106,14 +106,14 @@ export declare let systemMessages: {
     reactcss: string;
     vite: string;
     reactemotion: string;
+    pqt: string;
+    aicodeprep: string;
+    aicp1: string;
 };
 export declare let usrMessages: {
-    pqt: string;
     wrappedschema: string;
     pqtBrowser: string;
     embeddings: string;
-    aicodeprep: string;
-    aicp1: string;
     aicp2: string;
     pqtAppFramework: string;
     aiapiparams: string;
@@ -122,25 +122,4 @@ export declare let usrMessages: {
     tsdecls: string;
     utsfncbody: string;
 };
-export interface IMsgObj {
-    [key: string]: string;
-}
-/**
- * Combine all the message objects into a single object, checking for duplicate keys.
- */
-/**
- * If the arg is not an array, put it into an array
- */
-export interface IMsgSet {
-    usr?: Strings;
-    sys?: Strings;
-}
-export declare let MsgSets: {};
-/**
- * Test message keys - write to file & return
- * @param msgs - string | string[] | null
- *   if null, all keys & msgs
- *   if string/string[], check keys exist, output subset
- */
-export declare function wordCnt(str: string): number;
 //# sourceMappingURL=msgs.d.ts.map

@@ -21,28 +21,6 @@ import {
   wrapCodeNew,
 } from './init.js';
 
-/**
- * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
- * @param msgStr - string to test
- * @return array of remaining embeddeds
- */
-/*
-export function findEmbeddeds(msgStr) {
-  let regexes = [
-    /\[\[(.+?)\]\]/g,
-    /\{\{(.+?)\}\}/g,
-    /\{\|(.+?)\|\}/gs,
-  ];
-  let embeddeds = [];
-  for (let regex of regexes) {
-    let embeds = msgStr.match(regex);
-    if (embeds) {
-      embeddeds = embeddeds.concat(embeds);
-    }
-  }
-  return embeddeds;
-}
-  */
 
 /**
  * Throws if any embeds remain in string(s)
@@ -96,6 +74,36 @@ export function wrapKeyType(key: string, msgType: string): string {
   let { open, close } = wrapPairs[msgType];
   return `${open}${key}${close}`;
 }
+export function wordCnt(str: string): number {
+  if (typeof str !== 'string') {
+    throw new PkError(`In wordCnt - str is not a string:`, { str });
+  }
+  const array = str.trim().split(/\s+/);
+  return array.length;
+}
+
+/**
+ * Test all the message keys in the system
+ */
+export function tstMsgs(typex?:Strings) {
+  for (let msgType of msgTypes) {
+    //console.log(`In tstMsgs - testing msgType: [${msgType}]`);
+    let msgObj = getMsgObj(msgType);
+    let msgKeys = Object.keys(msgObj);
+    for (let msgKey of msgKeys) {
+      let msgStr = `msgKey: [${msgKey}] - type: [${msgType}]; wrapped: '${wrapKeyType(msgKey, msgType)}'`;
+      //console.log(`Testing key: [${msgKey}] of type: [${msgType}]`);
+      try {
+      let msgs = buildMsg(msgStr);
+      } catch(e) {
+        let errMsg = e.message;
+        console.error(`tstMsgs error for [${msgKey}], msgStr: ['${msgStr}'], msgType:[${msgType}]`,{e});
+      }
+    }
+  }
+}
+
+
 /**
  * Builds a MsgObj for a given msg type - hard coded for now
  * @param msgType:string - 'sysmsg' | 'usrmsg' | 'code'
@@ -416,10 +424,12 @@ export async function expandMsgs(...args) {
 export let codeFiles: WrapCodeObjs = {
   fsb: 'Q:/Common/Software-Dev/Pythons/similar-images/src/file-system-browser.py',
   fncSchema: './src/FncSchemas/fnc2schema.json',
+  /*
   ssrSrc: {
     fpaths: "C:/www/NodeTests/NextTests/ssr/next-ssr-demo",
     desc: 'Next.js SSR Demo',
   },
+  */
   nextconfs: {
     fpaths: [
       `Q:/Common/AI-Experiments/Node/guis/next-basic/tsconfig.json`,
@@ -485,6 +495,8 @@ export let codeFiles: WrapCodeObjs = {
       "C:/www/NodeTests/NextTests/ssr/next-2/postcss.config.mjs",
     ],
   },
+
+  fncSchema2: "Q:/Common/AI-Experiments/Node/AI-TS-Lib/src/FncSchemas/fnc2schema.json",
 
   /*
 "C:/www/NodeTests/NextTests/ssr/next-2/node_modules/pk-ts-fe-lib/dist/esm/components/daisyui/antnav2.js"
@@ -752,13 +764,20 @@ Your \`JSON\` response must comply with the \`JSON Schema\` provided, or a \`JSO
   
 They are very powerful and feature rich, but offer different features and capabilities, and furthermore can be very confusing particularly as different packages export functions with the same name but very different behaviors, such as \`css\` and \`styled\`. Your are expert in all of them, and can provide detailed guidance on which to use in different situations, particularly disambiguating between exports with the same name but different behaviors.
 `,
-};
-
-export let usrMessages = {
   pqt: `[[python]] You are an expert with the \`PyQt6\` Python library for creating graphical user interfaces (GUIs), and available widget libraries.
 
   You will provide a complete, working, and tested PyQt6 GUI application in Python code - including all necessary imports and setup code - to create a working GUI application, using standard widgets and layouts where available.`,
 
+  aicodeprep: `The code needs to be prepared and commented and chunked, etc, but I don't want to do that myself - I want to use AI to do it all for me. I know this will require several steps and additional libraries and utilities. I also know that different LLMs are more suitable for code preparation/chunking/etc than the LLMs that I want to use for the actual coding assistant.
+  `,
+
+  aicp1: `[[aicodeprep]] Please provide a detailed guide on how to prepare the code for use with an LLM, using another AI LLM, including the steps and tools required, with recommendations and alternatives.
+  `,
+
+
+};
+
+export let usrMessages = {
 wrappedschema : `
 This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript functions, to use to generate Code embeddings for use with RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness. It is essential that your response includes all information possible, as much information as possible, that would support its use for RAG training of an LLM to provide all the information required to enable it as an AI Coding Assistant for the functions. The json schema:
 
@@ -770,11 +789,6 @@ This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript func
   `,
 
   embeddings: `[[ai]] [[aiprep]] [[embedding]]  <[wrappedSchemaStr]>`,
-  aicodeprep: `The code needs to be prepared and commented and chunked, etc, but I don't want to do that myself - I want to use AI to do it all for me. I know this will require several steps and additional libraries and utilities. I also know that different LLMs are more suitable for code preparation/chunking/etc than the LLMs that I want to use for the actual coding assistant.
-  `,
-
-  aicp1: `[[aicodeprep]] Please provide a detailed guide on how to prepare the code for use with an LLM, using another AI LLM, including the steps and tools required, with recommendations and alternatives.
-  `,
 
   aicp2: `[[aicp1]]
   Let's take one language code base at a time - for now, 'typescript'. I have several large libraries of 'typescript' functions/utilities, as well as many applications that use the libraries. Should I separate the processing of the  the code libraries that implement the library components from the source code of the applications that use the libraries?
@@ -815,149 +829,3 @@ This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript func
   ,
 };
 
-// Switch from separate system and user messages to a single object
-/*
-export let Msgs = {
-  system: systemMessages,
-  user: usrMessages,
-};
-*/
-
-export interface IMsgObj {
-  [key: string]: string,
-}
-
-
-/**
- * Combine all the message objects into a single object, checking for duplicate keys. 
- */
-/*
-export function getAllMsgs(...msgObjs: IMsgObj[]): IMsgObj {
-  let ret: IMsgObj = {};
-
-  let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), };
-  for (let msgObjKey in initMsgObjs) {
-    let msgObj = initMsgObjs[msgObjKey];
-    let iKeys = intersect(Object.keys(ret), Object.keys(msgObj));
-    if (iKeys.length) {
-      throw new PkError(`in getAllMsgs; duplicate keys in msgObj [${msgObjKey}]:`, iKeys);
-    }
-    ret = { ...ret, ...msgObj };
-  }
-  AllMsgs = ret;
-  return AllMsgs;
-}
-
-export async function getAllMsgsByObj() {
-  let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), codeFiles };
-  let ret: IMsgObj = {};
-  for (let msgObjKey in initMsgObjs) {
-    let msgObj = initMsgObjs[msgObjKey];
-    let iKeys = intersect(Object.keys(ret), Object.keys(msgObj));
-    if (iKeys.length) {
-      throw new PkError(`in getAllMsgsByObj; duplicate keys in msgObj [${msgObjKey}]:`, iKeys);
-    }
-  }
-  let expMsgObjs = {};
-  for (let msgObjKey in initMsgObjs) {
-    let msgObj = initMsgObjs[msgObjKey];
-    let expMsgObj = {};
-    for (let msgKey in msgObj) {
-      let msg = msgObj[msgKey];
-      expMsgObj[msgKey] = { msg, expMsg: await expandMsgs(msgKey) };
-    }
-    expMsgObjs[msgObjKey] = expMsgObj;
-  }
-  return expMsgObjs;
-}
-  */
-/*
-
-export let tstAnTasks = {
-  lstFncs: " to process and parse the typescript code that follows and just return a list of all the functions defined in the code. Do not include any comments or explanations. Just return the list of functions.",
-
-  docForObjInfo: " create full, complete, detailed and accurate documentation for the function `objInfo` defined in the code. Your documentation should be in the form of a markdown table with the following columns: function name, function description, function parameters, function return value, function return type, function return description.",
-
-  docForAll: " create full, complete, detailed and accurate documentation for each function defined in the code. Your documentation should be in the form of markdown, with `GitHub` markdown syntax, and include a table of contents. Each function should be documented under a markdown header with the function name. The documentation section for each function should start with a markdown table with the following columns: function name, function description, function parameters, function return value, function return type, function return description. For each function definition section, the table should be followed by full documentation of the function including the function signature, function description, function parameters with types, function return value, function return type, function return description, and examples .",
-
-  tsDoc: "TODO",
-
-  jsonChunk: " create json chunks for each function of the typescript code that follows, in a single JSON output, which includes every function defined. Each chunk should be a json object with the key as the function name, with the content/value the json escaped typescript code for the function. The json chunk should be a single line json object.",
-};
-*/
-
-
-//export function tstMsgStr(msgs: string | string[]): string {
-/*
-export async function tstMsgStr(...msgs): Promise<string> {
-  let inpMsgs = JSON5Stringify(msgs);
-  let msgStr = await expandMsgs(...msgs);
-  let outPath = `./out/msg-test-${Date.now()}.md`;
-  writeData(
-    `# Test Msg Generation\n**Input Msgs:**\n\n${inpMsgs}\n\n**Generated:**\n\n${msgStr}\n`,
-    outPath);
-  return msgStr;
-}
-  */
-
-/**
- * If the arg is not an array, put it into an array
- */
-/*
-export function mkArray(arg) {
-  if (!Array.isArray(arg)) {
-    if (!arg) {
-      arg = [];
-    } else {
-      arg = [arg];
-    }
-  }
-  return arg.flat(99);
-}
-  */
-
-export interface IMsgSet {
-  usr?: Strings,
-  sys?: Strings,
-}
-// Map keys to usr/system messages
-export let MsgSets = {
-
-
-};
-
-/**
- * Test message keys - write to file & return
- * @param msgs - string | string[] | null
- *   if null, all keys & msgs
- *   if string/string[], check keys exist, output subset
- */
-/*
-export function tstMsgKeys(msgs) {
-  let lAllMsgs = getAllMsgs();// as GenObj;
-  //getAllMsgs(); // as GenObj;
-  if (!isEmpty(msgs)) {
-    let amkeys = Object.keys(AllMsgs);
-    msgs = mkArray(msgs);
-    let badKeys = inArr1NinArr2(msgs, amkeys);
-    if (!isEmpty(badKeys)) {
-      console.log(`Msg keys not in AllMsgs:`, badKeys);
-      return;
-    }
-    lAllMsgs = subObj(AllMsgs, msgs);
-  }
-  let outPath = `./out/msg-key-test-${Date.now()}.json5`;
-  writeData(lAllMsgs, outPath);
-  return lAllMsgs;
-
-}
-  */
-
-
-export function wordCnt(str: string): number {
-  if (typeof str !== 'string') {
-    throw new PkError(`In wordCnt - str is not a string:`, { str });
-  }
-  const array = str.trim().split(/\s+/);
-  return array.length;
-}

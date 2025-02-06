@@ -6,7 +6,7 @@
 import { dbgWrt, ask, runCli, isSimpleObject, PkError, parseArgs, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { codeFiles, wrapCodeNew, getLlmProvider, buildMsg, hfChat, OpenAiClient, } from './init.js';
+import { codeFiles, tstMsgs, wrapCodeNew, getLlmProvider, buildMsg, hfChat, OpenAiClient, } from './init.js';
 // Implementations
 export let msgKeys = {};
 export async function parseChatArgs(args, chatOpts = {}) {
@@ -28,6 +28,9 @@ export async function parseChatArgs(args, chatOpts = {}) {
     return { msgs, opts };
 }
 let fncs = {
+    tstMsgs: () => {
+        tstMsgs();
+    },
     tstHf: async () => {
         let res = await hfChat();
         console.log(res);

@@ -5,9 +5,6 @@
 
 // npm lib imports
 
-import OpenAI from "openai";
-import { editor } from '@inquirer/prompts';
-import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from "lodash";
 
 // pk-lib imports
@@ -23,6 +20,7 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 // local imports
 import {
   codeFiles,
+  tstMsgs,
   initMsgsDB, //processMsgsDB,
   WrapCodeParam, WrapCodeParams,wrapCodeNew,
   askLlmProvider,
@@ -61,6 +59,9 @@ export async function parseChatArgs(args, chatOpts: any = {}) {
 }
 
 let fncs = {
+  tstMsgs:() => {
+    tstMsgs();
+  },
   tstHf: async () => {
     let res = await hfChat();
     console.log(res);
