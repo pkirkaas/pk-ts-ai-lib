@@ -23,12 +23,14 @@ import {
 import {
   systemMessages, usrMessages, providers, timeout,  defaultSysMsg, getProviderConfig, 
   //mkMsgStr,
-  expandMsgs, Strings, logEntities, LogItem, initChatLog, mkStamp,  mkLogDets,
+  expandMsgs, Strings, logEntities, LogItem, initChatLog,
+  // mkStamp,  mkLogDets,
 } from './init.js';
 
 /**
  * Simple gemini chat - with interactions...
  */
+/*
 export async function sGeminiChat(...args) {
   let {arr:msgs, opts} = parseArgs(args);
   let {sMsg= 'default',  dropSchema=false, followup,} = opts;
@@ -71,38 +73,8 @@ export async function sGeminiChat(...args) {
 
   }
 }
+  */
 
-export async function geminiChatTask(...msgs) {
-  if (isEmpty(msgs)) {
-    let msg = await ask("Enter your message to Gemini:");
-    msgs.push(msg);
-  }
-  let label = msgs[0];
-  let stamp = mkStamp();
-  //let content = mkMsgStr(msgs);
-  let content = await expandMsgs(msgs);
-  let provider = 'gemini';
-  let providerConfig = getProviderConfig(provider);
-  let vertexAI = new VertexAI({
-    project: providerConfig.project,
-    location: providerConfig.location,
-  });
-  let model = providerConfig.model;
-  let config =   providerConfig.defaultGenerationConfig;
-  let chatModel = vertexAI.getGenerativeModel({ 
-    model,
-    generationConfig:config,
-   });
-  let chat = await chatModel.startChat({});
-  let result = await chat.sendMessage(content);
-  let response = result.response;
-  let assistant = parseSingleGeminiResponse(result);
-  let logItem = LogItem.create({
-    response, assistant, model, provider, config, content, messages:content,
-  });
-  await logItem.save();
-  return assistant;
-}
 
 export function parseSingleGeminiResponse(result) {
   let response = result.response;

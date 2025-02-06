@@ -28,10 +28,11 @@ import {
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, getProviderConfig, parseSingleGeminiResponse,
   //mkMsgStr,
   getLlmProvider,
-  expandMsgs, Strings, logEntities, LogItem, initChatLog, mkStamp,  mkLogDets,
+   Strings, logEntities, LogItem, initChatLog, 
 } from './init.js';
 
 
+/*
 export async function getGenAIModels(opts: GenObj = {}) {
   let provider = getLlmProvider('gengemini');
   let genAI = await getGenAIClient(provider);
@@ -65,10 +66,6 @@ export async function genAIChat(msg: Strings = [], opts: GenObj = {}) {
   let chatLog = await initChatLog({ outpath, sysmsg, dropSchema, provider, model, stamp, usrmsg, chatinfo, chatconfig: generationConfig, label, });
 
   let messages = [{ role: 'user', content:usrmsg, }];
-  /*
-  let apiKey = getApiKey(provider);
-  const genAI = new GoogleGenerativeAI(apiKey);
-  */
   const gModel = genAI.getGenerativeModel({
     model, systemInstruction, generationConfig,
   });
@@ -105,6 +102,7 @@ export async function genAIChat(msg: Strings = [], opts: GenObj = {}) {
     }
   }
 }
+  */
 
 export async function getGenAIClient(provider = "gengemini", opts: GenObj = {}) {
   //let {provider="gengemini",   sMsg, dropSchema, followup,} = opts;

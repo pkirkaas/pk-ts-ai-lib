@@ -22,11 +22,14 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 
 // local imports
 import {
-  askLlmProvider,  getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, mkMsgArr, getRawModelObjs, getRawModelList, 
-  //chatTask,
-  //geminiChat,
- anthropicChat, hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
-  // fncTask, getEmptyFncMD, getCommonTs, getTxtMsg,
+  askLlmProvider, 
+  getLlmProvider,
+  getOaiClient, getProviders, parseChatRes,
+  getRawModelObjs,
+  //chatTask, getRawModelList, chat, mkMsgArr,
+  //geminiChat, anthropicChat, getModelByIdx,
+  hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
+  // fncTask, getEmptyFncMD, getCommonTs, getTxtMsg, getModelList, askModel,
   systemMessages, providers, timeout, 
  // claudeChatTask,
   validateJson, getByName, getFncsMD,
@@ -36,9 +39,12 @@ import {
   //mkMsgStr,
   tstMsgKeys, dbReport,
   // tstFncJsons,
-  filterTogetherModels, showTogetherModel, showTogetherModels,
+  //filterTogetherModels, showTogetherModel, showTogetherModels,
   //oaiChatTask, allThree,
-  mkTogetherModelChoices, askTogetherModel,  AllMsgs, sGeminiChat, wrappedSchemaStr, 
+ // mkTogetherModelChoices, askTogetherModel,
+   AllMsgs,
+   //sGeminiChat,
+   wrappedSchemaStr, 
 } from './init.js';
 
 // Implementations
@@ -53,11 +59,7 @@ let fncs = {
     });
     console.log("Editor Result:", ed);
   },
-  dbRep: async (provider = 'lms') => {
-    provider = getLlmProvider(provider);
-    let model = await askModel(provider);
-    await dbReport({provider,model});
-  },
+  
   logFncs: async  (provider='anthropic')  => {
     console.log(`Logging all FNC Dets w. provider: [${provider}]`);
     let ret = await getFncsMD({provider});
@@ -65,6 +67,11 @@ let fncs = {
     console.log(`Finished logging fnc dets`);
   },
   /*
+  dbRep: async (provider = 'lms') => {
+    provider = getLlmProvider(provider);
+    let model = await askModel(provider);
+    await dbReport({provider,model});
+  },
   tstGetFncDets: async (provider = 'anthropic', arr = 5) => {
     console.log(`Testing FNC Dets w. provider: [${provider}] with [${arr}] functions`);
     let i = 10;
@@ -208,7 +215,6 @@ let fncs = {
     let res = await chat(provider, { sMsg: ['ai', 'ts'], uMsg });
     console.log(`res:\n`, res);
   },
-  */
   allTogetherModels: async () => {
     let models = await filterTogetherModels({ type: 'chat' });
     let fpath = "./tmp/all-together-models.json5";
@@ -220,6 +226,7 @@ let fncs = {
 
     //console.log( len);
   },
+  */
   tstDtFmt: () => {
     console.log(`\n\nTesting dtFmt\n`);
     let dtStrs = [
@@ -235,6 +242,13 @@ let fncs = {
     }
     console.log('Done w. dtFmt\n\n');
   },
+  checkModels: async (provider = 'lms') => {
+    provider = getLlmProvider(provider);
+    let models = await getRawModelObjs(provider);
+    console.log(`For Provider [${provider}] models are:`, models);
+    return;
+  },
+  /*
   tstFltTgth: async (name, date, context, org) => {
     date = date || "1 June 2024";
     //let provider = 'together';
@@ -248,22 +262,13 @@ let fncs = {
     let shLen = show.length;
     console.log(show, len, shLen);
   },
-  checkModels: async (provider = 'lms') => {
-    provider = getLlmProvider(provider);
-    let models = await getRawModelObjs(provider);
-    console.log(`For Provider [${provider}] models are:`, models);
-    return;
-  },
-  /*
   tstMkMsgArr: () => {
     let uMsg = ['tsfncbody', getCommonTs()];
     let sMsg = ['ts', 'tsfncbody'];
     let msgRes = mkMsgArr({ uMsg, sMsg });
     console.log(msgRes);
   },
-  */
 
-  /*
   tstPopFnc: async (provider = 'lms', fncName = 'allProps') => {
     provider = getLlmProvider(provider);
     let model = await askModel(provider);
@@ -277,7 +282,6 @@ let fncs = {
     writeData(res, './out/msg-arr.json5');
     console.log("Done pop bodies");
   },
-  */
   initDecTbl: async (provider = 'lms') => {
     provider = getLlmProvider(provider);
     let model = await askModel(provider);
@@ -285,11 +289,6 @@ let fncs = {
     let res = await initFncDets(provider, model);
     console.log(`\nDone w. Chat\n`);
   },
-  tstHf: async () => {
-    let res = await hfChat();
-    console.log(res);
-  },
-  /*
   tstFncDef: async (provider = 'lms') => {
     provider = getLlmProvider(provider);
     let uMsg = ['tsfncbody', getCommonTs()];
@@ -318,7 +317,6 @@ let fncs = {
     console.log(`\nDone w. OAI Chat\n`);
 
   },
-  */
   chat: async (provider = 'lms', sMsg = 'ai', uMsg?: string) => {
     if (!uMsg) {
       uMsg = await ask('Enter a message to send to the AI');
@@ -330,6 +328,7 @@ let fncs = {
     let res = await chat(provider, { sMsg, uMsg });
     console.log(`\nDone w. Chat\n`);
   },
+  */
 
 };
 

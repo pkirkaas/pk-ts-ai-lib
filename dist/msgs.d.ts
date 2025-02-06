@@ -79,7 +79,6 @@ export declare function buildMsg(msgx: Strings): {
 };
 export declare function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string;
 export declare function buildSysMsg(msg: string): string;
-export declare function partitionMsg(msg: string): BuiltMsg;
 export declare function expandMsgNew(msg: string, msgType: string): string;
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys

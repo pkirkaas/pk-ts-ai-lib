@@ -111,29 +111,10 @@ export declare function getAllFiles(dir: string, opts?: any): string[];
  * returns as an object keyed by lang tag to array of code blocks
  * @param resStr - string response from a chatbot
  * @returns an object keyed by lang tag to array of code blocks
- */
-export declare function extractCode(resStr: string): CodeBlocks;
-/**
+
  * Best so far, but doesn't handle empty code blocks
  * takes a string response from a chatbot and extracts the code blocks
  */
-export declare function extractCodeC3(resStr: string): CodeBlocks;
+export declare function extractCode(resStr: string): CodeBlocks;
 export {};
-/**
- * Wraps code in a file in a code block & returns it as a string wrapped in triple backticks
- * with appropriate language tag
- * @param src:Strings|GenObj - path or path array to files/directories, or object w. property fpath, base, desc
- * @param opts?:string|GenObj - optional object with properties:
- * @param opts.root:string? - root directory for project
- * @param opts.desc: string? - description of code block
- *
- */
-/**
- * Takes a directory & recurses, wrapping each file in a code block
- * @param dir - directory to recurse
- * @param opts?:string|GenObj - optional object with optional properties:
- *   @param opts.root:string? - root directory for project
- *   @param opts.excPatterns:string[]? - Patterns of filenames to exclude from file list
- *   @param opts.dirExc:string[]? - Patterns of directory names to exclude from file list
- */
 //# sourceMappingURL=fileops.d.ts.map

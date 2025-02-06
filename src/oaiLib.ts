@@ -2,6 +2,7 @@
  * 
 */
 
+// NPM Imports
 import OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 
@@ -17,12 +18,9 @@ import {
 
 // Local Imports
 import {
-  mkStamp, mkModelListOpts, filterModelObjArr,
+  mkModelListOpts, filterModelObjArr,
   getProviderConfig, 
- // getApiKey, 
   getLlmProvider, 
- // getServerUrl, 
-  mkMsgArr, mkLogDets,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, AllMsgs, initChatLog,
   wordCnt, expandMsgs, Strings, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
@@ -37,8 +35,6 @@ import {
 export async function getRawModelObjs(provider = 'togetherai', opts: GenObj = {}) {
   provider = getLlmProvider(provider);
   let {baseURL, apiKey} = getProviderConfig(provider);
-  //let apiKey = getApiKey(provider);
- // let baseURL = getServerUrl(provider);
   let options: GenObj = {
     method: 'GET',
     headers: {
@@ -57,8 +53,6 @@ export async function getRawModelObjs(provider = 'togetherai', opts: GenObj = {}
      URL: [${url}], apiKey: [${apiKey}] & opts:`, opts);
   let resp = await fetch(url, options);
   let respJson = await resp.json();
-  //let toRespJson = typeOf(respJson);
-  //console.log(`respJson:`, { toRespJson, respJson });
   if (Array.isArray(respJson)) {
       return respJson;
   } else if (isSimpleObject(respJson)) {
@@ -77,11 +71,6 @@ export async function getRawModelObjs(provider = 'togetherai', opts: GenObj = {}
   return modelObjs;
 }
 
-export async function getRawModelList(provider = 'togetherai', opts: GenObj = {}) {
-  let modelObjArr = await getRawModelObjs(provider, opts);
-  let modelList = modelObjArr.map((modelObj) => modelObj.id);
-  return modelList;
-}
 
 
 
@@ -94,45 +83,6 @@ export function getOaiClient(provider = null) {
   console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
   let client = new OpenAI(clientCreateParams);
   return client;
-}
-
-
-/**
- * Return array of model def objects in the form:
- * [ { id: 'lmstudio-community/Mistral-Small-Instruct-2409-GGUF/Mistral-Small-Instruct-2409-Q4_K_M.gguf', object: 'model', owned_by: 'lm-studio' } ]
- * @param provider - The provider to use. Defaults to 'openai'.
- * @param sort - Whether to sort the models by the key. Defaults to 'created'.
- * @param format - Whether to format the models create date. Defaults to true.
- * @param filter - Whether to filter the models by filter string. Defaults to '' (no filter).
- * @returns {Promise<ModelInfo[]>} - Array of model objects - ids/names
- */
-export async function getModelObjsOai(provider, opts: GenObj = {}) {
-  let client = getOaiClient(provider);
-  let modelObjs: GenObj[] = (await client.models.list()).data;
-  modelObjs = filterModelObjArr(modelObjs, opts);
-  return modelObjs;
-}
-/** Retuns string array of model ids/names  */
-export async function getModelList(provider = null, opts: GenObj = {}) {
-  let modelObjs = await getModelObjsOai(provider, opts);
-  let modelList = modelObjs.map((modelObj) => modelObj.id);
-  return modelList;
-}
-
-export async function askModel(provider = null, opts: GenObj = {}) {
-  provider = getLlmProvider(provider);
-  let answer = await ask(`What model to use for provider [${provider}]?`, { choices: await getModelList(provider, opts) });
-  return answer;
-}
-/**
- * Returns the model string for the given provider, by index
- * @param {number} idx - index of model to return - default 0
- * @returns {string} - model string
- */
-export async function getModelByIdx(idx = 0, provider = null, opts: GenObj = {}) {
-  provider = getLlmProvider(provider);
-  let modelList = await getModelList(provider, opts);
-  return modelList[idx];
 }
 
 /**
@@ -191,6 +141,7 @@ export function parseChatRes(resp) {
 //export async function chat(provider = 'lms', msgs?: string | string[] | IMsgsParams) {
 //export async function chat(provider = null, ...msgs) {
 
+/*
 export async function chat(...args) {
   let hOpts = {
     provider: "The provider to use. Defaults to 'openai'",
@@ -261,6 +212,7 @@ export async function chat(...args) {
   }
   console.log(`\nDone w. Chat\n - Output: ${outpath}`);
 }
+  */
 
 /**
  * Non interactive chat completion - just return the response string
@@ -269,7 +221,7 @@ export async function chat(...args) {
  * @param {string} model
  * @param messages - the prepared system & user messages
  */
-//export async function chatTask(provider: string, model: string, messages: ChatCompletionMessageParam[]) {
+/*
 export async function chatTask({ provider, model, msgs, opts }: GenObj = {}) {
   if (!provider) {
     provider = 'lms';
@@ -299,6 +251,7 @@ export async function chatTask({ provider, model, msgs, opts }: GenObj = {}) {
   await logItem.save();
   return assistant;
 }
+  */
 
 
 /**
@@ -307,6 +260,7 @@ export async function chatTask({ provider, model, msgs, opts }: GenObj = {}) {
  * Only msgs required
  * @param msgs:Strings - string or array of strings, to build the user message
  */
+/*
 export async function oaiChatTask(msgs: Strings,
   { provider = 'openai', model = '', opts = {} }:
     { provider?: string, model?: string, opts?: GenObj, } = {}) {
@@ -333,6 +287,7 @@ export async function oaiChatTask(msgs: Strings,
   await logItem.save();
   return assistant;
 }
+  */
 
 
 

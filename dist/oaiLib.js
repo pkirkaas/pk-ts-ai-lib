@@ -1,16 +1,11 @@
 /** Lib for OpenAI API compliant basic local chatbot w. llm-studio  & ollama
  *
 */
+// NPM Imports
 import OpenAI from "openai";
-// PK Lib Imports
-import { ask, writeData, isEmpty, parseArgs, mkArray, } from 'pk-ts-node-lib';
 import { isObject, isSimpleObject, PkError, } from 'pk-ts-common-lib';
 // Local Imports
-import { filterModelObjArr, getProviderConfig, 
-// getApiKey, 
-getLlmProvider, 
-// getServerUrl, 
-mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.js';
+import { filterModelObjArr, getProviderConfig, getLlmProvider, timeout, } from './init.js';
 /**
  * Some providers work better with a direct call to the OpenAI API than
  * using the openai cliient
@@ -20,8 +15,6 @@ mkMsgArr, mkLogDets, timeout, initChatLog, expandMsgs, LogItem, } from './init.j
 export async function getRawModelObjs(provider = 'togetherai', opts = {}) {
     provider = getLlmProvider(provider);
     let { baseURL, apiKey } = getProviderConfig(provider);
-    //let apiKey = getApiKey(provider);
-    // let baseURL = getServerUrl(provider);
     let options = {
         method: 'GET',
         headers: {
@@ -41,8 +34,6 @@ export async function getRawModelObjs(provider = 'togetherai', opts = {}) {
      URL: [${url}], apiKey: [${apiKey}] & opts:`, opts);
     let resp = await fetch(url, options);
     let respJson = await resp.json();
-    //let toRespJson = typeOf(respJson);
-    //console.log(`respJson:`, { toRespJson, respJson });
     if (Array.isArray(respJson)) {
         return respJson;
     }
@@ -63,11 +54,6 @@ export async function getRawModelObjs(provider = 'togetherai', opts = {}) {
     modelObjs = filterModelObjArr(modelObjs, opts);
     return modelObjs;
 }
-export async function getRawModelList(provider = 'togetherai', opts = {}) {
-    let modelObjArr = await getRawModelObjs(provider, opts);
-    let modelList = modelObjArr.map((modelObj) => modelObj.id);
-    return modelList;
-}
 export function getOaiClient(provider = null) {
     provider = getLlmProvider(provider);
     let { baseURL, apiKey } = getProviderConfig(provider);
@@ -75,42 +61,6 @@ export function getOaiClient(provider = null) {
     console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
     let client = new OpenAI(clientCreateParams);
     return client;
-}
-/**
- * Return array of model def objects in the form:
- * [ { id: 'lmstudio-community/Mistral-Small-Instruct-2409-GGUF/Mistral-Small-Instruct-2409-Q4_K_M.gguf', object: 'model', owned_by: 'lm-studio' } ]
- * @param provider - The provider to use. Defaults to 'openai'.
- * @param sort - Whether to sort the models by the key. Defaults to 'created'.
- * @param format - Whether to format the models create date. Defaults to true.
- * @param filter - Whether to filter the models by filter string. Defaults to '' (no filter).
- * @returns {Promise<ModelInfo[]>} - Array of model objects - ids/names
- */
-export async function getModelObjsOai(provider, opts = {}) {
-    let client = getOaiClient(provider);
-    let modelObjs = (await client.models.list()).data;
-    modelObjs = filterModelObjArr(modelObjs, opts);
-    return modelObjs;
-}
-/** Retuns string array of model ids/names  */
-export async function getModelList(provider = null, opts = {}) {
-    let modelObjs = await getModelObjsOai(provider, opts);
-    let modelList = modelObjs.map((modelObj) => modelObj.id);
-    return modelList;
-}
-export async function askModel(provider = null, opts = {}) {
-    provider = getLlmProvider(provider);
-    let answer = await ask(`What model to use for provider [${provider}]?`, { choices: await getModelList(provider, opts) });
-    return answer;
-}
-/**
- * Returns the model string for the given provider, by index
- * @param {number} idx - index of model to return - default 0
- * @returns {string} - model string
- */
-export async function getModelByIdx(idx = 0, provider = null, opts = {}) {
-    provider = getLlmProvider(provider);
-    let modelList = await getModelList(provider, opts);
-    return modelList[idx];
 }
 /**
  * Takes a model name (id) and array of model def objects
@@ -166,72 +116,78 @@ export function parseChatRes(resp) {
 //export async function chat(provider = 'lms', sysMsg: string | string[] = 'ai', uMsg: string | string[] = '') {
 //export async function chat(provider = 'lms', msgs?: string | string[] | IMsgsParams) {
 //export async function chat(provider = null, ...msgs) {
+/*
 export async function chat(...args) {
-    let hOpts = {
-        provider: "The provider to use. Defaults to 'openai'",
-        sMsg: "The system message to use. Defaults to 'default'",
-        dropSchema: "If true, drop the schema from the ChatLog. Defaults to false",
-        followup: "How to ask for followup - 'input' (default), 'editor' (open in editor), 'multi' - multiline,  'none' (no followup)",
-    };
-    console.log(`in chat - args:`, args);
-    let { arr: msgs, opts } = parseArgs(args);
-    msgs = mkArray(msgs);
-    let { provider = "openai", sMsg, dropSchema, filter, followup } = opts;
-    provider = getLlmProvider(provider);
-    let config = getProviderConfig(provider);
-    let chatconfig = config.defaultOpts || {};
-    filter = filter || config.defaultFilter;
-    //console.log(`in chat:`, {msgs, opts},);
-    if (isEmpty(msgs) || opts.ask) {
-        let askmsg = await ask(`What do you want to ask?`);
-        msgs.push(askmsg);
+  let hOpts = {
+    provider: "The provider to use. Defaults to 'openai'",
+    sMsg: "The system message to use. Defaults to 'default'",
+    dropSchema: "If true, drop the schema from the ChatLog. Defaults to false",
+    followup: "How to ask for followup - 'input' (default), 'editor' (open in editor), 'multi' - multiline,  'none' (no followup)",
+  };
+  console.log(`in chat - args:`, args);
+  let { arr: msgs, opts } = parseArgs(args);
+  msgs = mkArray(msgs);
+  let { provider = "openai", sMsg, dropSchema, filter, followup } = opts;
+  provider = getLlmProvider(provider);
+  let config = getProviderConfig(provider);
+  let chatconfig = config.defaultOpts || {};
+  filter = filter || config.defaultFilter;
+  //console.log(`in chat:`, {msgs, opts},);
+
+  if (isEmpty(msgs) || opts.ask) {
+    let askmsg = await ask(`What do you want to ask?`);
+    msgs.push(askmsg);
+  }
+
+
+  let messages: ChatCompletionMessageParam[];
+  let client = getOaiClient(provider);
+  let models = await getModelList(provider, { filter });
+  let model;
+  if (models.length === 1) {
+    model = models[0];
+  } else {
+    model = await ask(`For [${provider}]: Which model?`, { choices: models });
+  }
+  //let model = await ask(`For [${provider}]: Which model?`, { choices: models });
+  //let chatinfo = `[${provider}:${model}]-${dtFmt('dt')}`;
+  let { stamp, usrmsg, sysmsg, outpath, label, chatinfo } = await mkLogDets({ provider, model, msgs, sMsg, chatconfig, });
+  //let uMsg = usrmsg;
+  messages = await mkMsgArr({ uMsg: usrmsg, sMsg });
+  //await askConfirm(chatinfo);
+  //await tmpConfirm(chatinfo);
+  //
+  let chatLog = await initChatLog({ outpath, chatconfig, dropSchema, label, provider, model, chatinfo, stamp, usrmsg, sysmsg, });
+
+  //writeData(`# Chat Session: ${chatinfo}\n\n**Init Msgs:**\n${JSON5Stringify(messages)}\n\n`, outpath);
+
+  //let usrMsg: string;
+  let followupCnt = 0;
+  while (true) {
+    followupCnt++;
+    let response = await client.chat.completions.create({
+      messages,
+      model,
+      ...chatconfig,
+    });
+    let assistant = parseChatRes(response);
+    writeData(`\n\n**${provider} Assistant:**\n${assistant}\n\n`, outpath, true);
+    console.log(`\n\n${provider} Response:\n${assistant}\n\n`);
+    await chatLog.addChatItem({ response, messages, usrmsg, assistant, chatinfo });
+    //usrMsg = await ask(`${provider} chat: Followup?`,{type:followup});
+    usrmsg = await ask(`${provider} chat: Followup?`);
+    if (!usrmsg) {
+      console.log("Aborting");
+      break;
     }
-    let messages;
-    let client = getOaiClient(provider);
-    let models = await getModelList(provider, { filter });
-    let model;
-    if (models.length === 1) {
-        model = models[0];
-    }
-    else {
-        model = await ask(`For [${provider}]: Which model?`, { choices: models });
-    }
-    //let model = await ask(`For [${provider}]: Which model?`, { choices: models });
-    //let chatinfo = `[${provider}:${model}]-${dtFmt('dt')}`;
-    let { stamp, usrmsg, sysmsg, outpath, label, chatinfo } = await mkLogDets({ provider, model, msgs, sMsg, chatconfig, });
-    //let uMsg = usrmsg;
-    messages = await mkMsgArr({ uMsg: usrmsg, sMsg });
-    //await askConfirm(chatinfo);
-    //await tmpConfirm(chatinfo);
-    // 
-    let chatLog = await initChatLog({ outpath, chatconfig, dropSchema, label, provider, model, chatinfo, stamp, usrmsg, sysmsg, });
-    //writeData(`# Chat Session: ${chatinfo}\n\n**Init Msgs:**\n${JSON5Stringify(messages)}\n\n`, outpath);
-    //let usrMsg: string;
-    let followupCnt = 0;
-    while (true) {
-        followupCnt++;
-        let response = await client.chat.completions.create({
-            messages,
-            model,
-            ...chatconfig,
-        });
-        let assistant = parseChatRes(response);
-        writeData(`\n\n**${provider} Assistant:**\n${assistant}\n\n`, outpath, true);
-        console.log(`\n\n${provider} Response:\n${assistant}\n\n`);
-        await chatLog.addChatItem({ response, messages, usrmsg, assistant, chatinfo });
-        //usrMsg = await ask(`${provider} chat: Followup?`,{type:followup});
-        usrmsg = await ask(`${provider} chat: Followup?`);
-        if (!usrmsg) {
-            console.log("Aborting");
-            break;
-        }
-        //writeData(`\n\n**Followup:**\n${usrmsg}\n\n`, outpath, true);
-        writeData(`\n\n---\n\n# Followup ${followupCnt}:\n\n**User:**\n${usrmsg}\n\n`, outpath, true);
-        messages.push({ role: 'assistant', content: assistant });
-        messages.push({ role: 'user', content: usrmsg });
-    }
-    console.log(`\nDone w. Chat\n - Output: ${outpath}`);
+    //writeData(`\n\n**Followup:**\n${usrmsg}\n\n`, outpath, true);
+    writeData(`\n\n---\n\n# Followup ${followupCnt}:\n\n**User:**\n${usrmsg}\n\n`, outpath, true);
+    messages.push({ role: 'assistant', content: assistant });
+    messages.push({ role: 'user', content: usrmsg });
+  }
+  console.log(`\nDone w. Chat\n - Output: ${outpath}`);
 }
+  */
 /**
  * Non interactive chat completion - just return the response string
  * All params required -
@@ -239,62 +195,69 @@ export async function chat(...args) {
  * @param {string} model
  * @param messages - the prepared system & user messages
  */
-//export async function chatTask(provider: string, model: string, messages: ChatCompletionMessageParam[]) {
-export async function chatTask({ provider, model, msgs, opts } = {}) {
-    if (!provider) {
-        provider = 'lms';
-    }
-    let config = getProviderConfig(provider);
-    if (!model) {
-        model = config.model || config.defaultModel;
-    }
-    if (!model) {
-        model = await getModelByIdx();
-    }
-    //let content = mkMsgStr(msgs);
-    let content = await expandMsgs(msgs);
-    let messages = [{ role: 'user', content }];
-    let client = getOaiClient(provider);
-    let response = await client.chat.completions.create({
-        //@ts-ignore
-        messages,
-        model,
-    });
-    let assistant = parseChatRes(response);
-    let logItem = LogItem.create({
-        //response, assistant, model, provider, config, content, messages:content,
-        content, config, messages, model, opts, provider, response, assistant,
-    });
-    await logItem.save();
-    return assistant;
+/*
+export async function chatTask({ provider, model, msgs, opts }: GenObj = {}) {
+  if (!provider) {
+    provider = 'lms';
+  }
+  let config = getProviderConfig(provider);
+  if (!model) {
+    model = config.model || config.defaultModel;
+  }
+  if (!model) {
+    model = await getModelByIdx();
+  }
+  //let content = mkMsgStr(msgs);
+  let content = await expandMsgs(msgs);
+  let messages = [{ role: 'user', content }];
+
+  let client = getOaiClient(provider);
+  let response = await client.chat.completions.create({
+    //@ts-ignore
+    messages,
+    model,
+  });
+  let assistant = parseChatRes(response);
+  let logItem = LogItem.create({
+    //response, assistant, model, provider, config, content, messages:content,
+    content, config, messages, model, opts, provider, response, assistant,
+  });
+  await logItem.save();
+  return assistant;
 }
+  */
 /**
  * A task, non-interactive
  * Takes msgs & an object arg {provider, model, opts} & returns the result
  * Only msgs required
  * @param msgs:Strings - string or array of strings, to build the user message
  */
-export async function oaiChatTask(msgs, { provider = 'openai', model = '', opts = {} } = {}) {
-    let config = getProviderConfig(provider);
-    if (!model) {
-        model = config?.defaultModel;
-    }
-    //let content = mkMsgStr(msgs);
-    let content = await expandMsgs(msgs);
-    let messages = [{ role: 'user', content }];
-    let client = getOaiClient(provider);
-    //return {messages, model, provider};
-    let response = await client.chat.completions.create({
-        //@ts-ignore
-        messages,
-        model,
-    });
-    let assistant = parseChatRes(response);
-    let logItem = LogItem.create({
-        //response, assistant, model, provider, config, content, messages:content,
-        content, config, messages, model, opts, provider, response, assistant,
-    });
-    await logItem.save();
-    return assistant;
+/*
+export async function oaiChatTask(msgs: Strings,
+  { provider = 'openai', model = '', opts = {} }:
+    { provider?: string, model?: string, opts?: GenObj, } = {}) {
+
+  let config = getProviderConfig(provider);
+  if (!model) {
+    model = config?.defaultModel;
+  }
+  //let content = mkMsgStr(msgs);
+  let content = await expandMsgs(msgs);
+  let messages = [{ role: 'user', content }];
+  let client = getOaiClient(provider);
+  //return {messages, model, provider};
+  let response = await client.chat.completions.create({
+    //@ts-ignore
+    messages,
+    model,
+  });
+  let assistant = parseChatRes(response);
+  let logItem = LogItem.create({
+    //response, assistant, model, provider, config, content, messages:content,
+    content, config, messages, model, opts, provider, response, assistant,
+  });
+  await logItem.save();
+  return assistant;
 }
+  */
 //# sourceMappingURL=oaiLib.js.map

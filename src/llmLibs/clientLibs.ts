@@ -29,9 +29,9 @@ import {
 
 
 import {
-  mkMsgArr, getProviderConfig, expandMsgs, getLlmProvider, ModelListOpts,
+   getProviderConfig, expandMsgs, getLlmProvider, ModelListOpts,
   defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg,
-  chatEntities, ChatLog, ChatItem, mkStamp, mkLogDets,
+  chatEntities, ChatLog, ChatItem,
   aiSdkClients,
 } from '../init.js';
 

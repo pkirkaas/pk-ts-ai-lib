@@ -6,10 +6,7 @@ import fs from 'node:fs';
 //PkLib imports
 import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, uniqueKeys, taggedMatches, ask, inArr1NinArr2, subObj, isEmpty, intersect, dupEntries, strIncludesWhich, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
-import { getFileMsgObj, 
-// wrapCode,
-// Strings,
-wrapCodeNew, } from './init.js';
+import { getFileMsgObj, wrapCodeNew, } from './init.js';
 /**
  * Check if msgstr contains any unmatched embeddeds - [[.*]], {{.*}}, {|.*|}
  * @param msgStr - string to test
@@ -225,8 +222,6 @@ export function buildMsg(msgx) {
     let usrMsg = nestReplaceTags(msgStr, msgType);
     let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
     let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
-    //assertEmbeddeds(sMsg);
-    //assertEmbeddeds(uMsg);
     assertEmbeddeds(uMsg, sMsg);
     return { uMsg, sMsg };
 }
@@ -246,20 +241,14 @@ export function nestReplaceTags(msgStr, msgType, strip) {
             let rep = tagReplace(tag, msgType, strip);
             if (usedTags.includes(tag)) {
                 rep = tagReplace(tag, msgType, true);
-                //let rep = tagReplace(tag, msgType, true);
-                //  msgStr = msgStr.replaceAll(wrapped, rep);
-                // continue;
             }
             else {
                 usedTags.push(tag);
             }
-            //let rep = tagReplace(tag, msgType, strip);
-            //usedTags.push(tag);
             msgStr = msgStr.replaceAll(wrapped, rep);
         }
         msgTags = extractMsgTags(msgStr, msgType);
     }
-    //return nestReplaceTags(stripComments(msgStr),'code');
     return stripComments(msgStr);
 }
 export function buildSysMsg(msg) {
@@ -271,28 +260,6 @@ export function buildSysMsg(msg) {
     }
     sysMsgStr = nestReplaceTags(sysMsgStr, msgType);
     return sysMsgStr;
-}
-export function partitionMsg(msg) {
-    let sMsg = nestReplaceTags(buildSysMsg(msg), 'code');
-    let uMsg = nestReplaceTags(nestReplaceTags(msg, 'usrmsg', true), 'code');
-    /*
-    let sMsgKeys=[];
-    let depth=0;
-    let depthLimit=10;
-    let msgTags = extractMsgTags(msg, 'sysmsg');
-    while (msgTags.length) {
-      if (depth++ > depthLimit) {
-        throw new PkError(`Depth Exceeded:`,{msgTags});
-      }
-      for (let tag of msgTags) {
-        let wrapped = wrapKeyType(tag,'sysmsg');
-        let rep = tagReplace(tag, 'sysmsg');
-        msg = msg.replaceAll(wrapped, rep);
-      }
-      msgTags = extractMsgTags(msg, 'sysmsg');
-    }
-      */
-    return { uMsg, sMsg };
 }
 export function expandMsgNew(msg, msgType) {
     if (!msgTypes.includes(msgType)) {

@@ -45,76 +45,7 @@ export async function tstDbLog() {
     let res = await li.save();
     return res;
 }
-// Testing readline for multi-line input
-//import { stdin as input, stdout as output } from 'node:process';
-//Both promise based & callback/sync based
-//import * as readline from 'node:readline/promises';
-// OR
-//import * as readline from 'node:readline';
-//promise based
-/*
-async function multiLineInput(prompt?:string):Promise<string> {
-  if (!prompt) {
-    prompt = 'Enter text: ';
-  }
-  prompt += ' ("exit" or <Ctl-D> to finish)';
-  const rl = readline.createInterface({ input, output, terminal:true, });
-  let lines = [];
-  let exits = ['exit', 'quit', 'q', '.', 'bye', 'done',];
-  console.log(prompt);
-    return new Promise((resolve, reject) => {
-    rl.on('line', (line) => {
-      if (exits.includes(line.trim())) {
-        rl.close();
-        return resolve(lines.join('\n'));
-      }
-      lines.push(line);
-    });
-
-    rl.on('close', () => {
-      resolve(lines.join('\n')); // Handle Ctrl-D here
-    });
-
-    rl.on('error', (err) => {
-      reject(err);
-    });
-  });
-}
-*/
 let fncs = {
-    /*
-    wrapCodeDir:() => {
-      //let root = '.\\';
-      let root = "C:/www/TypeScriptLibs/Pk-Ts-Common"
-      console.log(`Testing wrapCodeDir on [${root}]`);
-      //let res = wrapCodeDir(root);
-      let res = wrapCode(root);
-      let wdres = writeData(res,'./out/wrappedCode.md');
-      console.log(`Done w. wrapCodeDir, wdres:`, {wdres},);
-    },
-    wrapCode: () => {
-      //let fname = './src/lib.ts';
-  
-      let root = "Q:/Common/Software-Dev/Pythons/SortFiles";
-     // let fname = 'Q:\\Common\\AI-Experiments\\Node\\Sept2024\\Basic-1\\src\\lib.ts';
-      //let root = '.';
-      //let root = '.\\';
-      console.log(`Testing wrapCode on [${root}], root:`, {root});
-      let res = wrapCode(root, {root, desc: "Testing wrapCode"});
-      //let res = wrapCode(fname);
-      stdOut(res);
-    },
-    getAllFiles: () => {
-      //let root = "C:/www/TypeScriptLibs/Pk-Ts-Common"
-      //"Q:/Common/Software-Dev/Pythons/SortFiles"
-      let root = "Q:/Common/Software-Dev/Pythons/SortFiles";
-      //throw new Error('Not implemented');
-      //let root = '.\\';
-      console.log(`Testing getAllFiles on [${root}]`);
-      let res = getAllFiles(root, {stats:true});
-      console.log( res);
-    },
-    */
     tstRL: async (prompt) => {
         if (!prompt) {
             prompt = 'Def Say what?';

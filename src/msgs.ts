@@ -18,8 +18,6 @@ import {
   WrapCodeParams,
   WrapCodeObjs,
   MsgObj,
-  // wrapCode,
-  // Strings,
   wrapCodeNew,
 } from './init.js';
 
@@ -252,8 +250,6 @@ export function buildMsg(msgx: Strings): { uMsg: string, sMsg: string; } {
   let usrMsg = nestReplaceTags(msgStr, msgType);
   let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
   let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
-  //assertEmbeddeds(sMsg);
-  //assertEmbeddeds(uMsg);
   assertEmbeddeds(uMsg, sMsg);
   return { uMsg, sMsg };
 }
@@ -274,19 +270,13 @@ export function nestReplaceTags(msgStr: string, msgType: string, strip?: any): s
       let rep = tagReplace(tag, msgType, strip);
       if (usedTags.includes(tag)) {
         rep = tagReplace(tag, msgType, true);
-        //let rep = tagReplace(tag, msgType, true);
-      //  msgStr = msgStr.replaceAll(wrapped, rep);
-       // continue;
       } else {
         usedTags.push(tag);
       }
-      //let rep = tagReplace(tag, msgType, strip);
-      //usedTags.push(tag);
       msgStr = msgStr.replaceAll(wrapped, rep);
     }
     msgTags = extractMsgTags(msgStr, msgType);
   }
-  //return nestReplaceTags(stripComments(msgStr),'code');
   return stripComments(msgStr);
 }
 
@@ -301,31 +291,6 @@ export function buildSysMsg(msg: string): string {
   return sysMsgStr;
 }
 
-export function partitionMsg(msg: string): BuiltMsg {
-  let sMsg = nestReplaceTags(buildSysMsg(msg), 'code');
-  let uMsg = nestReplaceTags(nestReplaceTags(msg, 'usrmsg', true), 'code');
-  /*
-  let sMsgKeys=[];
-  let depth=0;
-  let depthLimit=10;
-  let msgTags = extractMsgTags(msg, 'sysmsg');
-  while (msgTags.length) {
-    if (depth++ > depthLimit) {
-      throw new PkError(`Depth Exceeded:`,{msgTags});
-    }
-    for (let tag of msgTags) {
-      let wrapped = wrapKeyType(tag,'sysmsg');
-      let rep = tagReplace(tag, 'sysmsg');
-      msg = msg.replaceAll(wrapped, rep);
-    }
-    msgTags = extractMsgTags(msg, 'sysmsg');
-  }
-    */
-
-
-
-  return { uMsg, sMsg };
-}
 
 export function expandMsgNew(msg: string, msgType: string): string {
   if (!msgTypes.includes(msgType)) {
@@ -333,7 +298,6 @@ export function expandMsgNew(msg: string, msgType: string): string {
   }
   let srcMsgObj = getMsgObj(msgType);
   let msgStr = '\n';
-
   return msgStr;
 }
 

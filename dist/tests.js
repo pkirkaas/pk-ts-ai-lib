@@ -5,13 +5,9 @@ import { editor } from '@inquirer/prompts';
 //import SDK from '@lmstudio/sdk';
 //const { LMStudioClient } = SDK;
 // pk-lib imports
-import { dbgWrt, ask, runCli, writeData, pkToDate, dtFmt, } from 'pk-ts-node-lib';
+import { dbgWrt, runCli, pkToDate, dtFmt, } from 'pk-ts-node-lib';
 // local imports
-import { askModel, getLlmProvider, chat, getRawModelObjs, hfChat, initFncDets, getFncsMD, dbReport, 
-// tstFncJsons,
-filterTogetherModels, showTogetherModels, 
-//oaiChatTask, allThree,
-mkTogetherModelChoices, } from './init.js';
+import { getLlmProvider, getRawModelObjs, getFncsMD, } from './init.js';
 // Implementations
 let fncs = {
     tstEd: async () => {
@@ -22,11 +18,6 @@ let fncs = {
         });
         console.log("Editor Result:", ed);
     },
-    dbRep: async (provider = 'lms') => {
-        provider = getLlmProvider(provider);
-        let model = await askModel(provider);
-        await dbReport({ provider, model });
-    },
     logFncs: async (provider = 'anthropic') => {
         console.log(`Logging all FNC Dets w. provider: [${provider}]`);
         let ret = await getFncsMD({ provider });
@@ -34,6 +25,11 @@ let fncs = {
         console.log(`Finished logging fnc dets`);
     },
     /*
+    dbRep: async (provider = 'lms') => {
+      provider = getLlmProvider(provider);
+      let model = await askModel(provider);
+      await dbReport({provider,model});
+    },
     tstGetFncDets: async (provider = 'anthropic', arr = 5) => {
       console.log(`Testing FNC Dets w. provider: [${provider}] with [${arr}] functions`);
       let i = 10;
@@ -176,17 +172,18 @@ let fncs = {
       let res = await chat(provider, { sMsg: ['ai', 'ts'], uMsg });
       console.log(`res:\n`, res);
     },
-    */
     allTogetherModels: async () => {
-        let models = await filterTogetherModels({ type: 'chat' });
-        let fpath = "./tmp/all-together-models.json5";
-        let len = models.length;
-        console.log(`About to write ${len} models to ${fpath}`);
-        writeData(models, fpath);
-        let choices = mkTogetherModelChoices(models);
-        console.log(`Done w. allTogetherModels - the choices:`, choices);
-        //console.log( len);
+      let models = await filterTogetherModels({ type: 'chat' });
+      let fpath = "./tmp/all-together-models.json5";
+      let len = models.length;
+      console.log(`About to write ${len} models to ${fpath}`);
+      writeData(models, fpath);
+      let choices = mkTogetherModelChoices(models);
+      console.log(`Done w. allTogetherModels - the choices:`, choices);
+  
+      //console.log( len);
     },
+    */
     tstDtFmt: () => {
         console.log(`\n\nTesting dtFmt\n`);
         let dtStrs = [
@@ -202,19 +199,6 @@ let fncs = {
         }
         console.log('Done w. dtFmt\n\n');
     },
-    tstFltTgth: async (name, date, context, org) => {
-        date = date || "1 June 2024";
-        //let provider = 'together';
-        //let model = await askModel(provider);
-        let res = await filterTogetherModels({
-            name, context, org, type: 'chat', //price:.2, 
-            date
-        });
-        let len = res.length;
-        let show = showTogetherModels(res);
-        let shLen = show.length;
-        console.log(show, len, shLen);
-    },
     checkModels: async (provider = 'lms') => {
         provider = getLlmProvider(provider);
         let models = await getRawModelObjs(provider);
@@ -222,14 +206,26 @@ let fncs = {
         return;
     },
     /*
+    tstFltTgth: async (name, date, context, org) => {
+      date = date || "1 June 2024";
+      //let provider = 'together';
+      //let model = await askModel(provider);
+      let res = await filterTogetherModels({
+        name, context, org, type: 'chat', //price:.2,
+        date
+      });
+      let len = res.length;
+      let show = showTogetherModels(res);
+      let shLen = show.length;
+      console.log(show, len, shLen);
+    },
     tstMkMsgArr: () => {
       let uMsg = ['tsfncbody', getCommonTs()];
       let sMsg = ['ts', 'tsfncbody'];
       let msgRes = mkMsgArr({ uMsg, sMsg });
       console.log(msgRes);
     },
-    */
-    /*
+  
     tstPopFnc: async (provider = 'lms', fncName = 'allProps') => {
       provider = getLlmProvider(provider);
       let model = await askModel(provider);
@@ -243,19 +239,13 @@ let fncs = {
       writeData(res, './out/msg-arr.json5');
       console.log("Done pop bodies");
     },
-    */
     initDecTbl: async (provider = 'lms') => {
-        provider = getLlmProvider(provider);
-        let model = await askModel(provider);
-        console.log(`About to run initFncDets (TO) for provider [${provider}]`);
-        let res = await initFncDets(provider, model);
-        console.log(`\nDone w. Chat\n`);
+      provider = getLlmProvider(provider);
+      let model = await askModel(provider);
+      console.log(`About to run initFncDets (TO) for provider [${provider}]`);
+      let res = await initFncDets(provider, model);
+      console.log(`\nDone w. Chat\n`);
     },
-    tstHf: async () => {
-        let res = await hfChat();
-        console.log(res);
-    },
-    /*
     tstFncDef: async (provider = 'lms') => {
       provider = getLlmProvider(provider);
       let uMsg = ['tsfncbody', getCommonTs()];
@@ -284,18 +274,18 @@ let fncs = {
       console.log(`\nDone w. OAI Chat\n`);
   
     },
-    */
-    chat: async (provider = 'lms', sMsg = 'ai', uMsg) => {
-        if (!uMsg) {
-            uMsg = await ask('Enter a message to send to the AI');
-        }
-        if (!uMsg) {
-            console.log('No message to send to AI');
-            return;
-        }
-        let res = await chat(provider, { sMsg, uMsg });
-        console.log(`\nDone w. Chat\n`);
+    chat: async (provider = 'lms', sMsg = 'ai', uMsg?: string) => {
+      if (!uMsg) {
+        uMsg = await ask('Enter a message to send to the AI');
+      }
+      if (!uMsg) {
+        console.log('No message to send to AI');
+        return;
+      }
+      let res = await chat(provider, { sMsg, uMsg });
+      console.log(`\nDone w. Chat\n`);
     },
+    */
 };
 await runCli(fncs);
 console.log('\ndone\n\n');

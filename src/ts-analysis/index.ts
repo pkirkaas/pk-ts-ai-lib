@@ -20,8 +20,10 @@ import { PkError, mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProp
 
 import {
 //getCommonTs, 
-hfChat, initFncDets,   getDbPath, FunctionDets, chatTask, mkMsgArr,
-  askLlmProvider,  getModelList, askModel, getLlmProvider, getModelByIdx, getOaiClient, getProviders, parseChatRes,  chat, 
+hfChat, initFncDets,   getDbPath, FunctionDets, 
+//chatTask, mkMsgArr,  chat,  getModelByIdx, getOaiClient, getProviders, parseChatRes,
+ //  getModelList, askModel,
+  askLlmProvider, getLlmProvider,
  systemMessages, providers, timeout,  getProviderConfig
   // mkMsgArray, 
 } from '../init.js';

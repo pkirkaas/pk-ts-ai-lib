@@ -5,8 +5,6 @@ import { Strings } from './init.js';
 /**
  * Simple gemini chat - with interactions...
  */
-export declare function sGeminiChat(...args: any[]): Promise<void>;
-export declare function geminiChatTask(...msgs: any[]): Promise<any>;
 export declare function parseSingleGeminiResponse(result: any): any;
 /** TODO - flesh out - use sGeminiChat for now*/
 export interface FileContent {

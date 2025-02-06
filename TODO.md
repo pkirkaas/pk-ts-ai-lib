@@ -14,3 +14,4 @@
 - Also maybe pick/omit opt keys for filterModels - maybe custom per provider, like pricing for Together?
 - Work more on exporting as lib
 - Handle tags in CLI followup input
+- Continue code cleanup

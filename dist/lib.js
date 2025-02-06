@@ -2,14 +2,13 @@
  * General (non-API dependent) functions
  */
 import setTitle from 'console-title';
-//import * as slugify from 'slugify';
-import slugify from 'slugify';
 // PkLib Imports
-import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, JSON5Stringify, inArr1NinArr2, strIncludesAny, } from 'pk-ts-node-lib';
+import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
-import { expandMsgs, 
+import { 
+//geminiChatTask, 
 //mkMsgStr,
-fncSchema, buildMsg, providers, } from './init.js';
+fncSchema, providers, } from './init.js';
 /*
 export function getApiKey(provider = null) {
   provider = getLlmProvider(provider);
@@ -100,49 +99,6 @@ export function getProviderConfig(provider = null) {
     return providers[provider];
 }
 ;
-export function mkChatParams(chatSrc) {
-    if (isSimpleObject(chatSrc) && chatSrc.sMsg && chatSrc.uMsg) {
-        return chatSrc;
-    }
-    let strArr = mkArray(chatSrc);
-    let chatParams = buildMsg(strArr);
-    return chatParams;
-}
-/**
- * Returns the model to use for provider
- * @param provider:string - the provider
- * @param model?:Strings - if empty, the default. If Strings, the model name or filters
- * If more than one model matches filters, asks user
- * @return:string model name
- */
-export async function baseGetModel(provider, model) {
-    let config = getProviderConfig(provider);
-    if (!model) {
-        return config.model;
-    }
-    let filters = mkArray(model);
-}
-/**
- * Returns all models for provider, based on model filter
- */
-/*
-export async function basegetModelObjsOai(provider: string, model?: Strings): Promise<any[]> {
-  let config = getProviderConfig(provider);
-
-}
-  */
-/**
- * BaseChat to chat with any supported provider
- * @param chatSrc:ChatParams|Strings -  either ChatParams or Strings to build chat params
- * @param provider:string - which provider to use
- * @param opts:GenObj - custom opts for this chat. Opt keys:
- *   model:string -
- */
-export async function baseChat(chatSrc, provider, opts = {}) {
-    let chatParams = mkChatParams(chatSrc);
-    provider = getLlmProvider(provider);
-    let providerConfig = getProviderConfig(provider);
-}
 export function validateJson(data) {
     if (typeof data === 'string') {
         data = JSON.parse(data);
@@ -181,115 +137,6 @@ export function matchPattern(str, patterns) {
     };
     return patternArr.some(pattern => globToRegex(pattern).test(str));
 }
-export async function allThree(...args) {
-    throw new PkError(`allThree is not implemented`);
-}
-/*
-export async function allThree(...args) {
-let {arr:msgs, opts} = parseArgs(args);
-//let message = mkMsgStr(msgs);
-let message = expandMsgs(...msgs,opts);
-let bots = {
-  gemini: geminiChatTask,
-  claude: claudeChatTask,
-  oai: oaiChatTask,
-};
-let out = `# Result from allThree (refactored):\n\n## **User Message:**\n\n${message}\n\n**Answers:**\n\n`;
-
-//##**Gemini**\n\n${gemResp}\n\n## **Claude:**\n\n${claudeResp}\n\n## **OAIResp:**\n\n${oaiResp}\n\nDONE\n\n`;
-// let claudeResp, gemResp, oaiResp = '';
-console.log(`About to call all 3 w. UserMsg: [${message}] - `);
-for (let bot in bots) {
-  let task = bots[bot];
-  try {
-    console.log(`Getting ${bot} - ...`);
-    let resp = await task(message);
-    out += `\n\n## ${bot}\n\n${resp}\n\n`;
-    console.log(`Got ${bot} - ...`);
-  } catch (e) {
-    console.error(`${bot} Exception:`, e);
-    out += `\n\n## ${bot}\n\n **Exception:** ${e.name}, Cause: ${e.cause}: [${e.message}]`;
-  }
-}
-out += `\n\n## DONE\n\n`;
-let outPath = mkRepPath('All-Three-2');
-//let out = `# Result from allThree:\n\n## **User Message:**\n\n${message}\n\n**Answers:**\n\n##**Gemini**\n\n${gemResp}\n\n## **Claude:**\n\n${claudeResp}\n\n## **OAIResp:**\n\n${oaiResp}\n\nDONE\n\n`;
-writeData(out, outPath);
-return `Done w. allThree, output: [${outPath}]`;
-}
-export async function allThreeOrig(...msgs) {
-//let message = mkMsgStr(msgs);
-let message = expandMsgs(msgs);
-let bots = {
-  gemini: geminiChatTask,
-  claude: claudeChatTask,
-  oai: oaiChatTask,
-};
-// let out = `# Result from allThree:\n\n## **User Message:**\n\n${message}\n\n**Answers:**\n\n`;
-
-//##**Gemini**\n\n${gemResp}\n\n## **Claude:**\n\n${claudeResp}\n\n## **OAIResp:**\n\n${oaiResp}\n\nDONE\n\n`;
-let claudeResp, gemResp, oaiResp = '';
-console.log(`About to call all 3 w. UserMsg: [${message}] - Claude First...`);
-try {
-  claudeResp = await claudeChatTask(message);
-  console.log(`Got Claude - call Gemini...`);
-} catch (e) {
-  console.error(`Claude Exception:`, e);
-  claudeResp = `Exception: ${e.name}, Cause: ${e.cause}: [${e.message}]`;
-}
-try {
-  gemResp = await geminiChatTask(message);
-  console.log(`Got Gemini - call oai...`);
-} catch (e) {
-  console.error(`Gemini Exception:`, e);
-  gemResp = `Exception: ${e.name}, Cause: ${e.cause}: [${e.message}]`;
-}
-try {
-  oaiResp = await oaiChatTask(message);
-} catch (e) {
-  console.error(`OAI Exception:`, e);
-  oaiResp = `Exception: ${e.name}, Cause: ${e.cause}: [${e.message}]`;
-}
-let outPath = mkRepPath('All-Three');
-let out = `# Result from allThree:\n\n## **User Message:**\n\n${message}\n\n**Answers:**\n\n##**Gemini**\n\n${gemResp}\n\n## **Claude:**\n\n${claudeResp}\n\n## **OAIResp:**\n\n${oaiResp}\n\nDONE\n\n`;
-writeData(out, outPath);
-return `Done w. allThree, output: [${outPath}]`;
-}
-*/
-/**
- * Make array of ChatCompletionMessageParam objects from user & system messages
- * @param msgSrc: string | string[] | IMsgsParams - user & system messages
- * If msgSrc is a string or array of strings, it is used as the user message, and
- * the default system message is used.
- */
-//export function mkMsgArr(uMsgs:string | string[]='', sysMsgs:string | string[]=''):ChatCompletionMessageParam[] {
-export async function mkMsgArr(msgSrc) {
-    let uMsg, sMsg;
-    if (isSimpleObject(msgSrc)) {
-        ({ uMsg, sMsg } = msgSrc);
-    }
-    else if ((typeof msgSrc === 'string') || Array.isArray(msgSrc)) {
-        uMsg = msgSrc;
-        sMsg = 'default';
-    }
-    else {
-        throw new PkError(`Invalid msgSrc:`, { msgSrc });
-    }
-    sMsg = mkArray(sMsg);
-    uMsg = mkArray(uMsg);
-    if (!sMsg.includes('default')) {
-        sMsg.unshift('default');
-    }
-    //console.log(`mkMsgArr:`, { uMsg, sMsg });
-    let system = await expandMsgs(...sMsg);
-    uMsg = inArr1NinArr2(uMsg, sMsg);
-    let user = await expandMsgs(...uMsg, { usedKeys: sMsg });
-    // Experimental 
-    let msgs = [];
-    msgs.push({ role: 'system', content: system });
-    msgs.push({ role: 'user', content: user, });
-    return msgs;
-}
 /** Return providers - array of strings or configs
  * @param {boolean} list - if true, return array of strings, else return object
  */
@@ -298,40 +145,6 @@ export function getProviders(list = true) {
         return Object.keys(providers);
     }
     return providers;
-}
-export async function mkLogDets({ provider, model, msgs, sMsg = 'default', chatconfig = {} }) {
-    if (isEmpty(msgs)) {
-        let msg = await ask(`What is your question for [${provider}]?`);
-        msgs = [msg];
-    }
-    msgs = mkArray(msgs);
-    /*
-    if (!Array.isArray(msgs)) {
-      msgs = [msgs];
-    }
-    if (isEmpty(sMsg)) {
-      sMsg = 'default';
-    }
-      */
-    sMsg = mkArray(sMsg);
-    //let label = msgs[0].substring(0, 25);
-    let stamp = mkStamp();
-    let usrMsgKeys = stringifyMsgs(msgs);
-    //@ts-ignore
-    let label = slugify(usrMsgKeys.substring(0, 25));
-    let title = `${provider} - ${label}`;
-    let sysMsgKeys = stringifyMsgs(sMsg);
-    let usrmsg = await expandMsgs(...msgs);
-    let sysmsg = await expandMsgs(...sMsg);
-    //let divider = '\n\n## Conversation:\n\n=========================================================================\n\n';
-    let divider = '\n\n# Conversation:\n\n---\n\n';
-    let chatinfo = `[${label}::${provider}:${model}]-${dtFmt('dt')}`;
-    let outpath = `./out/chats/${dtFmt('html')}/${label}/${label}--${provider}-${model}-${stamp}.md`;
-    writeData(`# ${title}\n\n<title>${title}</title>\n\n
-# Chat Session: ${chatinfo}\n\n**chatconfig:**\n\`\`\`\n${JSON5Stringify(chatconfig)}\n\`\`\`\n\n**Init UsrMsgKeys:**\n\`${usrMsgKeys}\`\n\n**SysMsgKeys:**\n\`${sysMsgKeys}\`\n\n**Init User Msg:**\n${usrmsg}\n\n**Sys Msg**:\n${sysmsg}\n\n${divider}\n\n`, outpath);
-    return { label, stamp, usrmsg, sysmsg, chatinfo, outpath, sysMsgKeys, usrMsgKeys };
-}
-export function addRound(outpath, round, usr, assistant) {
 }
 /**
  * Takes a msg key or array of msg keys & returns a string of the message keys
@@ -343,15 +156,6 @@ export function stringifyMsgs(msgs) {
     }
     let msgsStr = `[${msgs.join('][')}]`;
     return msgsStr;
-}
-export function mkStamp(pre) {
-    let ts = Date.now();
-    if (pre) {
-        return `${pre}-${ts}`;
-    }
-    else {
-        return `${ts}`;
-    }
 }
 export async function askLlmProvider() {
     let choices = getProviders();
