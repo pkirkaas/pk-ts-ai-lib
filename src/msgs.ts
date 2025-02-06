@@ -26,6 +26,7 @@ import {
  * @param msgStr - string to test
  * @return array of remaining embeddeds
  */
+/*
 export function findEmbeddeds(msgStr) {
   let regexes = [
     /\[\[(.+?)\]\]/g,
@@ -41,6 +42,7 @@ export function findEmbeddeds(msgStr) {
   }
   return embeddeds;
 }
+  */
 
 /**
  * Throws if any embeds remain in string(s)
@@ -66,62 +68,6 @@ export function stripComments(msgStr) {
   msgStr = msgStr.replace(cmtRE, '');
   return msgStr;
 }
-
-/** For a msg str, find all embed patterns '[[msgkey]]' & return obj keyed by key & embed
- * 
- */
-/*
-export function findKeyedEmbeds(msgStr) {
-  let embeddeds = findEmbeddeds(msgStr);
-  let keyedEmbeds = {};
-  if (!Array.isArray(embeddeds)) {
-    let toEmb = typeOf(embeddeds);
-    console.error(`findKeyedEmbeds: msgStr:\n`, msgStr, `\n\ntoEmb ${toEmb}\n\n`, { embeddeds });
-    throw new PkError(`findKeyedEmbeds: embeddeds not array`, { embeddeds });
-    return keyedEmbeds;
-  }
-  for (let embedded of embeddeds) {
-    let key = embedToKey(embedded);
-    keyedEmbeds[key] = embedded;
-  }
-  return keyedEmbeds;
-}
-  */
-
-/**
- * Just strip out the [[ ]] from the embed
- */
-/*
-export function embedToKey(embed) {
-  let key = embed.replace(/\[\[(.+?)\]\]/, '$1');
-  if (typeof key === 'string') {
-    key = key.trim();
-  }
-  return key;
-}
-  */
-
-
-/**
- * Gets all the message keys for all msg objects, ensures no duplicates, & returns array of keys
- */
-/*
-export function getMsgKeys() {
-  //let keyObjs = [getAllMsgs(), codeFiles];
-  let keyObjs = [getAllMsgs(),];
-  let allKeys = [];
-  for (let keyObj of keyObjs) {
-    allKeys = allKeys.concat(Object.keys(keyObj));
-  }
-  let dupKeys = dupEntries(allKeys);
-  if (!isEmpty(dupKeys)) {
-    throw new PkError(`in getMsgKeys; dupKeys:`, dupKeys);
-  }
-  return { msgKeys: Object.keys(getAllMsgs()), codeKeys: Object.keys(codeFiles), allKeys };
-}
-
-export const askKey = '__ASK__'; // To force an ask
-*/
 
 export const wrapPairs = {
   sysmsg: {
@@ -298,6 +244,7 @@ export function buildSysMsg(msg: string): string {
 }
 
 
+/*
 export function expandMsgNew(msg: string, msgType: string): string {
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in expandMsgsNew; invalid msgType:`, msgType);
@@ -306,6 +253,7 @@ export function expandMsgNew(msg: string, msgType: string): string {
   let msgStr = '\n';
   return msgStr;
 }
+*/
 
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
@@ -459,35 +407,6 @@ export async function expandMsgs(...args) {
 }
   */
 
-/**
- * Returns Object with all msg keys to their expanded values
- * @param msgs - opt - array of msg keys to expand, if not provided, all msgs are expanded
- */
-
-/*
-export async function getExpandedMsgs(...msgs) {
-  let ret: GenObj = {};
-  let keys = getMsgKeys().allKeys;
-  if (!msgs.length) {
-    msgs = keys;
-  } else {
-    if (!isSubset(msgs, keys)) {
-      let invalid = msgs.filter(m => !keys.includes(m));
-      throw new PkError(`Invalid msg keys: ${invalid.join(',')}`);
-    }
-  }
-  for (let msg of msgs) {
-    ret[msg] = await expandMsgs(msg);
-  }
-  return ret;
-}
-  */
-
-export let wrappedSchemaStr = `
-This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript functions, to use to generate Code embeddings for use with RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness. It is essential that your response includes all information possible, as much information as possible, that would support its use for RAG training of an LLM to provide all the information required to enable it as an AI Coding Assistant for the functions. The json schema:
-
-[[fncSchema]]
-`;
 
 
 
@@ -834,10 +753,17 @@ export let usrMessages = {
 
   You will provide a complete, working, and tested PyQt6 GUI application in Python code - including all necessary imports and setup code - to create a working GUI application, using standard widgets and layouts where available.`,
 
+wrappedschema : `
+This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript functions, to use to generate Code embeddings for use with RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness. It is essential that your response includes all information possible, as much information as possible, that would support its use for RAG training of an LLM to provide all the information required to enable it as an AI Coding Assistant for the functions. The json schema:
+
+{{fncSchema2}}
+`,
+
+
   pqtBrowser: `[[pqt]]  The sample project should be a simple file system browser, with a tree view of the file system and some way to select multiple files and directories.
   `,
 
-  embeddings: `[[ai]] [[aiprep]] [[embedding]]  ${wrappedSchemaStr}`,
+  embeddings: `[[ai]] [[aiprep]] [[embedding]]  <[wrappedSchemaStr]>`,
   aicodeprep: `The code needs to be prepared and commented and chunked, etc, but I don't want to do that myself - I want to use AI to do it all for me. I know this will require several steps and additional libraries and utilities. I also know that different LLMs are more suitable for code preparation/chunking/etc than the LLMs that I want to use for the actual coding assistant.
   `,
 

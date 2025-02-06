@@ -72,13 +72,9 @@ export async function getRawModelObjs(provider = 'togetherai', opts: GenObj = {}
 }
 
 
-
-
-
 export function getOaiClient(provider = null) {
   provider = getLlmProvider(provider);
   let {baseURL, apiKey} = getProviderConfig(provider);
-
   let clientCreateParams = { apiKey, baseURL, timeout, };
   console.log(`getOaiClient:clientCreateParams:`, clientCreateParams);
   let client = new OpenAI(clientCreateParams);
@@ -129,10 +125,6 @@ export function parseChatRes(resp) {
  * @param {string} provider - default: 'lms' 
  * @param {string|string[]|IMsgParams} msgs - If IMsgParams Object, contains sMsg & uMsg
  * if string or string[], contains system messages - prompt for user message.
- * 
- * 
- * 
- * 
  * 
  * system message or array of system messages - if sysMsg is a key in systemMessages, use the value. Concatenates all system messages into one string.
  * @param {string} uMsg - user message or array of user messages - if uMsg is a key in usrMessages, use the value. Concatenates all user messages into one string.
@@ -253,41 +245,6 @@ export async function chatTask({ provider, model, msgs, opts }: GenObj = {}) {
 }
   */
 
-
-/**
- * A task, non-interactive
- * Takes msgs & an object arg {provider, model, opts} & returns the result
- * Only msgs required
- * @param msgs:Strings - string or array of strings, to build the user message
- */
-/*
-export async function oaiChatTask(msgs: Strings,
-  { provider = 'openai', model = '', opts = {} }:
-    { provider?: string, model?: string, opts?: GenObj, } = {}) {
-
-  let config = getProviderConfig(provider);
-  if (!model) {
-    model = config?.defaultModel;
-  }
-  //let content = mkMsgStr(msgs);
-  let content = await expandMsgs(msgs);
-  let messages = [{ role: 'user', content }];
-  let client = getOaiClient(provider);
-  //return {messages, model, provider};
-  let response = await client.chat.completions.create({
-    //@ts-ignore
-    messages,
-    model,
-  });
-  let assistant = parseChatRes(response);
-  let logItem = LogItem.create({
-    //response, assistant, model, provider, config, content, messages:content,
-    content, config, messages, model, opts, provider, response, assistant,
-  });
-  await logItem.save();
-  return assistant;
-}
-  */
 
 
 

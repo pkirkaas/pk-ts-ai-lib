@@ -5,18 +5,7 @@ import setTitle from 'console-title';
 // PkLib Imports
 import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
-import { 
-//geminiChatTask, 
-//mkMsgStr,
-fncSchema, providers, } from './init.js';
-/*
-export function getApiKey(provider = null) {
-  provider = getLlmProvider(provider);
-  let config = getProviderConfig(provider);
-  let apiKey = config.apiKey;
-  return apiKey;
-}
-  */
+import { fncSchema, providers, } from './init.js';
 /**
  * Make options for model list - sort, format, filter
  */

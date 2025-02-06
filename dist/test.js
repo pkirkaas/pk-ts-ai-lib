@@ -65,39 +65,4 @@ let fncs = {
     },
 };
 await runCli(fncs);
-// Testing getting db name from db strings
-/*
-let tstDbs = [
-  'pg_db',
-  'mysql-DB',
-  'sqlite-db.sqlite',
-  'C:\\abs\\a-db.name',
-  'C:/abs/b-db.name',
-  '/mnt/path/dbname.end',
-  './dot/path/pname.none',
-  'adir/and/name.some',
-];
-
-function getName(db:string) {
-  let slashed = slashPath(db);
-  let absdb = path.resolve(db);
-  let abssl = path.resolve(slashed);
-  let base = path.basename(slashed);
-  let noext = base.split('.')[0];
-  let ret:GenObj = {db, slashed, base, noext, absdb, abssl, };
-  return ret;
-}
-
-console.log ('Iterating strings\n\n');
-for (let astr of tstDbs) {
-  let res = getName(astr);
-  console.log(res, `\n\n`);
-}
-
-
-let res = packageReport('@anthropic-ai/sdk');
-let repPath = mkRepPath('AnthropicExports', 'json5');
-writeData(res,repPath);
-console.log(res);
- */ 
 //# sourceMappingURL=test.js.map

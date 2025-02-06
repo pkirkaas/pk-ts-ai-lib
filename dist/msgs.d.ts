@@ -8,7 +8,6 @@ import { WrapCodeObjs, MsgObj } from './init.js';
  * @param msgStr - string to test
  * @return array of remaining embeddeds
  */
-export declare function findEmbeddeds(msgStr: any): any[];
 /**
  * Throws if any embeds remain in string(s)
  */
@@ -18,15 +17,6 @@ export declare function assertEmbeddeds(...strs: string[]): void;
  * but for now: `{| This is a comment |}`
  */
 export declare function stripComments(msgStr: any): any;
-/** For a msg str, find all embed patterns '[[msgkey]]' & return obj keyed by key & embed
- *
- */
-/**
- * Just strip out the [[ ]] from the embed
- */
-/**
- * Gets all the message keys for all msg objects, ensures no duplicates, & returns array of keys
- */
 export declare const wrapPairs: {
     sysmsg: {
         open: string;
@@ -71,18 +61,12 @@ export declare function buildMsg(msgx: Strings): {
 };
 export declare function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string;
 export declare function buildSysMsg(msg: string): string;
-export declare function expandMsgNew(msg: string, msgType: string): string;
 /**
  * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
  * to msg strings.
  * ?? Switch whether throw error on used key, or just ignore?
  *
  */
-/**
- * Returns Object with all msg keys to their expanded values
- * @param msgs - opt - array of msg keys to expand, if not provided, all msgs are expanded
- */
-export declare let wrappedSchemaStr: string;
 /**
  * Keys w. source code file path, to be wrapped in triple backticks
  */
@@ -124,6 +108,7 @@ export declare let systemMessages: {
 };
 export declare let usrMessages: {
     pqt: string;
+    wrappedschema: string;
     pqtBrowser: string;
     embeddings: string;
     aicodeprep: string;

@@ -15,3 +15,4 @@
 - Work more on exporting as lib
 - Handle tags in CLI followup input
 - Continue code cleanup
+- Create ProviderConfig type

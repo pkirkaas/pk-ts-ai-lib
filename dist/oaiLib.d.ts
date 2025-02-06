@@ -23,10 +23,6 @@ export declare function parseChatRes(resp: any): any;
  * @param {string|string[]|IMsgParams} msgs - If IMsgParams Object, contains sMsg & uMsg
  * if string or string[], contains system messages - prompt for user message.
  *
- *
- *
- *
- *
  * system message or array of system messages - if sysMsg is a key in systemMessages, use the value. Concatenates all system messages into one string.
  * @param {string} uMsg - user message or array of user messages - if uMsg is a key in usrMessages, use the value. Concatenates all user messages into one string.
  */
@@ -36,11 +32,5 @@ export declare function parseChatRes(resp: any): any;
  * @param {string} provider - default: 'lms'
  * @param {string} model
  * @param messages - the prepared system & user messages
- */
-/**
- * A task, non-interactive
- * Takes msgs & an object arg {provider, model, opts} & returns the result
- * Only msgs required
- * @param msgs:Strings - string or array of strings, to build the user message
  */
 //# sourceMappingURL=oaiLib.d.ts.map

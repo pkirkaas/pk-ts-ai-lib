@@ -23,22 +23,12 @@ import {
 // Local Imports
 
 import {
-   //geminiChatTask, 
-  //mkMsgStr,
   fncSchema, buildMsg,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg,  initChatLog,
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 
 
-/*
-export function getApiKey(provider = null) {
-  provider = getLlmProvider(provider);
-  let config = getProviderConfig(provider);
-  let apiKey = config.apiKey;
-  return apiKey;
-}
-  */
 
 /**
  * Make options for model list - sort, format, filter
@@ -133,15 +123,6 @@ export function getProviderConfig(provider = null) {
   provider = getLlmProvider(provider);
   return providers[provider];
 }
-
-/*
-export function getServerUrl(provider = null) {
-  provider = getLlmProvider(provider);
-  let config = getProviderConfig(provider);
-  return config.baseURL;
-}
-  */
-
 
 
 export interface IMsgsParams {

@@ -8,7 +8,6 @@ export * from './constants.js';
 export * from './fileops.js';
 export * from './hflib.js';
 export * from './lib.js';
-export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
 import { WrapCodeParams } from './fileops.js';
