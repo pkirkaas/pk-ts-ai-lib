@@ -15,7 +15,7 @@ import {dbgWrt,
 //Local Imports
 
 import {
-  providers, AiSdk, OpenAiClient, getPkClient, askLlmProvider,
+  providers,  OpenAiClient, getPkClient, askLlmProvider,
 } from './init.js';
 
 let program = new Command()

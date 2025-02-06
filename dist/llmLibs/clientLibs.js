@@ -1,11 +1,20 @@
 import OpenAI from "openai";
 import { generateText, } from 'ai';
-//import setTitle from 'console-title';
+import { openai, createOpenAI, } from "@ai-sdk/openai";
+import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
+import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
+import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
 import { ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
-import { getProviderConfig, getLlmProvider, buildMsg, aiSdkClients, } from '../init.js';
+import { getProviderConfig, getLlmProvider, buildMsg, } from '../init.js';
+export const aiSdkClients = {
+    togetherai: { client: togetherai, create: createTogetherAI, },
+    openai: { client: openai, create: createOpenAI, },
+    anthropic: { client: anthropic, create: createAnthropic, },
+    xai: { client: xai, create: createXai, },
+};
 ;
 /**
  * Log chats - to file and/or DB

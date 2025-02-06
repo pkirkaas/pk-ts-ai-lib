@@ -7,15 +7,10 @@ export * from './llmLibs/clientLibs.js';
 export * from './constants.js';
 export * from './fileops.js';
 export * from './hflib.js';
-export * from './vertex.js';
-export * from './genailib.js';
 export * from './lib.js';
-export * from './aisdklib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
-//PkLib imports
-import { PkError, isObject, mkArray, } from 'pk-ts-node-lib';
 import { getLogDS, } from './sqliteLib/index.js';
 import fncSchema from './FncSchemas/fnc2schema.json' with { type: 'json' };
 export { fncSchema };
@@ -56,21 +51,5 @@ ${JSON.stringify(fncSchema, null, 2)}
   let msgArr = ['default', 'tstGen', fncTask, getCommonTs(), wrappedSchema, 'pureJson'];
   return msgArr;
 }
-  */
-/**
- * From an array of objects, return element with name === name
- */
-export function getByName(arg, name) {
-    arg = mkArray(arg);
-    for (let el of arg) {
-        if (!isObject(el) || !el.name) {
-            throw new PkError(`Invalid el in arg for 'getByName'`, { el, arg });
-        }
-        if (el.name === name) {
-            return el;
-        }
-    }
-    console.error(`No el matched [${name}]`, { arg });
-    return false;
-}
+  */ 
 //# sourceMappingURL=init.js.map

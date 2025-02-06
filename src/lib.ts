@@ -26,7 +26,7 @@ import {
    //geminiChatTask, 
   //mkMsgStr,
   fncSchema, buildMsg,
-  systemMessages, usrMessages, providers, timeout, defaultSysMsg, AllMsgs, initChatLog,
+  systemMessages, usrMessages, providers, timeout, defaultSysMsg,  initChatLog,
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 

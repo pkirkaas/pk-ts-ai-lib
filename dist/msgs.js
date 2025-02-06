@@ -4,7 +4,7 @@
 // NPM Imports
 import fs from 'node:fs';
 //PkLib imports
-import { PkError, JSON5Stringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, uniqueKeys, taggedMatches, ask, inArr1NinArr2, subObj, isEmpty, intersect, dupEntries, strIncludesWhich, mkArray, } from 'pk-ts-node-lib';
+import { PkError, uniqueVals, uniqueKeys, taggedMatches, inArr1NinArr2, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
 import { getFileMsgObj, wrapCodeNew, } from './init.js';
 /**
@@ -54,48 +54,55 @@ export function stripComments(msgStr) {
 /** For a msg str, find all embed patterns '[[msgkey]]' & return obj keyed by key & embed
  *
  */
+/*
 export function findKeyedEmbeds(msgStr) {
-    let embeddeds = findEmbeddeds(msgStr);
-    let keyedEmbeds = {};
-    if (!Array.isArray(embeddeds)) {
-        let toEmb = typeOf(embeddeds);
-        console.error(`findKeyedEmbeds: msgStr:\n`, msgStr, `\n\ntoEmb ${toEmb}\n\n`, { embeddeds });
-        throw new PkError(`findKeyedEmbeds: embeddeds not array`, { embeddeds });
-        return keyedEmbeds;
-    }
-    for (let embedded of embeddeds) {
-        let key = embedToKey(embedded);
-        keyedEmbeds[key] = embedded;
-    }
+  let embeddeds = findEmbeddeds(msgStr);
+  let keyedEmbeds = {};
+  if (!Array.isArray(embeddeds)) {
+    let toEmb = typeOf(embeddeds);
+    console.error(`findKeyedEmbeds: msgStr:\n`, msgStr, `\n\ntoEmb ${toEmb}\n\n`, { embeddeds });
+    throw new PkError(`findKeyedEmbeds: embeddeds not array`, { embeddeds });
     return keyedEmbeds;
+  }
+  for (let embedded of embeddeds) {
+    let key = embedToKey(embedded);
+    keyedEmbeds[key] = embedded;
+  }
+  return keyedEmbeds;
 }
+  */
 /**
  * Just strip out the [[ ]] from the embed
  */
+/*
 export function embedToKey(embed) {
-    let key = embed.replace(/\[\[(.+?)\]\]/, '$1');
-    if (typeof key === 'string') {
-        key = key.trim();
-    }
-    return key;
+  let key = embed.replace(/\[\[(.+?)\]\]/, '$1');
+  if (typeof key === 'string') {
+    key = key.trim();
+  }
+  return key;
 }
+  */
 /**
  * Gets all the message keys for all msg objects, ensures no duplicates, & returns array of keys
  */
+/*
 export function getMsgKeys() {
-    //let keyObjs = [getAllMsgs(), codeFiles];
-    let keyObjs = [getAllMsgs(),];
-    let allKeys = [];
-    for (let keyObj of keyObjs) {
-        allKeys = allKeys.concat(Object.keys(keyObj));
-    }
-    let dupKeys = dupEntries(allKeys);
-    if (!isEmpty(dupKeys)) {
-        throw new PkError(`in getMsgKeys; dupKeys:`, dupKeys);
-    }
-    return { msgKeys: Object.keys(getAllMsgs()), codeKeys: Object.keys(codeFiles), allKeys };
+  //let keyObjs = [getAllMsgs(), codeFiles];
+  let keyObjs = [getAllMsgs(),];
+  let allKeys = [];
+  for (let keyObj of keyObjs) {
+    allKeys = allKeys.concat(Object.keys(keyObj));
+  }
+  let dupKeys = dupEntries(allKeys);
+  if (!isEmpty(dupKeys)) {
+    throw new PkError(`in getMsgKeys; dupKeys:`, dupKeys);
+  }
+  return { msgKeys: Object.keys(getAllMsgs()), codeKeys: Object.keys(codeFiles), allKeys };
 }
+
 export const askKey = '__ASK__'; // To force an ask
+*/
 export const wrapPairs = {
     sysmsg: {
         open: '[[',
@@ -275,174 +282,173 @@ export function expandMsgNew(msg, msgType) {
  * ?? Switch whether throw error on used key, or just ignore?
  *
  */
+/*
 export async function expandMsgs(...args) {
-    getAllMsgs();
-    let { arr: msgs, opts } = parseArgs(args, { ignore: true, addDefault: false, usedKeys: [] });
-    let { ignore, addDefault } = opts;
-    msgs = mkArray(msgs);
-    msgs = uniqueVals(msgs);
-    let toMsgs = typeOf(msgs);
-    //console.log(`in expandMsgs; msgs:`, { toMsgs, msgs });
-    let msgKeyObj = getMsgKeys();
-    let { msgKeys, allKeys, codeKeys } = msgKeyObj;
-    function wrapCodeKey(key) {
-        return `{{${key}}}`;
+  getAllMsgs();
+  let { arr: msgs, opts } = parseArgs(args, { ignore: true, addDefault: false, usedKeys: [] });
+  let { ignore, addDefault } = opts;
+  msgs = mkArray(msgs);
+  msgs = uniqueVals(msgs);
+  let toMsgs = typeOf(msgs);
+  //console.log(`in expandMsgs; msgs:`, { toMsgs, msgs });
+  let msgKeyObj = getMsgKeys();
+  let { msgKeys, allKeys, codeKeys } = msgKeyObj;
+  function wrapCodeKey(key) {
+    return `{{${key}}}`;
+  }
+  function wrapMsgKey(key) {
+    return `[[${key}]]`;
+  }
+  let keyMap: GenObj = {};
+  for (let key of msgKeys) {
+    keyMap[key] = wrapMsgKey(key);
+  }
+  let usedKeys = opts.usedKeys || [];
+  let dupKeys = intersect(msgs, usedKeys);
+  if (!isEmpty(dupKeys)) {
+    console.error(`in expandMsgs; filtering dupKeys:`, dupKeys);
+    msgs = msgs.filter(msg => !dupKeys.includes(msg));
+  }
+  let msgsStr = ''; //The final result
+
+  //Now loop through msg args, expanding to strings
+  for (let msg of msgs) {
+    if (!msg) { //skip empty or undefined msgs
+      continue;
     }
-    function wrapMsgKey(key) {
-        return `[[${key}]]`;
+    let msgStr = ''; // The msgStr for this msg
+    if (msgKeys.includes(msg)) {
+      usedKeys.push(msg);
+      if (msg in AllMsgs) {
+        msgStr = `\n${AllMsgs[msg]}\n`;
+      } else if (msg in codeFiles) {
+        msgStr = `\n${wrapCodeNew(codeFiles[msg])}\n`;
+      } else { // Probably meant a key in AllMsgs, but not found
+        throw new PkError(`Invalid msg key:`, { msg });
+      }
+    } else if (wordCnt(msg) > 1) { //msg w. whitespace, use as literal
+      msgStr = `\n${msg}\n`;
+      //} else if (!codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
+    } else if (codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
+      msgStr = wrapCodeKey(msg);
+      //continue;
+    } else {
+      throw new PkError(`Invalid msg:`, { msg });
     }
-    let keyMap = {};
-    for (let key of msgKeys) {
-        keyMap[key] = wrapMsgKey(key);
-    }
-    let usedKeys = opts.usedKeys || [];
-    let dupKeys = intersect(msgs, usedKeys);
-    if (!isEmpty(dupKeys)) {
-        console.error(`in expandMsgs; filtering dupKeys:`, dupKeys);
-        msgs = msgs.filter(msg => !dupKeys.includes(msg));
-    }
-    let msgsStr = ''; //The final result
-    //Now loop through msg args, expanding to strings
-    for (let msg of msgs) {
-        if (!msg) { //skip empty or undefined msgs
-            continue;
-        }
-        let msgStr = ''; // The msgStr for this msg
-        if (msgKeys.includes(msg)) {
-            usedKeys.push(msg);
-            if (msg in AllMsgs) {
-                msgStr = `\n${AllMsgs[msg]}\n`;
+    //Did initial expansion of msg, now expand embedded keys
+    let cnt = 0;
+    while (strIncludesAny(msgStr, Object.values(keyMap))) { // Recursively substitute embedded keys, to limit
+      if (cnt++ > 10) {
+        let matched = strIncludesWhich(msgStr, Object.values(keyMap));
+        throw new PkError(`expandMsg: too many iterations:`, { msgStr, msg, matched });
+      }
+
+      for (let key of msgKeys) {
+        if (msgStr.includes(wrapMsgKey(key))) {
+          let repStr = '';
+          if (usedKeys.includes(key)) {
+            if (!ignore) {
+              throw new PkError(`expandMsgs - key already used:`, { key });
+            } else {
+              //continue;
             }
-            else if (msg in codeFiles) {
-                msgStr = `\n${wrapCodeNew(codeFiles[msg])}\n`;
+          } else {
+            usedKeys.push(key);
+            if (key in AllMsgs) {
+              usedKeys.push(key);
+              //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
+              repStr = `\n${AllMsgs[key]}\n`;
+            } else if (key in codeFiles) {
+              usedKeys.push(key);
+              //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
+              repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
+            } else { // Probably meant a key in AllMsgs, but not found
+              throw new PkError(`Invalid msg key:`, { key });
             }
-            else { // Probably meant a key in AllMsgs, but not found
-                throw new PkError(`Invalid msg key:`, { msg });
-            }
+          }
+          if (msgStr.includes(repStr) || msgsStr.includes(repStr)) {
+            console.error(`expandMsg: processing embeddeds - msg [${msg}] duplicates key [${key}] w. repStr [${repStr}] already in msgStr`);
+            repStr = '\n';
+            //  throw new PkError(`expandMsg: repStr not in msgStr:`, { msgStr, repStr });
+          }
+          msgStr = msgStr.replaceAll(wrapMsgKey(key), repStr);
         }
-        else if (wordCnt(msg) > 1) { //msg w. whitespace, use as literal
-            msgStr = `\n${msg}\n`;
-            //} else if (!codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
-        }
-        else if (codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
-            msgStr = wrapCodeKey(msg);
-            //continue;
-        }
-        else {
-            throw new PkError(`Invalid msg:`, { msg });
-        }
-        //Did initial expansion of msg, now expand embedded keys
-        let cnt = 0;
-        while (strIncludesAny(msgStr, Object.values(keyMap))) { // Recursively substitute embedded keys, to limit
-            if (cnt++ > 10) {
-                let matched = strIncludesWhich(msgStr, Object.values(keyMap));
-                throw new PkError(`expandMsg: too many iterations:`, { msgStr, msg, matched });
-            }
-            for (let key of msgKeys) {
-                if (msgStr.includes(wrapMsgKey(key))) {
-                    let repStr = '';
-                    if (usedKeys.includes(key)) {
-                        if (!ignore) {
-                            throw new PkError(`expandMsgs - key already used:`, { key });
-                        }
-                        else {
-                            //continue;
-                        }
-                    }
-                    else {
-                        usedKeys.push(key);
-                        if (key in AllMsgs) {
-                            usedKeys.push(key);
-                            //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
-                            repStr = `\n${AllMsgs[key]}\n`;
-                        }
-                        else if (key in codeFiles) {
-                            usedKeys.push(key);
-                            //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
-                            repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
-                        }
-                        else { // Probably meant a key in AllMsgs, but not found
-                            throw new PkError(`Invalid msg key:`, { key });
-                        }
-                    }
-                    if (msgStr.includes(repStr) || msgsStr.includes(repStr)) {
-                        console.error(`expandMsg: processing embeddeds - msg [${msg}] duplicates key [${key}] w. repStr [${repStr}] already in msgStr`);
-                        repStr = '\n';
-                        //  throw new PkError(`expandMsg: repStr not in msgStr:`, { msgStr, repStr });
-                    }
-                    msgStr = msgStr.replaceAll(wrapMsgKey(key), repStr);
-                }
-            }
-        }
-        if (msgsStr.includes(msgStr)) {
-            console.error(`expandMsg: msgStr [${msgStr}] for msgKey: [${msg}]  already in msgsStr`);
-            msgStr = '\n';
-        }
-        msgsStr += `\n${msgStr}\n`;
+      }
     }
-    if (addDefault && !(msgsStr.includes(defaultSysMsg))) {
-        msgsStr = `${defaultSysMsg}\n${msgsStr}`;
+
+    if (msgsStr.includes(msgStr)) {
+      console.error(`expandMsg: msgStr [${msgStr}] for msgKey: [${msg}]  already in msgsStr`);
+      msgStr = '\n';
     }
-    // Experiment w. removing extra newlines and duplicates
-    //msgsStr = msgsStr.replace(/\n\n+/g, '\n\n');
-    msgsStr = msgsStr.replace(/\n+/g, '\n');
-    let msgsStrArr = msgsStr.split('\n');
-    //  msgsStrArr = uniqueVals(msgsStrArr);
-    msgsStr = msgsStrArr.join('\n\n');
-    msgsStr = stripComments(msgsStr);
-    // NOW do code substitution
-    for (let key of codeKeys) {
-        if (msgsStr.includes(wrapCodeKey(key))) {
-            let repStr = '';
-            if (usedKeys.includes(key)) {
-                if (!ignore) {
-                    throw new PkError(`expandMsgs - key already used:`, { key });
-                }
-                else {
-                    //continue;
-                }
-            }
-            else {
-                usedKeys.push(key);
-                repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
-                msgsStr = msgsStr.replace(wrapCodeKey(key), repStr);
-            }
+    msgsStr += `\n${msgStr}\n`;
+  }
+
+  if (addDefault && !(msgsStr.includes(defaultSysMsg))) {
+    msgsStr = `${defaultSysMsg}\n${msgsStr}`;
+  }
+
+
+  // Experiment w. removing extra newlines and duplicates
+  //msgsStr = msgsStr.replace(/\n\n+/g, '\n\n');
+  msgsStr = msgsStr.replace(/\n+/g, '\n');
+  let msgsStrArr = msgsStr.split('\n');
+  //  msgsStrArr = uniqueVals(msgsStrArr);
+  msgsStr = msgsStrArr.join('\n\n');
+  msgsStr = stripComments(msgsStr);
+  // NOW do code substitution
+  for (let key of codeKeys) {
+    if (msgsStr.includes(wrapCodeKey(key))) {
+      let repStr = '';
+      if (usedKeys.includes(key)) {
+        if (!ignore) {
+          throw new PkError(`expandMsgs - key already used:`, { key });
+        } else {
+          //continue;
         }
+      } else {
+        usedKeys.push(key);
+        repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
+        msgsStr = msgsStr.replace(wrapCodeKey(key), repStr);
+      }
     }
-    let embeddeds = findEmbeddeds(msgsStr);
-    if (!isEmpty(embeddeds)) {
-        throw new PkError(`In expandMsg: remaining embeddeds in \nmsgsStr:\n${msgsStr}\n\nembeddeds:\n`, { embeddeds }, `\nMaybe didn't convert some code embeds to {{.*}} from [[.*]]?`);
+  }
+  let embeddeds = findEmbeddeds(msgsStr);
+  if (!isEmpty(embeddeds)) {
+    throw new PkError(`In expandMsg: remaining embeddeds in \nmsgsStr:\n${msgsStr}\n\nembeddeds:\n`, { embeddeds }, `\nMaybe didn't convert some code embeds to {{.*}} from [[.*]]?`);
+  }
+  msgsStr = stripComments(msgsStr);
+  if (msgsStr.includes(askKey)) {
+    let more = await ask("Enhance Question?");
+    if (!isEmpty(more)) {
+      msgsStr = msgsStr.replace(askKey, more);
     }
-    msgsStr = stripComments(msgsStr);
-    if (msgsStr.includes(askKey)) {
-        let more = await ask("Enhance Question?");
-        if (!isEmpty(more)) {
-            msgsStr = msgsStr.replace(askKey, more);
-        }
-    }
-    return msgsStr;
+  }
+
+  return msgsStr;
 }
+  */
 /**
  * Returns Object with all msg keys to their expanded values
  * @param msgs - opt - array of msg keys to expand, if not provided, all msgs are expanded
  */
+/*
 export async function getExpandedMsgs(...msgs) {
-    let ret = {};
-    let keys = getMsgKeys().allKeys;
-    if (!msgs.length) {
-        msgs = keys;
+  let ret: GenObj = {};
+  let keys = getMsgKeys().allKeys;
+  if (!msgs.length) {
+    msgs = keys;
+  } else {
+    if (!isSubset(msgs, keys)) {
+      let invalid = msgs.filter(m => !keys.includes(m));
+      throw new PkError(`Invalid msg keys: ${invalid.join(',')}`);
     }
-    else {
-        if (!isSubset(msgs, keys)) {
-            let invalid = msgs.filter(m => !keys.includes(m));
-            throw new PkError(`Invalid msg keys: ${invalid.join(',')}`);
-        }
-    }
-    for (let msg of msgs) {
-        ret[msg] = await expandMsgs(msg);
-    }
-    return ret;
+  }
+  for (let msg of msgs) {
+    ret[msg] = await expandMsgs(msg);
+  }
+  return ret;
 }
+  */
 export let wrappedSchemaStr = `
 This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript functions, to use to generate Code embeddings for use with RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness. It is essential that your response includes all information possible, as much information as possible, that would support its use for RAG training of an LLM to provide all the information required to enable it as an AI Coding Assistant for the functions. The json schema:
 
@@ -788,68 +794,6 @@ export let usrMessages = {
   `,
     utsfncbody: `Your task is to extract and return the function definition for the function named below. Remember to include any relevant TypeScript comments that immediately precede the function definition which might include context and understanding of the function. Your response should consist ONLY OF TypeScript code wrapped by triple backticks for TypeScript. Only that and nothing more.`,
 };
-export let AllMsgs = {};
-/**
- * Combine all the message objects into a single object, checking for duplicate keys.
- */
-export function getAllMsgs(...msgObjs) {
-    let ret = {};
-    let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), };
-    for (let msgObjKey in initMsgObjs) {
-        let msgObj = initMsgObjs[msgObjKey];
-        let iKeys = intersect(Object.keys(ret), Object.keys(msgObj));
-        if (iKeys.length) {
-            throw new PkError(`in getAllMsgs; duplicate keys in msgObj [${msgObjKey}]:`, iKeys);
-        }
-        ret = { ...ret, ...msgObj };
-    }
-    AllMsgs = ret;
-    return AllMsgs;
-}
-export async function getAllMsgsByObj() {
-    let initMsgObjs = { systemMessages, usrMessages, txtMsgs: getFileMsgObj(), codeFiles };
-    let ret = {};
-    for (let msgObjKey in initMsgObjs) {
-        let msgObj = initMsgObjs[msgObjKey];
-        let iKeys = intersect(Object.keys(ret), Object.keys(msgObj));
-        if (iKeys.length) {
-            throw new PkError(`in getAllMsgsByObj; duplicate keys in msgObj [${msgObjKey}]:`, iKeys);
-        }
-    }
-    let expMsgObjs = {};
-    for (let msgObjKey in initMsgObjs) {
-        let msgObj = initMsgObjs[msgObjKey];
-        let expMsgObj = {};
-        for (let msgKey in msgObj) {
-            let msg = msgObj[msgKey];
-            expMsgObj[msgKey] = { msg, expMsg: await expandMsgs(msgKey) };
-        }
-        expMsgObjs[msgObjKey] = expMsgObj;
-    }
-    return expMsgObjs;
-}
-/*
-
-export let tstAnTasks = {
-  lstFncs: " to process and parse the typescript code that follows and just return a list of all the functions defined in the code. Do not include any comments or explanations. Just return the list of functions.",
-
-  docForObjInfo: " create full, complete, detailed and accurate documentation for the function `objInfo` defined in the code. Your documentation should be in the form of a markdown table with the following columns: function name, function description, function parameters, function return value, function return type, function return description.",
-
-  docForAll: " create full, complete, detailed and accurate documentation for each function defined in the code. Your documentation should be in the form of markdown, with `GitHub` markdown syntax, and include a table of contents. Each function should be documented under a markdown header with the function name. The documentation section for each function should start with a markdown table with the following columns: function name, function description, function parameters, function return value, function return type, function return description. For each function definition section, the table should be followed by full documentation of the function including the function signature, function description, function parameters with types, function return value, function return type, function return description, and examples .",
-
-  tsDoc: "TODO",
-
-  jsonChunk: " create json chunks for each function of the typescript code that follows, in a single JSON output, which includes every function defined. Each chunk should be a json object with the key as the function name, with the content/value the json escaped typescript code for the function. The json chunk should be a single line json object.",
-};
-*/
-//export function tstMsgStr(msgs: string | string[]): string {
-export async function tstMsgStr(...msgs) {
-    let inpMsgs = JSON5Stringify(msgs);
-    let msgStr = await expandMsgs(...msgs);
-    let outPath = `./out/msg-test-${Date.now()}.md`;
-    writeData(`# Test Msg Generation\n**Input Msgs:**\n\n${inpMsgs}\n\n**Generated:**\n\n${msgStr}\n`, outPath);
-    return msgStr;
-}
 // Map keys to usr/system messages
 export let MsgSets = {};
 /**
@@ -858,23 +802,26 @@ export let MsgSets = {};
  *   if null, all keys & msgs
  *   if string/string[], check keys exist, output subset
  */
+/*
 export function tstMsgKeys(msgs) {
-    let lAllMsgs = getAllMsgs(); // as GenObj;
-    //getAllMsgs(); // as GenObj;
-    if (!isEmpty(msgs)) {
-        let amkeys = Object.keys(AllMsgs);
-        msgs = mkArray(msgs);
-        let badKeys = inArr1NinArr2(msgs, amkeys);
-        if (!isEmpty(badKeys)) {
-            console.log(`Msg keys not in AllMsgs:`, badKeys);
-            return;
-        }
-        lAllMsgs = subObj(AllMsgs, msgs);
+  let lAllMsgs = getAllMsgs();// as GenObj;
+  //getAllMsgs(); // as GenObj;
+  if (!isEmpty(msgs)) {
+    let amkeys = Object.keys(AllMsgs);
+    msgs = mkArray(msgs);
+    let badKeys = inArr1NinArr2(msgs, amkeys);
+    if (!isEmpty(badKeys)) {
+      console.log(`Msg keys not in AllMsgs:`, badKeys);
+      return;
     }
-    let outPath = `./out/msg-key-test-${Date.now()}.json5`;
-    writeData(lAllMsgs, outPath);
-    return lAllMsgs;
+    lAllMsgs = subObj(AllMsgs, msgs);
+  }
+  let outPath = `./out/msg-key-test-${Date.now()}.json5`;
+  writeData(lAllMsgs, outPath);
+  return lAllMsgs;
+
 }
+  */
 export function wordCnt(str) {
     if (typeof str !== 'string') {
         throw new PkError(`In wordCnt - str is not a string:`, { str });

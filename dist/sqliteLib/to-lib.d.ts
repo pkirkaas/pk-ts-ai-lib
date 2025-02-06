@@ -12,7 +12,6 @@ export declare function assembleParentKeys(msg: string | MsgBuilder, depth?: num
 /**
  * Find all MsgBuilder obj in DB and process bodies to extract ancestors
  */
-export declare function processMsgsDB(dropSchema?: boolean): Promise<void>;
 /** Init the table of function defs if empty, return the DataSource */
 export declare function initFncDets(provider: string, model?: string): Promise<any>;
 /**

@@ -1,6 +1,28 @@
 import { CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage } from 'ai';
+import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createTogetherAI } from '@ai-sdk/togetherai';
+import { createXai } from '@ai-sdk/xai';
 import { GenObj } from 'pk-ts-node-lib';
 import { ModelListOpts, Strings } from '../init.js';
+export declare const aiSdkClients: {
+    togetherai: {
+        client: import("@ai-sdk/togetherai").TogetherAIProvider;
+        create: typeof createTogetherAI;
+    };
+    openai: {
+        client: import("@ai-sdk/openai").OpenAIProvider;
+        create: typeof createOpenAI;
+    };
+    anthropic: {
+        client: import("@ai-sdk/anthropic").AnthropicProvider;
+        create: typeof createAnthropic;
+    };
+    xai: {
+        client: import("@ai-sdk/xai").XaiProvider;
+        create: typeof createXai;
+    };
+};
 export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
 export type SdkMessages = SdkMessage[];
 export interface GetModelParams {

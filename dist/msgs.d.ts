@@ -21,20 +21,12 @@ export declare function stripComments(msgStr: any): any;
 /** For a msg str, find all embed patterns '[[msgkey]]' & return obj keyed by key & embed
  *
  */
-export declare function findKeyedEmbeds(msgStr: any): {};
 /**
  * Just strip out the [[ ]] from the embed
  */
-export declare function embedToKey(embed: any): any;
 /**
  * Gets all the message keys for all msg objects, ensures no duplicates, & returns array of keys
  */
-export declare function getMsgKeys(): {
-    msgKeys: string[];
-    codeKeys: string[];
-    allKeys: any[];
-};
-export declare const askKey = "__ASK__";
 export declare const wrapPairs: {
     sysmsg: {
         open: string;
@@ -86,12 +78,10 @@ export declare function expandMsgNew(msg: string, msgType: string): string;
  * ?? Switch whether throw error on used key, or just ignore?
  *
  */
-export declare function expandMsgs(...args: any[]): Promise<string>;
 /**
  * Returns Object with all msg keys to their expanded values
  * @param msgs - opt - array of msg keys to expand, if not provided, all msgs are expanded
  */
-export declare function getExpandedMsgs(...msgs: any[]): Promise<import("pk-ts-node-lib").GenericObject>;
 export declare let wrappedSchemaStr: string;
 /**
  * Keys w. source code file path, to be wrapped in triple backticks
@@ -149,13 +139,9 @@ export declare let usrMessages: {
 export interface IMsgObj {
     [key: string]: string;
 }
-export declare let AllMsgs: IMsgObj;
 /**
  * Combine all the message objects into a single object, checking for duplicate keys.
  */
-export declare function getAllMsgs(...msgObjs: IMsgObj[]): IMsgObj;
-export declare function getAllMsgsByObj(): Promise<{}>;
-export declare function tstMsgStr(...msgs: any[]): Promise<string>;
 /**
  * If the arg is not an array, put it into an array
  */
@@ -170,6 +156,5 @@ export declare let MsgSets: {};
  *   if null, all keys & msgs
  *   if string/string[], check keys exist, output subset
  */
-export declare function tstMsgKeys(msgs: any): IMsgObj;
 export declare function wordCnt(str: string): number;
 //# sourceMappingURL=msgs.d.ts.map

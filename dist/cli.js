@@ -6,9 +6,15 @@
 import { dbgWrt, ask, runCli, isSimpleObject, PkError, parseArgs, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { codeFiles, processMsgsDB, wrapCodeNew, 
+import { codeFiles, wrapCodeNew, 
 //getModelList, askModel, getModelByIdx, chat, mkMsgArr, getRawModelList,genAIChat,anthropicChat, getModelObjsOai,anthropicChatCached,
-getLlmProvider, buildMsg, hfChat, 
+getLlmProvider, 
+//mkTogetherModelChoices, askTogetherModel,
+//AllMsgs, 
+//sGeminiChat,
+// wrappedSchemaStr,
+// getAllMsgsByObj, tstMsgStr,
+buildMsg, hfChat, 
 //filterTogetherModels, showTogetherModel, showTogetherModels,
 OpenAiClient, } from './init.js';
 // Implementations
@@ -59,12 +65,13 @@ let fncs = {
         dbgWrt(res, 'tstWrapCode');
         console.log(`\nDone w. tstWrapCode\n`);
     },
-    processMsgs: async (...args) => {
-        console.log(`in processMsgs:`, args);
-        let res = await processMsgsDB(...args);
-        console.log(`\nDone w. processMsgs; res:\n`, res);
-    },
     /*
+    processMsgs: async (...args) => {
+      console.log(`in processMsgs:`, args);
+      let res = await processMsgsDB(...args);
+      console.log(`\nDone w. processMsgs; res:\n`, res);
+    },
+  
     chatGemini: async (...args) => {
       let { msgs, opts, } = await parseChatArgs(args, { provider: "gengemini" });
       console.log(`in genAIChat:`, { msgs, opts });

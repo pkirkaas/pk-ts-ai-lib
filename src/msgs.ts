@@ -70,6 +70,7 @@ export function stripComments(msgStr) {
 /** For a msg str, find all embed patterns '[[msgkey]]' & return obj keyed by key & embed
  * 
  */
+/*
 export function findKeyedEmbeds(msgStr) {
   let embeddeds = findEmbeddeds(msgStr);
   let keyedEmbeds = {};
@@ -85,10 +86,12 @@ export function findKeyedEmbeds(msgStr) {
   }
   return keyedEmbeds;
 }
+  */
 
 /**
  * Just strip out the [[ ]] from the embed
  */
+/*
 export function embedToKey(embed) {
   let key = embed.replace(/\[\[(.+?)\]\]/, '$1');
   if (typeof key === 'string') {
@@ -96,11 +99,13 @@ export function embedToKey(embed) {
   }
   return key;
 }
+  */
 
 
 /**
  * Gets all the message keys for all msg objects, ensures no duplicates, & returns array of keys
  */
+/*
 export function getMsgKeys() {
   //let keyObjs = [getAllMsgs(), codeFiles];
   let keyObjs = [getAllMsgs(),];
@@ -116,6 +121,7 @@ export function getMsgKeys() {
 }
 
 export const askKey = '__ASK__'; // To force an ask
+*/
 
 export const wrapPairs = {
   sysmsg: {
@@ -307,6 +313,7 @@ export function expandMsgNew(msg: string, msgType: string): string {
  * ?? Switch whether throw error on used key, or just ignore? 
  * 
  */
+/*
 export async function expandMsgs(...args) {
   getAllMsgs();
   let { arr: msgs, opts } = parseArgs(args, { ignore: true, addDefault: false, usedKeys: [] });
@@ -450,12 +457,14 @@ export async function expandMsgs(...args) {
 
   return msgsStr;
 }
+  */
 
 /**
  * Returns Object with all msg keys to their expanded values
  * @param msgs - opt - array of msg keys to expand, if not provided, all msgs are expanded
  */
 
+/*
 export async function getExpandedMsgs(...msgs) {
   let ret: GenObj = {};
   let keys = getMsgKeys().allKeys;
@@ -472,6 +481,7 @@ export async function getExpandedMsgs(...msgs) {
   }
   return ret;
 }
+  */
 
 export let wrappedSchemaStr = `
 This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript functions, to use to generate Code embeddings for use with RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness. It is essential that your response includes all information possible, as much information as possible, that would support its use for RAG training of an LLM to provide all the information required to enable it as an AI Coding Assistant for the functions. The json schema:
@@ -884,12 +894,12 @@ export let Msgs = {
 export interface IMsgObj {
   [key: string]: string,
 }
-export let AllMsgs: IMsgObj = {};
 
 
 /**
  * Combine all the message objects into a single object, checking for duplicate keys. 
  */
+/*
 export function getAllMsgs(...msgObjs: IMsgObj[]): IMsgObj {
   let ret: IMsgObj = {};
 
@@ -928,6 +938,7 @@ export async function getAllMsgsByObj() {
   }
   return expMsgObjs;
 }
+  */
 /*
 
 export let tstAnTasks = {
@@ -945,6 +956,7 @@ export let tstAnTasks = {
 
 
 //export function tstMsgStr(msgs: string | string[]): string {
+/*
 export async function tstMsgStr(...msgs): Promise<string> {
   let inpMsgs = JSON5Stringify(msgs);
   let msgStr = await expandMsgs(...msgs);
@@ -954,6 +966,7 @@ export async function tstMsgStr(...msgs): Promise<string> {
     outPath);
   return msgStr;
 }
+  */
 
 /**
  * If the arg is not an array, put it into an array
@@ -987,6 +1000,7 @@ export let MsgSets = {
  *   if null, all keys & msgs
  *   if string/string[], check keys exist, output subset
  */
+/*
 export function tstMsgKeys(msgs) {
   let lAllMsgs = getAllMsgs();// as GenObj;
   //getAllMsgs(); // as GenObj;
@@ -1005,6 +1019,7 @@ export function tstMsgKeys(msgs) {
   return lAllMsgs;
 
 }
+  */
 
 
 export function wordCnt(str: string): number {

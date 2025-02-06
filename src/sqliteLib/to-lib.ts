@@ -40,7 +40,7 @@ import {
 import {
   FunctionDets, fncEntities, logEntities, getProviderConfig, ChatItem, ChatLog, chatEntities,
   commonExports, getDbPath, LogItem, stripBackticks, writeLog, MsgBuilder,
-  systemMessages, usrMessages, getFileMsgObj, codeFiles, findKeyedEmbeds,
+  systemMessages, usrMessages, getFileMsgObj, codeFiles, 
 } from '../init.js';
 
 
@@ -141,6 +141,7 @@ export async function assembleParentKeys(msg: string | MsgBuilder, depth = 0): P
 /**
  * Find all MsgBuilder obj in DB and process bodies to extract ancestors
  */
+/*
 export async function processMsgsDB(dropSchema = false) {
   console.log(`processing msgs db, dropSchema`, { dropSchema });
   if (dropSchema) {
@@ -175,19 +176,10 @@ export async function processMsgsDB(dropSchema = false) {
   console.log(`found assKeys with method for ${tstKey}:`, { tstMsgPKeys, assKeys, assMsg });
   stdOut(assMsg);
   // Hmm - tst assembleParentKeys
-  /*
-  for (let msg of allMsgs) {
-    let assKeys = await assembleParentKeys(msg);
-    msg.normParentKeys = assKeys;
-    await msg.save();
-  }
-    */
 
   console.log(`done processing msgs db`);
-  //let reactSsrMsg = await MsgBuilder.findByKey('react-ssr');
-  //let pEm = findKeyedEmbeds(reactSsrMsg.body);
-  //console.log(`reactSsrMsg:`, {reactSsrMsg, pEm});
 }
+  */
 
 
 

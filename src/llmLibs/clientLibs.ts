@@ -10,13 +10,19 @@
 // NPM Imports
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from "openai";
-import { openai } from "@ai-sdk/openai";
 import { generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
 } from 'ai';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from 'lodash';
-//import setTitle from 'console-title';
+import { google, createGoogleGenerativeAI,
+} from '@ai-sdk/google';
+import { openai, createOpenAI, } from "@ai-sdk/openai"
+import { anthropic, createAnthropic, } from "@ai-sdk/anthropic"
+import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
+import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+
 //import {Message} from '@anthropic-ai/sdk';
 
 //PkLib Imports
@@ -29,11 +35,19 @@ import {
 
 
 import {
-   getProviderConfig, expandMsgs, getLlmProvider, ModelListOpts,
+   getProviderConfig,  getLlmProvider, ModelListOpts,
   defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg,
   chatEntities, ChatLog, ChatItem,
-  aiSdkClients,
 } from '../init.js';
+
+
+export const aiSdkClients =  { // Keyed by 'providers' key
+  togetherai: {client:togetherai, create:createTogetherAI,},
+  openai: {client:openai, create:createOpenAI,},
+  anthropic: {client:anthropic, create:createAnthropic,},
+  xai: {client:xai, create:createXai,},
+  
+}
 
 /*
 export interface AnthropicConfig {

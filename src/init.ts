@@ -8,10 +8,7 @@ export * from './llmLibs/clientLibs.js';
 export * from './constants.js';
 export * from './fileops.js';
 export * from './hflib.js';
-export * from './vertex.js';
-export * from './genailib.js';
 export * from './lib.js';
-export * from './aisdklib.js';
 export * from './claudelib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
@@ -86,20 +83,3 @@ ${JSON.stringify(fncSchema, null, 2)}
   return msgArr;
 }
   */
-
-/**
- * From an array of objects, return element with name === name
- */
-export function getByName(arg, name) {
-  arg = mkArray(arg);
-  for (let el of arg) {
-    if (!isObject(el) || !el.name) {
-      throw new PkError(`Invalid el in arg for 'getByName'`, { el, arg });
-    }
-    if (el.name === name) {
-      return el;
-    }
-  }
-  console.error(`No el matched [${name}]`, { arg });
-  return false;
-}

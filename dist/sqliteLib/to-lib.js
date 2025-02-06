@@ -6,12 +6,9 @@
 import "reflect-metadata";
 import { IsNull, Not, } from "typeorm";
 import _ from 'lodash';
-// PkLib imports
-import { intersect, inArr1NinArr2, } from 'pk-ts-common-lib';
-import { stdOut, } from 'pk-ts-node-lib';
 import { PkDataSource, PkError, isFile, } from "pk-ts-sqlite-lib/typeorm";
 // Local Imports
-import { FunctionDets, fncEntities, logEntities, getProviderConfig, ChatLog, chatEntities, commonExports, getDbPath, stripBackticks, writeLog, MsgBuilder, systemMessages, usrMessages, getFileMsgObj, codeFiles, findKeyedEmbeds, } from '../init.js';
+import { FunctionDets, fncEntities, logEntities, getProviderConfig, ChatLog, chatEntities, commonExports, getDbPath, stripBackticks, writeLog, MsgBuilder, systemMessages, usrMessages, getFileMsgObj, codeFiles, } from '../init.js';
 // Implementation
 let cascade = { cascade: true, };
 export async function getLogDS() {
@@ -96,53 +93,45 @@ export async function assembleParentKeys(msg, depth = 0) {
 /**
  * Find all MsgBuilder obj in DB and process bodies to extract ancestors
  */
+/*
 export async function processMsgsDB(dropSchema = false) {
-    console.log(`processing msgs db, dropSchema`, { dropSchema });
-    if (dropSchema) {
-        await initMsgsDB(dropSchema);
+  console.log(`processing msgs db, dropSchema`, { dropSchema });
+  if (dropSchema) {
+    await initMsgsDB(dropSchema);
+  } else {
+    await getMsgsDS();
+  }
+  let allMsgs = await MsgBuilder.getMsgs('msg');
+  let allCode = await MsgBuilder.getMsgs('code');
+  //findKeyedEmbeds
+  let keys = allMsgs.map(m => m.key);
+  let codeKeys = allCode.map(m => m.key);
+  //console.log(`found ${keys.length} MsgBuilder objects, keys:`, keys);
+  for (let msg of allMsgs) {
+    let embedKeys = Object.keys(findKeyedEmbeds(msg.body));
+    let parentKeys = intersect(embedKeys, keys);
+    let extraKeys = inArr1NinArr2(embedKeys, keys);
+    let unmatchedKeys = inArr1NinArr2(extraKeys, codeKeys);
+    if (unmatchedKeys.length) {
+      console.error(`unmatched Embed Keys:`, unmatchedKeys);
     }
-    else {
-        await getMsgsDS();
-    }
-    let allMsgs = await MsgBuilder.getMsgs('msg');
-    let allCode = await MsgBuilder.getMsgs('code');
-    //findKeyedEmbeds
-    let keys = allMsgs.map(m => m.key);
-    let codeKeys = allCode.map(m => m.key);
-    //console.log(`found ${keys.length} MsgBuilder objects, keys:`, keys);
-    for (let msg of allMsgs) {
-        let embedKeys = Object.keys(findKeyedEmbeds(msg.body));
-        let parentKeys = intersect(embedKeys, keys);
-        let extraKeys = inArr1NinArr2(embedKeys, keys);
-        let unmatchedKeys = inArr1NinArr2(extraKeys, codeKeys);
-        if (unmatchedKeys.length) {
-            console.error(`unmatched Embed Keys:`, unmatchedKeys);
-        }
-        msg.parentKeys = parentKeys;
-        await msg.save();
-    }
-    //
-    let tstKey = 'next-ssr';
-    let tstMsg = await MsgBuilder.findByKey(tstKey);
-    let tstMsgPKeys = tstMsg.parentKeys;
-    //let assKeys = await assembleParentKeys(tstKey);
-    let assKeys = await tstMsg.assembleParentKeys();
-    let assMsg = await tstMsg.assembleMsg();
-    console.log(`found assKeys with method for ${tstKey}:`, { tstMsgPKeys, assKeys, assMsg });
-    stdOut(assMsg);
-    // Hmm - tst assembleParentKeys
-    /*
-    for (let msg of allMsgs) {
-      let assKeys = await assembleParentKeys(msg);
-      msg.normParentKeys = assKeys;
-      await msg.save();
-    }
-      */
-    console.log(`done processing msgs db`);
-    //let reactSsrMsg = await MsgBuilder.findByKey('react-ssr');
-    //let pEm = findKeyedEmbeds(reactSsrMsg.body);
-    //console.log(`reactSsrMsg:`, {reactSsrMsg, pEm});
+    msg.parentKeys = parentKeys;
+    await msg.save();
+  }
+  //
+  let tstKey = 'next-ssr';
+  let tstMsg = await MsgBuilder.findByKey(tstKey);
+  let tstMsgPKeys = tstMsg.parentKeys;
+  //let assKeys = await assembleParentKeys(tstKey);
+  let assKeys = await tstMsg.assembleParentKeys();
+  let assMsg = await tstMsg.assembleMsg();
+  console.log(`found assKeys with method for ${tstKey}:`, { tstMsgPKeys, assKeys, assMsg });
+  stdOut(assMsg);
+  // Hmm - tst assembleParentKeys
+
+  console.log(`done processing msgs db`);
 }
+  */
 /** Init the table of function defs if empty, return the DataSource */
 export async function initFncDets(provider, model) {
     let config = getProviderConfig(provider);

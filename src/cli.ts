@@ -23,20 +23,23 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 // local imports
 import {
   codeFiles,
-  initMsgsDB, processMsgsDB, wrapCodeNew, WrapCodeParam, WrapCodeParams,
+  initMsgsDB, //processMsgsDB,
+  WrapCodeParam, WrapCodeParams,wrapCodeNew,
   askLlmProvider,
   //getModelList, askModel, getModelByIdx, chat, mkMsgArr, getRawModelList,genAIChat,anthropicChat, getModelObjsOai,anthropicChatCached,
   getLlmProvider, getOaiClient, getProviders, parseChatRes, getRawModelObjs,
   //mkTogetherModelChoices, askTogetherModel,
-  AllMsgs, 
+  //AllMsgs, 
   //sGeminiChat,
   // wrappedSchemaStr,
-   getAllMsgsByObj, buildMsg,
-   hfChat, initFncDets, getDbPath, FunctionDets, tstMsgStr,
-  getEmptyFncMD, expandMsgs, findEmbeddeds,
+  // getAllMsgsByObj, tstMsgStr,
+   buildMsg,
+   hfChat, initFncDets, getDbPath, FunctionDets,
+  getEmptyFncMD,  findEmbeddeds,
   systemMessages, providers, timeout,
-  validateJson, getByName, getFncsMD,
-  tstMsgKeys, dbReport,
+  validateJson,  getFncsMD,
+ // tstMsgKeys, 
+  dbReport,
   //filterTogetherModels, showTogetherModel, showTogetherModels,
   
   OpenAiClient,ClaudeClient,
@@ -96,13 +99,13 @@ let fncs = {
     console.log(`\nDone w. tstWrapCode\n`);
 
   },
+  /*
   processMsgs: async (...args) => {
     console.log(`in processMsgs:`, args);
     let res = await processMsgsDB(...args);
     console.log(`\nDone w. processMsgs; res:\n`, res);
   },
 
-  /*
   chatGemini: async (...args) => {
     let { msgs, opts, } = await parseChatArgs(args, { provider: "gengemini" });
     console.log(`in genAIChat:`, { msgs, opts });
