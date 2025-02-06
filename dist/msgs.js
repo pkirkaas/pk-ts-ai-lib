@@ -137,6 +137,9 @@ export function tagReplace(tag, msgType, strip) {
         return replace;
     }
     let msgObj = getMsgObj(msgType);
+    if (!(tag in msgObj)) {
+        throw new PkError(`Key for tag: [${tag}] not found for msgType: [${msgType}]`);
+    }
     let val = msgObj[tag];
     if (!val) { //NEW - Allow actual file paths for code, not just tags
         if (msgType === 'code') {
@@ -146,7 +149,7 @@ export function tagReplace(tag, msgType, strip) {
             }
         }
         else {
-            throw new PkError(`tag: [${tag}] not found for msgType: [${msgType}]`);
+            throw new PkError(`Value for tag: [${tag}] not found for msgType: [${msgType}]`);
         }
     }
     if (msgType === 'code') {

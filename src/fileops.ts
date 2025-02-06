@@ -10,7 +10,7 @@ import path from "path";
 // PkLib Imports
 import {
   getFilePaths, slashPath, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, PkError, GenObj, isDirectory, isSimpleObject,
-  JSON5Stringify, mkArray, Strings, getFiles, isEmpty,
+  JSON5Stringify, mkArray, Strings, getFiles, isEmpty, isString,
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -45,7 +45,7 @@ export function getFileMsgObj(rootdirx?: Strings):MsgObj {
           throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
         }
         let contents = fs.readFileSync(slashPath(rootdir,f), 'utf8'); 
-        if (isEmpty(contents.trim())) {
+        if (!contents || !isString(contents) || isEmpty(contents.trim())) {
           throw new PkError(`No contents for bname: [${bname}]`);
         }
         ret[bname] = fs.readFileSync(slashPath(rootdir,f), 'utf8');

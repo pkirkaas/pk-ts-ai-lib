@@ -6,7 +6,7 @@
 import fs from "fs-extra";
 import path from "path";
 // PkLib Imports
-import { slashPath, isFile, PkError, isDirectory, isSimpleObject, JSON5Stringify, mkArray, getFiles, isEmpty, } from 'pk-ts-node-lib';
+import { slashPath, isFile, PkError, isDirectory, isSimpleObject, JSON5Stringify, mkArray, getFiles, isEmpty, isString, } from 'pk-ts-node-lib';
 // Local Imports
 import { matchPattern, } from './init.js';
 /**
@@ -34,7 +34,7 @@ export function getFileMsgObj(rootdirx) {
                     throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
                 }
                 let contents = fs.readFileSync(slashPath(rootdir, f), 'utf8');
-                if (isEmpty(contents.trim())) {
+                if (!contents || !isString(contents) || isEmpty(contents.trim())) {
                     throw new PkError(`No contents for bname: [${bname}]`);
                 }
                 ret[bname] = fs.readFileSync(slashPath(rootdir, f), 'utf8');
