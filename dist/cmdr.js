@@ -3,6 +3,8 @@
  */
 // NPM Imports
 import { Command } from 'commander';
+import { z } from 'zod';
+export const StringArraySchema = z.string().array();
 // PK-Lib imports
 import { dbgWrt, } from 'pk-ts-sqlite-lib';
 //Local Imports
@@ -27,6 +29,19 @@ let modelsCmd = new Command('models')
     //    let connection = new AiSdk(provider);
     //    let models = await connection.getModels();
     console.log("In ModelsCmd", { filter, options, opts, models, names, cnt, });
+});
+let funcsCmd = new Command('funcs')
+    .description("Test 'generateObject for common func names")
+    .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
+    .action(async (filter, options) => {
+    let opts = program.opts();
+    //let {provider} = opts;
+    let provider = opts.provider || await askLlmProvider();
+    let client = getPkClient(provider);
+    let modelName = await client.getModelName(filter);
+    let obj = await client.sdkObject('get-funcs', StringArraySchema, modelName);
+    let opath = dbgWrt(obj, 'funcsObj');
+    console.log(`Wrote funcs obj to: [${opath}]`);
 });
 let modelNameCmd = new Command('modelName')
     .description("List models for provider")

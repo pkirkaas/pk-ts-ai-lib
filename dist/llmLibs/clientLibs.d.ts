@@ -1,4 +1,5 @@
 import { CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage } from 'ai';
+import { z } from 'zod';
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createTogetherAI } from '@ai-sdk/togetherai';
@@ -106,6 +107,10 @@ export declare abstract class BaseClient {
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     sdkChat(msgs: Strings, modelName?: string, temperature?: number): Promise<SdkMessages>;
+    /**
+     * Generate an object from
+     */
+    sdkObject(msgs: Strings, schema: z.ZodType, modelName?: string): Promise<any>;
     /**
      * Returns the models available for the provider
      */

@@ -81,6 +81,7 @@ export declare let systemMessages: {
     ai: string;
     pyapp: string;
     llmgoals: string;
+    aicodetrainbase: string;
     aicodetrain: string;
     tscodetrain: string;
     js: string;

@@ -45,8 +45,8 @@ let fncs = {
             args.push('text-popup');
         }
         let { uMsg, sMsg } = buildMsg(args);
-        dbgWrt({ what: "tstBuildMsg", args, uMsg, sMsg, }, 'buildMsg');
-        console.log("Tested buildMsg");
+        let outPath = dbgWrt({ what: "tstBuildMsg", args, uMsg, sMsg, }, 'buildMsg');
+        console.log(`Tested buildMsg to [${outPath}] with args:`, { args });
     },
     tstWrapCode(key) {
         if (!key) {

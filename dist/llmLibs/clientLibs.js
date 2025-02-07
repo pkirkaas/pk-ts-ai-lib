@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { generateText, } from 'ai';
+import { generateText, generateObject, } from 'ai';
 import { openai, createOpenAI, } from "@ai-sdk/openai";
 import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
@@ -202,6 +202,21 @@ export class BaseClient {
             chatLog.wrtUsr(uMsg);
         }
         return messages;
+    }
+    /**
+     * Generate an object from
+     */
+    async sdkObject(msgs, schema, modelName) {
+        let msgKeys = mkArray(msgs);
+        let { uMsg, sMsg } = buildMsg(msgKeys);
+        let messages = [
+            { role: 'system', content: sMsg },
+            { role: 'user', content: uMsg, },
+        ];
+        modelName = await this.getModelName(modelName);
+        let model = this.sdkClient(modelName);
+        let res = await generateObject({ model, schema, messages, });
+        return res;
     }
     /**
      * Returns the models available for the provider

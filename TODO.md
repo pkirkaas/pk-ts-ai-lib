@@ -18,3 +18,4 @@
 - Create ProviderConfig type
 - Move all all node terminal i/o out of main funcs to allow use in WebApp
 - CHECK FOR EMPTY Text Msg content when building messages/tags!
+- Fix problem with tag matches - false empty tags

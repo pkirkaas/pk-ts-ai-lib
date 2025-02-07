@@ -1,5 +1,6 @@
 /**
  * Use Commander for CLI script
  */
-export {};
+import { z } from 'zod';
+export declare const StringArraySchema: z.ZodArray<z.ZodString, "many">;
 //# sourceMappingURL=cmdr.d.ts.map

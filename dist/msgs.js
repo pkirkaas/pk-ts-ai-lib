@@ -4,7 +4,7 @@
 // NPM Imports
 import fs from 'node:fs';
 //PkLib imports
-import { PkError, uniqueVals, uniqueKeys, taggedMatches, inArr1NinArr2, mkArray, } from 'pk-ts-node-lib';
+import { PkError, uniqueVals, uniqueKeys, taggedMatches, inArr1NinArr2, isEmpty, mkArray, } from 'pk-ts-node-lib';
 // Local Imports
 import { getFileMsgObj, wrapCodeNew, } from './init.js';
 /**
@@ -72,7 +72,7 @@ export function tstMsgs(typex) {
         let msgObj = getMsgObj(msgType);
         let msgKeys = Object.keys(msgObj);
         for (let msgKey of msgKeys) {
-            let msgStr = `msgKey: [${msgKey}] - type: [${msgType}]; wrapped: '${wrapKeyType(msgKey, msgType)}'`;
+            let msgStr = `msgKey: [${msgKey}] - type: [${msgType}]; wrapped: #${wrapKeyType(msgKey, msgType)}# BLOCK`;
             //console.log(`Testing key: [${msgKey}] of type: [${msgType}]`);
             try {
                 let msgs = buildMsg(msgStr);
@@ -117,6 +117,8 @@ export function extractMsgTags(str, msgType) {
     assertMsgType(msgType);
     let { open, close } = wrapPairs[msgType];
     let tags = uniqueVals(taggedMatches(str, open, close));
+    // Test filter for empty tags - where do they come from?
+    tags = tags.filter((tag) => (!isEmpty(tag) || (tag !== "''")));
     let msgObj = getMsgObj(msgType);
     let msgKeys = Object.keys(msgObj);
     let unfound = inArr1NinArr2(tags, msgKeys);
@@ -137,14 +139,18 @@ export function tagReplace(tag, msgType, strip) {
         return replace;
     }
     let msgObj = getMsgObj(msgType);
+    // TMP - fix for literal code paths
+    /*
     if (!(tag in msgObj)) {
         throw new PkError(`Key for tag: [${tag}] not found for msgType: [${msgType}]`);
     }
+        */
     let val = msgObj[tag];
     if (!val) { //NEW - Allow actual file paths for code, not just tags
         if (msgType === 'code') {
             val = tag.trim();
             if (!fs.existsSync(val)) {
+                //if (!isFile(val)) {
                 throw new PkError(`Code File: [${val}] not found for msgType: [${msgType}]`);
             }
         }
@@ -416,6 +422,7 @@ export let codeFiles = {
         debug: true,
         desc: 'Common TypeScript/JavaScript Library Sources and Configuration Files:',
     },
+    commonops: { fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common/src/common-operations.ts" },
     cssmodules: [{
             desc: "The library `tsconfig.json`",
             fpaths: "Q:/Common/AI-Experiments/Node/guis/next-basic/tsconfig.json",
@@ -539,7 +546,7 @@ Do not:
   `,
     ai: `[[default]] You also have advanced expertise in developing custom AI agents and assistants written in Python and TypeScript/JavaScript, using multiple LLMs, running locally or through cloud based APIs (\`Open AI API\`, etc), including tuning LLM configuration parameters like \`temperature\`, \`topP\`, etc. You specialize in advanced RAG Training and Fine Tuning of models for adding specialized expertise to custom LLMs.
 
-  Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
+  Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`LangGraph\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
   
   `,
     pyapp: `[[pyqt]] The goal is to create portable Python windowed/GUI applications that can be run on any Windows, macOS, or Linux system, using  the latest version of the \`PyQt\` library to create the portable GUI for the application. 
@@ -560,19 +567,13 @@ Do not:
     llmgoals: `[[aicodetrain]] The LLM trained on the custom code should have a deep understanding of the behavior and purpose of each function in the codebase. This can be challenging because many functions accept arguments of different types, and the behavior and return values of the functions can vary depending on the type of the arguments, so it is important to understand the behavior of the functions in the context of the codebase.
 
   The result of the custom trained LLM should be able to act as a powerful coding assistant for the specialized code base, and for general coding. Among other requirements, the trained LLM should be able to interact with the developer in the Development Environment (VS Code), monitor the developers code, and suggest  and the Terminal, and be able to perform the following tasks:
-
-
-  
-  
   
   support the following for the custom code base:
    - the purpose and effect of each function & class
    - Deep understanding of 
 
-
-
   `,
-    aicodetrain: `[[ai]] The goal is to further train a pre-trained coding LLM ('gpt-4o', 'llama-3.2', etc) on custom code bases/libraries, to enable the LLM to act as a coding assistant for the specialized code base as well as for general coding.
+    aicodetrainbase: `[[ai]] The goal is to further train a pre-trained coding LLM ('gpt-4o', 'llama-3.2', etc) on custom code bases/libraries, to enable the LLM to act as a coding assistant for the specialized code base as well as for general coding.
 
   The code base libraries are implemented in TypeScript/JavaScript, to provide specialized functionality for multiple applications. 
 
@@ -586,10 +587,13 @@ Do not:
 
   It should also be able to work as an AI coding chatbot in a terminal, to allow the developer to ask the chatbot for suggestions on how to achieve a coding goal, and the chatbot should be able to generate appropriate code, using the features and functionality of the custom code libraries it has been trained on.
   
-  The trained LLM should also be able to identify potential errors/problems in the original code base libraries and suggest improvements/enhancements, error handling, and refactoring, as well as generate complete documentation for each of the functions, classes, and modules in the codebase.
+  The trained LLM should also be able to identify potential errors/problems in the original code base libraries and suggest improvements/enhancements, error handling, and refactoring, as well as generate complete documentation for each of the functions, classes, and modules in the codebase, support overloaded function and method signatures, etc.
 
 This will be a long term, multi-step process, with multiple steps, and multiple iterations of training, and multiple iterations of testing and evaluation.
 
+
+`,
+    aicodetrain: `[[aicodetrainbase]]
 The first step is to prepare the source code and extract the relevant information from the code in a suitable structure to support the requirements.
   
 Our initial approach is to define a JSON schema to explicitly define all the metadata required for each function of the codebase, and then use the JSON schema to extract the relevant information from the code.
