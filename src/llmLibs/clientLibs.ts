@@ -30,7 +30,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 //PkLib Imports
 import {
   getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk, isSimpleObject,
-  parseArgs, GenObj, isString, mkArray, strIncludesAny, PkError, typeOf, 
+  parseArgs, GenObj, isString, mkArray, strIncludesAny, PkError, typeOf, Falsy, Void,
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -75,6 +75,13 @@ export interface GetModelParams {
   filter:Strings,
 };
 
+  export type SdkObjectParams = {
+    msgs:Strings,
+    schema:z.ZodSchema,
+    //output?:"object" | "array" | Falsy,
+    output?:"object" | "array", // Uh, not necessary if can infer Schema type is array?
+
+  };
 /**
  * Log chats - to file and/or DB
  */
@@ -274,7 +281,10 @@ export abstract class BaseClient {
   /**
    * Generate an object from 
    */
-  async sdkObject(msgs:Strings, schema:z.ZodType, modelName?:string):Promise<any> {
+  //async sdkObject(msgs:Strings, schema:z.ZodType, modelName?:string):Promise<any> {
+
+
+  async sdkObject(msgs:Strings, schema:z.ZodType, modelName?:Strings):Promise<any> {
     let msgKeys = mkArray(msgs);
     let {uMsg, sMsg} = buildMsg(msgKeys);
     let messages:SdkMessages = [

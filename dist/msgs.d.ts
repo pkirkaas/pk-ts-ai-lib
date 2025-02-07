@@ -89,6 +89,7 @@ export declare let systemMessages: {
     node: string;
     sql: string;
     typeorm: string;
+    zod: string;
     aiprep: string;
     embedding: string;
     pyqt: string;

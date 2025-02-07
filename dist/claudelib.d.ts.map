@@ -1,1 +1,0 @@
-{"version":3,"file":"claudelib.d.ts","sourceRoot":"","sources":["../src/claudelib.ts"],"names":[],"mappings":"AAAA;;GAEG;AAoBH,MAAM,WAAW,eAAe;IAC9B,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,WAAW,CAAC,EAAE,MAAM,CAAC;IACrB,UAAU,CAAC,EAAE,MAAM,CAAC;CACrB;AAED,wBAAgB,kBAAkB,CAAC,QAAQ,KAAA,GAAG,MAAM,CAWnD"}

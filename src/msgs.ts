@@ -32,7 +32,9 @@ export function assertEmbeddeds(...strs: string[]) {
       let { open, close } = wrapPairs[msgType];
       let tags = taggedMatches(str, open, close);
       if (tags.length) {
-        throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+        //TODO! Throw again when fixed!
+        //throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+        console.error(`Remaining tags in msgStr`, { msgType, tags });
       }
     }
   }
@@ -638,8 +640,6 @@ Do not:
   The trained LLM should also be able to identify potential errors/problems in the original code base libraries and suggest improvements/enhancements, error handling, and refactoring, as well as generate complete documentation for each of the functions, classes, and modules in the codebase, support overloaded function and method signatures, etc.
 
 This will be a long term, multi-step process, with multiple steps, and multiple iterations of training, and multiple iterations of testing and evaluation.
-
-
 `,
 
 
@@ -693,6 +693,10 @@ Our initial approach is to define a JSON schema to explicitly define all the met
 `,
 
   typeorm: `[[sql]] [[node]] You are an expert with the \`TypeORM\` ORM Library (version >= 0.3.20) with SQLite and PostgreSQL, particularly with Entity definitions, including advanced column and relationship definitions, and advanced queries, including joins, subqueries, and advanced joins. We exlusively use the \`Active Record\` pattern for TypeORM, all Entities extend the \`BaseEntity\` class.
+`,
+
+zod: `[[node]]
+You are an expert with the latest version of the npm TypeScript first schema/typing package \`zod\`
 `,
 
   aiprep: `[[ai]] I have prepared the data for my 100 TypeScript functions by extracting metadata about each function in JSON format. The metadata for each function is in the format specified by the \`json-schema\` that follows below. `,

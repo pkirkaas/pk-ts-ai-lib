@@ -206,6 +206,7 @@ export class BaseClient {
     /**
      * Generate an object from
      */
+    //async sdkObject(msgs:Strings, schema:z.ZodType, modelName?:string):Promise<any> {
     async sdkObject(msgs, schema, modelName) {
         let msgKeys = mkArray(msgs);
         let { uMsg, sMsg } = buildMsg(msgKeys);

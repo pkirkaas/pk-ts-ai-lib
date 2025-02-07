@@ -5,6 +5,7 @@
 import { Command } from 'commander';
 import { z } from 'zod';
 export const StringArraySchema = z.string().array();
+//export const 
 // PK-Lib imports
 import { dbgWrt, } from 'pk-ts-sqlite-lib';
 //Local Imports
@@ -70,5 +71,6 @@ let chatCmd = new Command('sdkchat')
 program.addCommand(modelsCmd);
 program.addCommand(modelNameCmd);
 program.addCommand(chatCmd);
+program.addCommand(funcsCmd);
 await program.parseAsync(process.argv);
 //# sourceMappingURL=cmdr.js.map

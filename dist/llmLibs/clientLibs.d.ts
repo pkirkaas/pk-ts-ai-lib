@@ -29,6 +29,11 @@ export type SdkMessages = SdkMessage[];
 export interface GetModelParams {
     filter: Strings;
 }
+export type SdkObjectParams = {
+    msgs: Strings;
+    schema: z.ZodSchema;
+    output?: "object" | "array";
+};
 /**
  * Log chats - to file and/or DB
  */
@@ -110,7 +115,7 @@ export declare abstract class BaseClient {
     /**
      * Generate an object from
      */
-    sdkObject(msgs: Strings, schema: z.ZodType, modelName?: string): Promise<any>;
+    sdkObject(msgs: Strings, schema: z.ZodType, modelName?: Strings): Promise<any>;
     /**
      * Returns the models available for the provider
      */

@@ -8,6 +8,8 @@ import type { Command as CommandType } from 'commander';
 import {z} from 'zod';
 export const StringArraySchema = z.string().array();
 
+//export const 
+
 
 
 // PK-Lib imports
@@ -87,6 +89,7 @@ let chatCmd = new Command('sdkchat')
   program.addCommand(modelsCmd);
   program.addCommand(modelNameCmd);
   program.addCommand(chatCmd);
+  program.addCommand(funcsCmd);
 
 
 
