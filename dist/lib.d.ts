@@ -1,7 +1,15 @@
 /**
  * General (non-API dependent) functions
  */
+import { z } from 'zod';
 import { GenObj, Strings } from 'pk-ts-node-lib';
+/**
+ * Create a structured output schema for openai
+ * @param name:string
+ * @param description:string
+ * @param schema - the base zod schema
+ */
+export declare function structuredSchema(name: string, description: string, schema: z.ZodTypeAny): z.ZodTypeAny;
 /**
  * Make options for model list - sort, format, filter
  */

@@ -2,10 +2,25 @@
  * General (non-API dependent) functions
  */
 import setTitle from 'console-title';
+import { z } from 'zod';
 // PkLib Imports
 import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
 import { fncSchema, providers, } from './init.js';
+/**
+ * Create a structured output schema for openai
+ * @param name:string
+ * @param description:string
+ * @param schema - the base zod schema
+ */
+export function structuredSchema(name, description, schema) {
+    return z.object({
+        name: z.literal(name),
+        description: z.literal(description),
+        strict: z.literal(true),
+        schema,
+    }).strict();
+}
 /**
  * Make options for model list - sort, format, filter
  */

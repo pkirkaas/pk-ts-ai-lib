@@ -11,6 +11,7 @@ import fs from 'fs-extra';
 import slugify from 'slugify';
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from "lodash";
+import { z } from 'zod';
 
 // PkLib Imports
 
@@ -24,10 +25,25 @@ import {
 
 import {
   fncSchema, buildMsg,
-  systemMessages, usrMessages, providers, timeout, defaultSysMsg,  initChatLog,
+  systemMessages, usrMessages, providers, timeout, defaultSysMsg, initChatLog,
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 
+
+/**
+ * Create a structured output schema for openai
+ * @param name:string
+ * @param description:string
+ * @param schema - the base zod schema
+ */
+export function structuredSchema(name: string, description: string, schema: z.ZodTypeAny): z.ZodTypeAny {
+  return z.object({
+    name: z.literal(name),
+    description: z.literal(description),
+    strict: z.literal(true),
+    schema,
+  }).strict();
+}
 
 
 /**
@@ -46,10 +62,10 @@ export function mkModelListOpts(opts: any = {}) {
  * 
  */
 export type ModelListOpts = {
-  sort?: string|boolean, // model obj key to sort by
+  sort?: string | boolean, // model obj key to sort by
   filter?: Strings, // model names or substrings to filter on
   format?: any,
-  type?:string, // For together - types can be 'chat', 'image', etc.
+  type?: string, // For together - types can be 'chat', 'image', etc.
 };
 export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {}) {
   let listOptsDef = { sort: 'created', format: true, filter: '', };
@@ -70,11 +86,11 @@ export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {})
     });
   }
   if (sort) {
-    let sortBy:string;
+    let sortBy: string;
     if (isString(sort)) {
-      sortBy=sort;
+      sortBy = sort;
     } else {
-      sortBy='created';
+      sortBy = 'created';
     }
     let cmpFnc = (a, b) => { // Sort by key value
       if (a[sortBy] === b[sortBy]) {
@@ -204,7 +220,7 @@ export function stringifyMsgs(msgs) {
 
 export async function askLlmProvider() {
   let choices = getProviders();
-  let provider  = await ask('What LLM Provider to use?', { choices });
+  let provider = await ask('What LLM Provider to use?', { choices });
   return provider;
 };
 
