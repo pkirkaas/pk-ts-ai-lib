@@ -23,7 +23,7 @@ let modelsCmd = new Command('models')
     let client = getPkClient(provider);
     //let models = await client.getModels();
     //let models = await client.filterModels({type:'chat'});
-    let models = await client.filterModels();
+    let models = await client.filterModels(filter);
     dbgWrt(models, `${provider}-models`);
     let names = client.modelObjsToNames(models);
     let cnt = models.length;

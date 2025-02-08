@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "name": "Launch Program",
+        "program": "${workspaceFolder}/app.js",
+        "request": "launch",
+        "skipFiles": [
+            "<node_internals>/**"
+        ],
+        "type": "node"
+    },
+    
+      {
+          "type": "node",
+          "request": "launch",
+          "name": "Debug CLI (prompt for args)",
+          "skipFiles": ["<node_internals>/**"],
+          "program": "${workspaceFolder}/src/cli.ts",
+          "preLaunchTask": "tsc: build - tsconfig.json",
+          "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+          "sourceMaps": true,
+          "args": ["${input:cliArgs}"],
+          "console": "integratedTerminal"
+      }
+  ],
+  "inputs": [
+      {
+          "id": "cliArgs",
+          "type": "promptString",
+          "description": "Arguments for CLI",
+          "default": "--provider=dog spot"
+      }
+  ]
+}

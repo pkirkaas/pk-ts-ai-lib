@@ -90,6 +90,7 @@ export declare let systemMessages: {
     sql: string;
     typeorm: string;
     zod: string;
+    vscode: string;
     aiprep: string;
     embedding: string;
     pyqt: string;

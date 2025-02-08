@@ -249,12 +249,12 @@ export abstract class BaseClient {
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs:Strings, modelName?:string,temperature?:number) {
+  async sdkChat(msgs:Strings, filter?:Strings,temperature?:number) {
     let msgKeys = mkArray(msgs);
     let {uMsg, sMsg} = buildMsg(msgKeys);
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
-    modelName = await this.getModelName(modelName);
+    let modelName = await this.getModelName(filter);
     temperature = temperature || this.temperature || providerConfig?.defaultOpts?.temperature || 0;
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);

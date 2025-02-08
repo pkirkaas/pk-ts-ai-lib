@@ -111,7 +111,7 @@ export declare abstract class BaseClient {
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    sdkChat(msgs: Strings, modelName?: string, temperature?: number): Promise<SdkMessages>;
+    sdkChat(msgs: Strings, filter?: Strings, temperature?: number): Promise<SdkMessages>;
     /**
      * Generate an object from
      */
