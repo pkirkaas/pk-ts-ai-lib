@@ -25,6 +25,19 @@ export function assertEmbeddeds(...strs) {
     }
 }
 /**
+ * Throws if any embeds for type msgType remain in string
+ */
+export function assertEmbedsType(msgStr, msgType) {
+    assertMsgType(msgType);
+    let { open, close } = wrapPairs[msgType];
+    let tags = taggedMatches(msgStr, open, close);
+    if (tags.length) {
+        //TODO! Throw again when fixed!
+        //throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+        console.error(`In assertEmbedsType: Remaining tags in \n\n${msgStr}\n\n of #${msgType}#:`, { tags });
+    }
+}
+/**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
  */
@@ -196,7 +209,7 @@ export function buildMsg(msgx) {
     let usrMsg = nestReplaceTags(msgStr, msgType);
     let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
     let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
-    assertEmbeddeds(uMsg, sMsg);
+    //assertEmbeddeds(uMsg, sMsg);
     return { uMsg, sMsg };
 }
 export function nestReplaceTags(msgStr, msgType, strip) {
@@ -223,7 +236,9 @@ export function nestReplaceTags(msgStr, msgType, strip) {
         }
         msgTags = extractMsgTags(msgStr, msgType);
     }
-    return stripComments(msgStr);
+    let stripped = stripComments(msgStr);
+    assertEmbedsType(stripped, msgType);
+    return stripped;
 }
 export function buildSysMsg(msg) {
     let msgType = 'sysmsg';

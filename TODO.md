@@ -21,4 +21,4 @@
 - Fix problem with tag matches - false empty tags
 - TEMPORARY WORKAROUND - FIX tstMsgs when figure out why empty tags
 - Longer term - improve buildMsgs - more flexible, allow different tags, force ask, etc
-
+- More on buildMsg & testing messages for unfilled tags

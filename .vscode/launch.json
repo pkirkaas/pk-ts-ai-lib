@@ -1,6 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [
+
     {
         "name": "Launch Program",
         "program": "${workspaceFolder}/app.js",
@@ -16,9 +17,10 @@
           "request": "launch",
           "name": "Debug CLI (prompt for args)",
           "skipFiles": ["<node_internals>/**"],
-          "program": "${workspaceFolder}/src/cli.ts",
-          "preLaunchTask": "tsc: build - tsconfig.json",
-          "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+          //"program": "${workspaceFolder}/src/cli.ts",
+          "program": "${workspaceFolder}/dist/cli.js",
+          //"preLaunchTask": "tsc: build - tsconfig.json",
+          //"outFiles": ["${workspaceFolder}/dist/**/*.js"],
           "sourceMaps": true,
           "args": ["${input:cliArgs}"],
           "console": "integratedTerminal"

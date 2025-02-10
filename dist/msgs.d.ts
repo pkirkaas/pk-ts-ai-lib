@@ -8,6 +8,10 @@ import { WrapCodeObjs, MsgObj } from './init.js';
  */
 export declare function assertEmbeddeds(...strs: string[]): void;
 /**
+ * Throws if any embeds for type msgType remain in string
+ */
+export declare function assertEmbedsType(msgStr: string, msgType: string): void;
+/**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
  */

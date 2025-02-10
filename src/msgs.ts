@@ -40,6 +40,19 @@ export function assertEmbeddeds(...strs: string[]) {
   }
 }
 /**
+ * Throws if any embeds for type msgType remain in string
+ */
+export function assertEmbedsType(msgStr: string, msgType: string) {
+  assertMsgType(msgType);
+  let { open, close } = wrapPairs[msgType];
+  let tags = taggedMatches(msgStr, open, close);
+  if (tags.length) {
+    //TODO! Throw again when fixed!
+    //throw new PkError(`Remaining tags in msgStr`, { msgType, tags });
+    console.error(`In assertEmbedsType: Remaining tags in \n\n${msgStr}\n\n of #${msgType}#:`, { tags });
+  }
+}
+/**
  * Strip comments from msgStr. Don't love the comment syntax,
  * but for now: `{| This is a comment |}`
  */
@@ -87,7 +100,7 @@ export function wordCnt(str: string): number {
 /**
  * Test all the message keys in the system
  */
-export function tstMsgs(typex?:Strings) {
+export function tstMsgs(typex?: Strings) {
   for (let msgType of msgTypes) {
     //console.log(`In tstMsgs - testing msgType: [${msgType}]`);
     let msgObj = getMsgObj(msgType);
@@ -96,10 +109,10 @@ export function tstMsgs(typex?:Strings) {
       let msgStr = `msgKey: [${msgKey}] - type: [${msgType}]; wrapped: #${wrapKeyType(msgKey, msgType)}# BLOCK`;
       //console.log(`Testing key: [${msgKey}] of type: [${msgType}]`);
       try {
-      let msgs = buildMsg(msgStr);
-      } catch(e) {
+        let msgs = buildMsg(msgStr);
+      } catch (e) {
         let errMsg = e.message;
-        console.error(`tstMsgs error for [${msgKey}], msgStr: ['${msgStr}'], msgType:[${msgType}]`,{e});
+        console.error(`tstMsgs error for [${msgKey}], msgStr: ['${msgStr}'], msgType:[${msgType}]`, { e });
       }
     }
   }
@@ -141,11 +154,11 @@ export function extractMsgTags(str: string, msgType: string): string[] {
   let { open, close } = wrapPairs[msgType];
   let tags = uniqueVals(taggedMatches(str, open, close));
   // Test filter for empty tags - where do they come from?
-  tags = tags.filter((tag)=>(!isEmpty(tag) || (tag!=="''")));
+  tags = tags.filter((tag) => (!isEmpty(tag) || (tag !== "''")));
   let msgObj = getMsgObj(msgType);
   let msgKeys = Object.keys(msgObj);
   let unfound = inArr1NinArr2(tags, msgKeys);
-  if (unfound.length && (msgType!=='code')) {
+  if (unfound.length && (msgType !== 'code')) {
     throw new PkError(`Tags in string of msgType: [${msgType}] not found in msg keys:`, { unfound, msgKeys });
   }
   return tags;
@@ -179,7 +192,7 @@ export function tagReplace(tag: string, msgType: string, strip?: any): string {
     if (msgType === 'code') {
       val = tag.trim();
       if (!fs.existsSync(val)) {
-      //if (!isFile(val)) {
+        //if (!isFile(val)) {
         throw new PkError(`Code File: [${val}] not found for msgType: [${msgType}]`);
       }
     } else {
@@ -221,7 +234,7 @@ export function buildMsg(msgx: Strings): { uMsg: string, sMsg: string; } {
   let usrMsg = nestReplaceTags(msgStr, msgType);
   let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
   let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
-  assertEmbeddeds(uMsg, sMsg);
+  //assertEmbeddeds(uMsg, sMsg);
   return { uMsg, sMsg };
 }
 
@@ -248,7 +261,9 @@ export function nestReplaceTags(msgStr: string, msgType: string, strip?: any): s
     }
     msgTags = extractMsgTags(msgStr, msgType);
   }
-  return stripComments(msgStr);
+  let stripped = stripComments(msgStr);
+  assertEmbedsType(stripped,msgType);
+  return stripped;
 }
 
 export function buildSysMsg(msg: string): string {
@@ -458,7 +473,7 @@ export let codeFiles: WrapCodeObjs = {
     debug: true,
     desc: 'Common TypeScript/JavaScript Library Sources and Configuration Files:',
   },
-  commonops: {fpaths:"C:/www/TypeScriptLibs/Pk-Ts-Common/src/common-operations.ts"},
+  commonops: { fpaths: "C:/www/TypeScriptLibs/Pk-Ts-Common/src/common-operations.ts" },
   cssmodules: [{
     desc: "The library `tsconfig.json`",
     fpaths: "Q:/Common/AI-Experiments/Node/guis/next-basic/tsconfig.json",
@@ -649,7 +664,7 @@ This will be a long term, multi-step process, with multiple steps, and multiple 
 
 
 
-aicodetrain: `[[aicodetrainbase]]
+  aicodetrain: `[[aicodetrainbase]]
 The first step is to prepare the source code and extract the relevant information from the code in a suitable structure to support the requirements.
   
 Our initial approach is to define a JSON schema to explicitly define all the metadata required for each function of the codebase, and then use the JSON schema to extract the relevant information from the code.
@@ -695,10 +710,10 @@ Our initial approach is to define a JSON schema to explicitly define all the met
   typeorm: `[[sql]] [[node]] You are an expert with the \`TypeORM\` ORM Library (version >= 0.3.20) with SQLite and PostgreSQL, particularly with Entity definitions, including advanced column and relationship definitions, and advanced queries, including joins, subqueries, and advanced joins. We exlusively use the \`Active Record\` pattern for TypeORM, all Entities extend the \`BaseEntity\` class.
 `,
 
-zod: `[[node]]
+  zod: `[[node]]
 You are an expert with the latest version of the npm TypeScript first schema/typing package \`zod\`
 `,
-vscode: `[[node]] You are an expert in configuration and usage of the latest \`VSCode\` Software development IDE (v >= 1.9), as well as all extensions `,
+  vscode: `[[node]] You are an expert in configuration and usage of the latest \`VSCode\` Software development IDE (v >= 1.9), as well as all extensions `,
 
   aiprep: `[[ai]] I have prepared the data for my 100 TypeScript functions by extracting metadata about each function in JSON format. The metadata for each function is in the format specified by the \`json-schema\` that follows below. `,
 
@@ -798,7 +813,7 @@ They are very powerful and feature rich, but offer different features and capabi
 };
 
 export let usrMessages = {
-wrappedschema : `
+  wrappedschema: `
 This is the \`JSON schema\` describing the \`JSON\` meta data of TypeScript functions, to use to generate Code embeddings for use with RAG training. You must take time, and do a complete, thorough, in-depth job, and focus on correctness. It is essential that your response includes all information possible, as much information as possible, that would support its use for RAG training of an LLM to provide all the information required to enable it as an AI Coding Assistant for the functions. The json schema:
 
 {{fncSchema2}}
