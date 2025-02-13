@@ -3,7 +3,6 @@
 - Re-implement the function doc tasks
 - Make msgStr overloaded to support more msg arg types - also system
 - Refactor provider constants
-- Clean build msg, esp for code, & checking for remaining tags
 - Abstract client libs in subdir, add client to provider constants - most use OpenAI client, even if other providers - then easier to abstract rest
 - Continue abstract client libs, testing lms, commander script
 - Really work the Vercel AI SDK
@@ -21,4 +20,3 @@
 - Fix problem with tag matches - false empty tags
 - TEMPORARY WORKAROUND - FIX tstMsgs when figure out why empty tags
 - Longer term - improve buildMsgs - more flexible, allow different tags, force ask, etc
-- More on buildMsg & testing messages for unfilled tags

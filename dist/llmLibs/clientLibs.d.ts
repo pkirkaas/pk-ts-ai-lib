@@ -5,7 +5,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
 import { GenObj } from 'pk-ts-node-lib';
-import { ModelListOpts, Strings } from '../init.js';
+import { ModelListOpts, Strings, BuiltMsg } from '../init.js';
 export declare const aiSdkClients: {
     togetherai: {
         client: import("@ai-sdk/togetherai").TogetherAIProvider;
@@ -111,7 +111,8 @@ export declare abstract class BaseClient {
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    sdkChat(msgs: Strings, filter?: Strings, temperature?: number): Promise<SdkMessages>;
+    sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, temperature?: number): Promise<SdkMessages>;
+    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, temperature?: number): Promise<SdkMessages>;
     /**
      * Generate an object from
      */

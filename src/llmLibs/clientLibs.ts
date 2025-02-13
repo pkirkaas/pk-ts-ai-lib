@@ -29,7 +29,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 //PkLib Imports
 import {
-  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk, isSimpleObject,
+  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk, isSimpleObject, safeFile,
   parseArgs, GenObj, isString, mkArray, strIncludesAny, PkError, typeOf, Falsy, Void,
 } from 'pk-ts-node-lib';
 
@@ -39,7 +39,7 @@ import {
 import {
    getProviderConfig,  getLlmProvider, ModelListOpts,
   defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg,
-  chatEntities, ChatLog, ChatItem,
+  chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg,
 } from '../init.js';
 
 
@@ -115,7 +115,9 @@ export class ChatLogger {
 
     this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
     this.title = `${this.provider} - ${this.label}`;
-    this.outPath = outPath || `./out/chats/${dtFmt('html')}/${this.label}/${this.label}--${this.provider}-${this.stamp}.md`;
+
+    let outName = safeFile(`${this.label}--${this.provider}-${this.stamp}.md`);
+    this.outPath = outPath || `./out/chats/${dtFmt('html')}/${safeFile(this.label)}/${outName}`;
   }
   initFile(args?:any) {
     if (!this.logInited) {
@@ -249,9 +251,21 @@ export abstract class BaseClient {
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs:Strings, filter?:Strings,temperature?:number) {
+  async sdkChat(msgs:Strings, ASK=false, filter?:Strings,temperature?:number) {
+    let bMsg:BuiltMsg;
     let msgKeys = mkArray(msgs);
-    let {uMsg, sMsg} = buildMsg(msgKeys);
+    if (ASK) {
+      //bMsg = await askMsg(msgKeys);
+      bMsg = await askMsg(msgs);
+    } else {
+      //bMsg = buildMsg(msgKeys);
+      bMsg = buildMsg(msgs);
+    }
+    return  this.sdkChatBuilt(bMsg, filter, temperature);
+  }
+
+  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,temperature?:number) {
+    let {uMsg, sMsg} = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
     let modelName = await this.getModelName(filter);
@@ -264,7 +278,7 @@ export abstract class BaseClient {
       {role:'user', content:uMsg,},
     ];
     let chatConfig = {temperature};
-    let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg, msgKeys   }); 
+    let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg,   }); 
     while (uMsg) {
       let response = await this.singleSdkChat(messages,  temperature, modelName );
       let assistant = response.text;

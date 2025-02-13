@@ -103,7 +103,8 @@ export const providers:Providers = {
       // max_tokens: 8192,
     },
     apiKey: process.env.OPENAI_API_KEY,
-    model: 'chatgpt-4o-latest',
+    //model: 'chatgpt-4o-latest',
+    model: "gpt-4o-2024-11-20",
     //model:"o3-mini-2025-01-31", // No access?
   },
   togetherai: {

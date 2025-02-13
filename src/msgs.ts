@@ -21,6 +21,10 @@ import {
   wrapCodeNew,
 } from './init.js';
 
+export type BuiltMsg = {
+  sMsg: string,
+  uMsg: string,
+};
 
 /**
  * Throws if any embeds remain in string(s)
@@ -163,10 +167,6 @@ export function extractMsgTags(str: string, msgType: string): string[] {
   }
   return tags;
 }
-export type BuiltMsg = {
-  sMsg: string,
-  uMsg: string,
-};
 
 export function assertMsgType(msgType: string) {
   if (!msgTypes.includes(msgType)) {
@@ -211,10 +211,43 @@ export function tagReplace(tag: string, msgType: string, strip?: any): string {
 }
 
 /**
+ * Accept sysMsg keys, ask user for uMsg
+ * @return Promise<BuiltMsg>
+ */
+export async function askMsg(smsgx:Strings):Promise<BuiltMsg>{
+  console.log({smsgx});
+  let smsgs = mkArray(smsgx);
+  let msgType = 'sysmsg';
+  let smsgStr = '\n';
+  let smsgObj = getMsgObj(msgType);
+  let smsgKeys = Object.keys(smsgObj);
+  if (isEmpty(smsgx)) { // No Sys msg keys - ask which sysmsg
+    let skey = await ask(`What sys msg?`,smsgKeys);
+    if (!smsgKeys.includes(skey)) {
+      throw new PkError(`skey [${skey}] not found in sMsg keys`); 
+    }
+    smsgs = [skey];
+  }
+  for (let smsg of smsgs) {
+    if (wordCnt(smsg) > 1) { // Literal message string
+      smsgStr += `${smsg}\n`;
+    } else if (smsgKeys.includes(smsg)) {
+      smsgStr += wrapKeyType(smsg, msgType);
+    } else {
+      throw new PkError(`in askMsg - msg [${smsg}] not in smsgKeys`);
+    }
+  } // We have a tagged umessage string, with uMsg, sMsg, code & comment tags
+  let sMsg = nestReplaceTags(buildSysMsg(smsgStr), 'code').trim() || defaultSysMsg;
+  let uMsg = await ask(`Ask:`);
+  return {sMsg, uMsg};
+
+}
+
+/**
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export function buildMsg(msgx: Strings): { uMsg: string, sMsg: string; } {
+export function buildMsg(msgx: Strings): BuiltMsg {
   let msgs = mkArray(msgx);
   let msgType = 'usrmsg';
   let msgStr = '\n';
@@ -234,6 +267,7 @@ export function buildMsg(msgx: Strings): { uMsg: string, sMsg: string; } {
   let usrMsg = nestReplaceTags(msgStr, msgType);
   let sMsg = nestReplaceTags(buildSysMsg(usrMsg), 'code').trim() || defaultSysMsg;
   let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
+  // If special force ask key, 
   //assertEmbeddeds(uMsg, sMsg);
   return { uMsg, sMsg };
 }
@@ -276,170 +310,6 @@ export function buildSysMsg(msg: string): string {
   sysMsgStr = nestReplaceTags(sysMsgStr, msgType);
   return sysMsgStr;
 }
-
-
-/*
-export function expandMsgNew(msg: string, msgType: string): string {
-  if (!msgTypes.includes(msgType)) {
-    throw new PkError(`in expandMsgsNew; invalid msgType:`, msgType);
-  }
-  let srcMsgObj = getMsgObj(msgType);
-  let msgStr = '\n';
-  return msgStr;
-}
-*/
-
-/**
- * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
- * to msg strings.
- * ?? Switch whether throw error on used key, or just ignore? 
- * 
- */
-/*
-export async function expandMsgs(...args) {
-  getAllMsgs();
-  let { arr: msgs, opts } = parseArgs(args, { ignore: true, addDefault: false, usedKeys: [] });
-  let { ignore, addDefault } = opts;
-  msgs = mkArray(msgs);
-  msgs = uniqueVals(msgs);
-  let toMsgs = typeOf(msgs);
-  //console.log(`in expandMsgs; msgs:`, { toMsgs, msgs });
-  let msgKeyObj = getMsgKeys();
-  let { msgKeys, allKeys, codeKeys } = msgKeyObj;
-  function wrapCodeKey(key) {
-    return `{{${key}}}`;
-  }
-  function wrapMsgKey(key) {
-    return `[[${key}]]`;
-  }
-  let keyMap: GenObj = {};
-  for (let key of msgKeys) {
-    keyMap[key] = wrapMsgKey(key);
-  }
-  let usedKeys = opts.usedKeys || [];
-  let dupKeys = intersect(msgs, usedKeys);
-  if (!isEmpty(dupKeys)) {
-    console.error(`in expandMsgs; filtering dupKeys:`, dupKeys);
-    msgs = msgs.filter(msg => !dupKeys.includes(msg));
-  }
-  let msgsStr = ''; //The final result
-
-  //Now loop through msg args, expanding to strings
-  for (let msg of msgs) {
-    if (!msg) { //skip empty or undefined msgs
-      continue;
-    }
-    let msgStr = ''; // The msgStr for this msg
-    if (msgKeys.includes(msg)) {
-      usedKeys.push(msg);
-      if (msg in AllMsgs) {
-        msgStr = `\n${AllMsgs[msg]}\n`;
-      } else if (msg in codeFiles) {
-        msgStr = `\n${wrapCodeNew(codeFiles[msg])}\n`;
-      } else { // Probably meant a key in AllMsgs, but not found
-        throw new PkError(`Invalid msg key:`, { msg });
-      }
-    } else if (wordCnt(msg) > 1) { //msg w. whitespace, use as literal
-      msgStr = `\n${msg}\n`;
-      //} else if (!codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
-    } else if (codeKeys.includes(msg)) { //msg not in AllMsgs or codeFiles
-      msgStr = wrapCodeKey(msg);
-      //continue;
-    } else {
-      throw new PkError(`Invalid msg:`, { msg });
-    }
-    //Did initial expansion of msg, now expand embedded keys
-    let cnt = 0;
-    while (strIncludesAny(msgStr, Object.values(keyMap))) { // Recursively substitute embedded keys, to limit
-      if (cnt++ > 10) {
-        let matched = strIncludesWhich(msgStr, Object.values(keyMap));
-        throw new PkError(`expandMsg: too many iterations:`, { msgStr, msg, matched });
-      }
-
-      for (let key of msgKeys) {
-        if (msgStr.includes(wrapMsgKey(key))) {
-          let repStr = '';
-          if (usedKeys.includes(key)) {
-            if (!ignore) {
-              throw new PkError(`expandMsgs - key already used:`, { key });
-            } else {
-              //continue;
-            }
-          } else {
-            usedKeys.push(key);
-            if (key in AllMsgs) {
-              usedKeys.push(key);
-              //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
-              repStr = `\n${AllMsgs[key]}\n`;
-            } else if (key in codeFiles) {
-              usedKeys.push(key);
-              //leftKeys = inArr1NinArr2(leftKeys, usedKeys);
-              repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
-            } else { // Probably meant a key in AllMsgs, but not found
-              throw new PkError(`Invalid msg key:`, { key });
-            }
-          }
-          if (msgStr.includes(repStr) || msgsStr.includes(repStr)) {
-            console.error(`expandMsg: processing embeddeds - msg [${msg}] duplicates key [${key}] w. repStr [${repStr}] already in msgStr`);
-            repStr = '\n';
-            //  throw new PkError(`expandMsg: repStr not in msgStr:`, { msgStr, repStr });
-          }
-          msgStr = msgStr.replaceAll(wrapMsgKey(key), repStr);
-        }
-      }
-    }
-
-    if (msgsStr.includes(msgStr)) {
-      console.error(`expandMsg: msgStr [${msgStr}] for msgKey: [${msg}]  already in msgsStr`);
-      msgStr = '\n';
-    }
-    msgsStr += `\n${msgStr}\n`;
-  }
-
-  if (addDefault && !(msgsStr.includes(defaultSysMsg))) {
-    msgsStr = `${defaultSysMsg}\n${msgsStr}`;
-  }
-
-
-  // Experiment w. removing extra newlines and duplicates
-  //msgsStr = msgsStr.replace(/\n\n+/g, '\n\n');
-  msgsStr = msgsStr.replace(/\n+/g, '\n');
-  let msgsStrArr = msgsStr.split('\n');
-  //  msgsStrArr = uniqueVals(msgsStrArr);
-  msgsStr = msgsStrArr.join('\n\n');
-  msgsStr = stripComments(msgsStr);
-  // NOW do code substitution
-  for (let key of codeKeys) {
-    if (msgsStr.includes(wrapCodeKey(key))) {
-      let repStr = '';
-      if (usedKeys.includes(key)) {
-        if (!ignore) {
-          throw new PkError(`expandMsgs - key already used:`, { key });
-        } else {
-          //continue;
-        }
-      } else {
-        usedKeys.push(key);
-        repStr = `\n${wrapCodeNew(codeFiles[key])}\n`;
-        msgsStr = msgsStr.replace(wrapCodeKey(key), repStr);
-      }
-    }
-  }
-  let embeddeds = findEmbeddeds(msgsStr);
-  if (!isEmpty(embeddeds)) {
-    throw new PkError(`In expandMsg: remaining embeddeds in \nmsgsStr:\n${msgsStr}\n\nembeddeds:\n`, { embeddeds }, `\nMaybe didn't convert some code embeds to {{.*}} from [[.*]]?`);
-  }
-  msgsStr = stripComments(msgsStr);
-  if (msgsStr.includes(askKey)) {
-    let more = await ask("Enhance Question?");
-    if (!isEmpty(more)) {
-      msgsStr = msgsStr.replace(askKey, more);
-    }
-  }
-
-  return msgsStr;
-}
-  */
 
 
 
@@ -610,7 +480,11 @@ Do not:
   ai: `[[default]] You also have advanced expertise in developing custom AI agents and assistants written in Python and TypeScript/JavaScript, using multiple LLMs, running locally or through cloud based APIs (\`Open AI API\`, etc), including tuning LLM configuration parameters like \`temperature\`, \`topP\`, etc. You specialize in advanced RAG Training and Fine Tuning of models for adding specialized expertise to custom LLMs.
 
   Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`LangGraph\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
+  `,
+
+  aiclient:`[[ts]] [[ai]] You are an expert in the latest npm/node AI API client libraries, including the Vercel \`ai-sdk\` core and client libraries, as well as the \`openai\`, \`@anthropic-ai/sdk\`, etc client libraries.
   
+  You have particular expertise in creating AI API requests for structured data, RAG training, etc.
   `,
 
   pyapp: `[[pyqt]] The goal is to create portable Python windowed/GUI applications that can be run on any Windows, macOS, or Linux system, using  the latest version of the \`PyQt\` library to create the portable GUI for the application. 
@@ -657,7 +531,8 @@ Do not:
 This will be a long term, multi-step process, with multiple steps, and multiple iterations of training, and multiple iterations of testing and evaluation.
 `,
 
-
+tsmorph: `[[ts]] You are deeply familiar with the npm TypeScript parsing package \`ts-morph\`
+`,
 
 
 
@@ -729,6 +604,12 @@ You will provide a complete, working, and tested PyQt6 GUI application in Python
  `,
   win: `[[default]] You are and expert in the latest version of the 'Microsoft Windows 11 Professional' operating system, with particular expertise in advanced configuration, operation, registry settings, etc.
  `,
+
+ linux:`You are an expert in the latest versions of the Linux operating system, particularly \`Ubuntu 24.04\` and newer, and the Bash shell scripting, configuration, etc.`, 
+
+ wsl:`[[win]] [[linux]] You have particular expertise with running and configuring MS \`wsl\` on Windows
+ `,
+ 
 
   tsfnc: `I know the code should be prepared and commented and chunked, etc, but I don't want to do that myself - I want to use AI to do it all for me. I already have written a Chat application in TypeScript using the OpenAI API Node / TypeScript client, and I have a vector database installed on my local development machine.
   `,

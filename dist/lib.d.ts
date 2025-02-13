@@ -3,6 +3,11 @@
  */
 import { z } from 'zod';
 import { GenObj, Strings } from 'pk-ts-node-lib';
+export declare function consoleDir(arg: any, opts?: {
+    depth: any;
+    showHidden: boolean;
+    colors: boolean;
+}): void;
 /**
  * Create a structured output schema for openai
  * @param name:string
@@ -10,6 +15,16 @@ import { GenObj, Strings } from 'pk-ts-node-lib';
  * @param schema - the base zod schema
  */
 export declare function structuredSchema(name: string, description: string, schema: z.ZodTypeAny): z.ZodTypeAny;
+/**
+ * Build a ZOD schema for structured output & tools for AI endpoints
+ */
+export declare class StructuredSchema {
+    name: string;
+    description: string;
+    title?: string;
+    schema: z.ZodTypeAny;
+    examples?: z.ZodTypeAny;
+}
 /**
  * Make options for model list - sort, format, filter
  */

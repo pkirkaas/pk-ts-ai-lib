@@ -51,7 +51,8 @@
     "typeorm": "*",
     "typescript": "*",
     "typescript-ast-util": "*",
-    "zod": "*"
+    "zod": "*",
+    "zod-to-json-schema": "^3.24.1"
   },
   "devDependencies": {
     "tsx": "*"

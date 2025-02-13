@@ -7,6 +7,10 @@ import { z } from 'zod';
 import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
 import { fncSchema, providers, } from './init.js';
+// Move to common/node lib
+export function consoleDir(arg, opts = { depth: null, showHidden: true, colors: true }) {
+    console.dir(arg, opts);
+}
 /**
  * Create a structured output schema for openai
  * @param name:string
@@ -20,6 +24,16 @@ export function structuredSchema(name, description, schema) {
         strict: z.literal(true),
         schema,
     }).strict();
+}
+/**
+ * Build a ZOD schema for structured output & tools for AI endpoints
+ */
+export class StructuredSchema {
+    name;
+    description;
+    title;
+    schema;
+    examples;
 }
 /**
  * Make options for model list - sort, format, filter

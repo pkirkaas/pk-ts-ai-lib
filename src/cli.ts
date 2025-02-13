@@ -19,7 +19,7 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 
 // local imports
 import {
-  codeFiles,
+  codeFiles, askMsg,
   tstMsgs,
   initMsgsDB, //processMsgsDB,
   WrapCodeParam, WrapCodeParams,wrapCodeNew,
@@ -61,6 +61,11 @@ export async function parseChatArgs(args, chatOpts: any = {}) {
 let fncs = {
   tstMsgs:() => {
     tstMsgs();
+  },
+  askMsg: async (...smsgs) => {
+    console.log(`Ask user msg for sysmsg`);
+    let bMsg = await askMsg(smsgs);
+    console.log(`Built Msg:`,{bMsg});
   },
   tstHf: async () => {
     let res = await hfChat();

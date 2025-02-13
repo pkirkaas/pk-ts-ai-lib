@@ -3,6 +3,10 @@
  */
 import { Strings } from 'pk-ts-node-lib';
 import { WrapCodeObjs, MsgObj } from './init.js';
+export type BuiltMsg = {
+    sMsg: string;
+    uMsg: string;
+};
 /**
  * Throws if any embeds remain in string(s)
  */
@@ -49,28 +53,20 @@ export declare function tstMsgs(typex?: Strings): void;
  */
 export declare function getMsgObj(msgType: string, msgObj?: MsgObj): MsgObj;
 export declare function extractMsgTags(str: string, msgType: string): string[];
-export type BuiltMsg = {
-    sMsg: string;
-    uMsg: string;
-};
 export declare function assertMsgType(msgType: string): void;
 export declare function tagReplace(tag: string, msgType: string, strip?: any): string;
+/**
+ * Accept sysMsg keys, ask user for uMsg
+ * @return Promise<BuiltMsg>
+ */
+export declare function askMsg(smsgx: Strings): Promise<BuiltMsg>;
 /**
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export declare function buildMsg(msgx: Strings): {
-    uMsg: string;
-    sMsg: string;
-};
+export declare function buildMsg(msgx: Strings): BuiltMsg;
 export declare function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string;
 export declare function buildSysMsg(msg: string): string;
-/**
- * Expand arrays of msg keys & msg strings to a single message string. Recursively expands embedded msg keys
- * to msg strings.
- * ?? Switch whether throw error on used key, or just ignore?
- *
- */
 /**
  * Keys w. source code file path, to be wrapped in triple backticks
  */
@@ -83,9 +79,11 @@ export declare let systemMessages: {
     code: string;
     python: string;
     ai: string;
+    aiclient: string;
     pyapp: string;
     llmgoals: string;
     aicodetrainbase: string;
+    tsmorph: string;
     aicodetrain: string;
     tscodetrain: string;
     js: string;
@@ -99,6 +97,8 @@ export declare let systemMessages: {
     embedding: string;
     pyqt: string;
     win: string;
+    linux: string;
+    wsl: string;
     tsfnc: string;
     pureJson: string;
     tsanalyze: string;

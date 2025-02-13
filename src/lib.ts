@@ -29,6 +29,11 @@ import {
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
 
+// Move to common/node lib
+export function consoleDir(arg:any, opts={depth:null, showHidden:true, colors:true}) {
+  console.dir(arg,opts);
+}
+
 
 /**
  * Create a structured output schema for openai
@@ -43,6 +48,19 @@ export function structuredSchema(name: string, description: string, schema: z.Zo
     strict: z.literal(true),
     schema,
   }).strict();
+}
+
+/**
+ * Build a ZOD schema for structured output & tools for AI endpoints
+ */
+export class StructuredSchema {
+  name:string;
+  description:string;
+  title?:string;
+  schema:z.ZodTypeAny;
+  examples?:z.ZodTypeAny;
+
+
 }
 
 

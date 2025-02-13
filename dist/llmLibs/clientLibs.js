@@ -6,9 +6,9 @@ import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
+import { ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
-import { getProviderConfig, getLlmProvider, buildMsg, } from '../init.js';
+import { getProviderConfig, getLlmProvider, buildMsg, askMsg, } from '../init.js';
 export const aiSdkClients = {
     togetherai: { client: togetherai, create: createTogetherAI, },
     openai: { client: openai, create: createOpenAI, },
@@ -48,7 +48,8 @@ export class ChatLogger {
         this.label = this.msgKeys.join('-').substring(0, 25);
         this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
         this.title = `${this.provider} - ${this.label}`;
-        this.outPath = outPath || `./out/chats/${dtFmt('html')}/${this.label}/${this.label}--${this.provider}-${this.stamp}.md`;
+        let outName = safeFile(`${this.label}--${this.provider}-${this.stamp}.md`);
+        this.outPath = outPath || `./out/chats/${dtFmt('html')}/${safeFile(this.label)}/${outName}`;
     }
     initFile(args) {
         if (!this.logInited) {
@@ -175,9 +176,21 @@ export class BaseClient {
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     //async sdkChat({user,system,modelName,temperature}) {
-    async sdkChat(msgs, filter, temperature) {
+    async sdkChat(msgs, ASK = false, filter, temperature) {
+        let bMsg;
         let msgKeys = mkArray(msgs);
-        let { uMsg, sMsg } = buildMsg(msgKeys);
+        if (ASK) {
+            //bMsg = await askMsg(msgKeys);
+            bMsg = await askMsg(msgs);
+        }
+        else {
+            //bMsg = buildMsg(msgKeys);
+            bMsg = buildMsg(msgs);
+        }
+        return this.sdkChatBuilt(bMsg, filter, temperature);
+    }
+    async sdkChatBuilt(bMsg, filter, temperature) {
+        let { uMsg, sMsg } = bMsg;
         let providerConfig = this.providerConfig;
         //modelName = modelName || this.modelName;
         let modelName = await this.getModelName(filter);
@@ -190,7 +203,7 @@ export class BaseClient {
             { role: 'user', content: uMsg, },
         ];
         let chatConfig = { temperature };
-        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys });
+        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, });
         while (uMsg) {
             let response = await this.singleSdkChat(messages, temperature, modelName);
             let assistant = response.text;
