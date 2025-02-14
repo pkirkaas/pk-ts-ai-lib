@@ -483,6 +483,8 @@ Do not:
   `,
 
   aiclient:`[[ts]] [[ai]] You are an expert in the latest npm/node AI API client libraries, including the Vercel \`ai-sdk\` core and client libraries, as well as the \`openai\`, \`@anthropic-ai/sdk\`, etc client libraries.
+
+You are an expert with the latest versions (4.1)  of the NPM AI SDK client libraries by \`Vercel\` - https://sdk.vercel.ai/ -
   
   You have particular expertise in creating AI API requests for structured data, RAG training, etc.
   `,

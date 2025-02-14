@@ -9,9 +9,10 @@
  */
 // NPM Imports
 import Anthropic from '@anthropic-ai/sdk';
+import chalk from 'chalk';
 import OpenAI from "openai";
 import { generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
-  generateObject,
+  generateObject, GenerateTextResult, 
 } from 'ai';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
@@ -50,7 +51,25 @@ export const aiSdkClients =  { // Keyed by 'providers' key
   xai: {client:xai, create:createXai,},
   
 }
+/**
+ * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
+ */
+export interface SdkChatParams {
+  temperature?: number;
+  top_p?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+  max_tokens?: number;
+  [key: string]: any; // Allow any additional OpenAI parameters
+}
 
+export const defaultSdkChatParams: SdkChatParams = {
+    temperature: 0,
+    top_p: 1,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: 4096
+}
 /*
 export interface AnthropicConfig {
   system?: string,
@@ -125,7 +144,7 @@ export class ChatLogger {
     `# Chat Session: ${this.chatinfo}\n\n**chatConfig:**\n\`\`\`\n${JSON5Stringify(this.chatConfig)}\n\`\`\`` +
     `\n\n**Sys Msg:**\n${this.sMsg}\n\n**User Msg**:\n${this.uMsg}\n\n${this.divider}\n\n`, this.outPath);
     this.logInited = true;
-    stdOut(`\nLogging [${this.title}] chat to: [${this.outPath}]\n`);
+    stdOut(chalk.bold(`\nLogging [${this.title}] chat to: [${this.outPath}]\n`));
     }
   }
   /**
@@ -240,10 +259,11 @@ export abstract class BaseClient {
    * steps
    * 
    */
-  async singleSdkChat(messages:SdkMessages, temperature:number, modelName:string) {
+  //async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<ChatCompletionMessageParam> {
+  async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<any> {
     let model = this.sdkClient(modelName);
     //@ts-ignore
-    let response = await generateText({messages, temperature, model});
+    let response = await generateText({messages,  model, ...sdkChatParams});
     return response;
   }
 
@@ -251,7 +271,7 @@ export abstract class BaseClient {
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs:Strings, ASK=false, filter?:Strings,temperature?:number) {
+  async sdkChat(msgs:Strings, ASK=false, filter?:Strings,sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<SdkMessages> {
     let bMsg:BuiltMsg;
     let msgKeys = mkArray(msgs);
     if (ASK) {
@@ -261,15 +281,14 @@ export abstract class BaseClient {
       //bMsg = buildMsg(msgKeys);
       bMsg = buildMsg(msgs);
     }
-    return  this.sdkChatBuilt(bMsg, filter, temperature);
+    return  this.sdkChatBuilt(bMsg, filter, sdkChatParams);
   }
 
-  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,temperature?:number) {
+  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<SdkMessages> {
     let {uMsg, sMsg} = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
     let modelName = await this.getModelName(filter);
-    temperature = temperature || this.temperature || providerConfig?.defaultOpts?.temperature || 0;
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);
     }
@@ -277,13 +296,14 @@ export abstract class BaseClient {
       {role:'system', content : sMsg},
       {role:'user', content:uMsg,},
     ];
-    let chatConfig = {temperature};
+    //let chatConfig = {temperature};
+    let chatConfig = sdkChatParams;
     let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg,   }); 
     while (uMsg) {
-      let response = await this.singleSdkChat(messages,  temperature, modelName );
+      let response = await this.singleSdkChat(messages,   modelName, sdkChatParams );
       let assistant = response.text;
       messages.push({role:'assistant', content:assistant});
-      stdOut(`\n\n${assistant}\n\n`);
+      stdOut(chalk.blue(`\n\n${assistant}\n\n`));
       chatLog.wrtAssistant(assistant);
       uMsg = await ask(`Followup for ${this.provider}?`);
       messages.push({role:'user', content:uMsg});

@@ -24,6 +24,18 @@ export declare const aiSdkClients: {
         create: typeof createXai;
     };
 };
+/**
+ * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
+ */
+export interface SdkChatParams {
+    temperature?: number;
+    top_p?: number;
+    frequency_penalty?: number;
+    presence_penalty?: number;
+    max_tokens?: number;
+    [key: string]: any;
+}
+export declare const defaultSdkChatParams: SdkChatParams;
 export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
 export type SdkMessages = SdkMessage[];
 export interface GetModelParams {
@@ -107,12 +119,12 @@ export declare abstract class BaseClient {
      * steps
      *
      */
-    singleSdkChat(messages: SdkMessages, temperature: number, modelName: string): Promise<import("ai").GenerateTextResult<import("ai").ToolSet, never>>;
+    singleSdkChat(messages: SdkMessages, modelName: string, sdkChatParams?: SdkChatParams): Promise<any>;
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, temperature?: number): Promise<SdkMessages>;
-    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, temperature?: number): Promise<SdkMessages>;
+    sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
+    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
     /**
      * Generate an object from
      */
