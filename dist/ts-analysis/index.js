@@ -1,5 +1,4 @@
-"use strict";
-exports.__esModule = true;
+export {};
 // Exports
 /*
 export function fncNameMsg(fncName:string) {

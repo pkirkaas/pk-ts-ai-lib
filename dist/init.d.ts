@@ -14,8 +14,8 @@ export * from './tests/zod-schemas.js';
 import { WrapCodeParams } from './fileops.js';
 import fncSchema from './FncSchemas/fnc2schema.json';
 export { fncSchema };
-export declare type Strings = string | string[];
-export declare type MsgObj = {
+export type Strings = string | string[];
+export type MsgObj = {
     [key: string]: WrapCodeParams;
 };
 /**

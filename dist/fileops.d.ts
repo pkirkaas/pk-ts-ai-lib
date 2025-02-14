@@ -62,7 +62,7 @@ export declare const exts: {
  * @returns Array of file paths that do not match exclude patterns
  */
 export declare function filterExcludes(fpathx: Strings, excpatx: Strings): string[];
-export declare type WrapCodeObj = {
+export type WrapCodeObj = {
     fpaths: Strings;
     debug?: any;
     desc?: string;
@@ -71,9 +71,9 @@ export declare type WrapCodeObj = {
     types?: Strings;
     dirExc?: Strings;
 };
-export declare type WrapCodeParam = string | WrapCodeObj;
-export declare type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
-export declare type WrapCodeObjs = {
+export type WrapCodeParam = string | WrapCodeObj;
+export type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
+export type WrapCodeObjs = {
     [key: string]: WrapCodeParams;
 };
 export declare function isWrapCodeObj(src: any): src is WrapCodeObj;
@@ -96,7 +96,7 @@ export declare function wrapCodeFiles(fpathx: Strings, { root, desc }: {
     root?: string;
     desc?: string;
 }): string;
-declare type CodeBlocks = {
+type CodeBlocks = {
     [key: string]: string[];
 };
 export declare let languages: string[];

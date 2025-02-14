@@ -48,6 +48,7 @@
     "together-ai": "*",
     "ts-morph": "*",
     "typeorm": "*",
+    "typescript": "*",
     "typescript-ast-util": "*"
   }
 }

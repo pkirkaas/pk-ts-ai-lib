@@ -1,10 +1,7 @@
-"use strict";
-exports.__esModule = true;
-exports.commonExports = void 0;
 /**
  * TS Libriary Exports from
  */
-exports.commonExports = [
+export const commonExports = [
     { type: "function", name: "isESM" },
     { type: "function", name: "isCommonJS" },
     { type: "function", name: "getStack" },

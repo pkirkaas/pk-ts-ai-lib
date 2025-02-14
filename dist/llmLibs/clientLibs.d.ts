@@ -36,12 +36,12 @@ export interface SdkChatParams {
     [key: string]: any;
 }
 export declare const defaultSdkChatParams: SdkChatParams;
-export declare type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
-export declare type SdkMessages = SdkMessage[];
+export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
+export type SdkMessages = SdkMessage[];
 export interface GetModelParams {
     filter: Strings;
 }
-export declare type SdkObjectParams = {
+export type SdkObjectParams = {
     msgs: Strings;
     schema: z.ZodSchema;
     output?: "object" | "array";
