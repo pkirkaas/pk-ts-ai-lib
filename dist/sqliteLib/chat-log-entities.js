@@ -1,9 +1,11 @@
+"use strict";
 /**
  * TypeORM entities for logging AI Interactions
  */
+exports.__esModule = true;
 // NPM Imports
-import "reflect-metadata";
+require("reflect-metadata");
 // Local Imports
 // Implementation
-let cascade = { cascade: true, };
+var cascade = { cascade: true };
 //# sourceMappingURL=chat-log-entities.js.map

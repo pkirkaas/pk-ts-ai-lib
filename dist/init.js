@@ -1,19 +1,39 @@
+"use strict";
 /**
  * Common export of all libraries used by the project
  */
-export * from './oaiLib.js';
-export * from './msgs.js';
-export * from './llmLibs/clientLibs.js';
-export * from './constants.js';
-export * from './fileops.js';
-export * from './hflib.js';
-export * from './lib.js';
-export * from './sqliteLib/index.js';
-export * from './ts-analysis/index.js';
-import { getLogDS, } from './sqliteLib/index.js';
-import fncSchema from './FncSchemas/fnc2schema.json' with { type: 'json' };
-export { fncSchema };
-await getLogDS();
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+exports.fncSchema = void 0;
+__exportStar(require("./oaiLib.js"), exports);
+__exportStar(require("./msgs.js"), exports);
+__exportStar(require("./llmLibs/clientLibs.js"), exports);
+__exportStar(require("./constants.js"), exports);
+__exportStar(require("./fileops.js"), exports);
+__exportStar(require("./hflib.js"), exports);
+__exportStar(require("./lib.js"), exports);
+__exportStar(require("./sqliteLib/index.js"), exports);
+__exportStar(require("./ts-analysis/index.js"), exports);
+// Tests
+__exportStar(require("./tests/zod-schemas.js"), exports);
+var index_js_1 = require("./sqliteLib/index.js");
+var fnc2schema_json_1 = __importDefault(require("./FncSchemas/fnc2schema.json"));
+exports.fncSchema = fnc2schema_json_1["default"];
+with ({ type: 'json' })
+    ;
+await index_js_1.getLogDS();
 /**
  * The Function Task message, for either single function or array of functions.
  * @param fncs - string fnc name, object with property `name`, or array of such

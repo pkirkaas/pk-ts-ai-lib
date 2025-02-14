@@ -24,7 +24,7 @@ export declare const defaultGenerationConfig: {
     maxOutputTokens: number;
     candidateCount: number;
 };
-export type ProviderConfig = {
+export declare type ProviderConfig = {
     baseURL?: string;
     apiKey?: string;
     defaultOpts?: GenObj;
@@ -36,7 +36,7 @@ export type ProviderConfig = {
     location?: string;
     project?: string;
 };
-export type Providers = {
+export declare type Providers = {
     [key: string]: ProviderConfig;
 };
 export declare const providers: Providers;

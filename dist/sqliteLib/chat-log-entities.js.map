@@ -1,1 +1,1 @@
-{"version":3,"file":"chat-log-entities.js","sourceRoot":"","sources":["../../src/sqliteLib/chat-log-entities.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,cAAc;AACd,OAAO,kBAAkB,CAAC;AAkB1B,gBAAgB;AAEhB,iBAAiB;AACjB,IAAI,OAAO,GAAoB,EAAE,OAAO,EAAE,IAAI,GAAG,CAAC"}
+{"version":3,"file":"chat-log-entities.js","sourceRoot":"","sources":["../../src/sqliteLib/chat-log-entities.ts"],"names":[],"mappings":";AAAA;;GAEG;;AAEH,cAAc;AACd,4BAA0B;AAkB1B,gBAAgB;AAEhB,iBAAiB;AACjB,IAAI,OAAO,GAAoB,EAAE,OAAO,EAAE,IAAI,EAAG,CAAC"}

@@ -26,10 +26,10 @@ export declare class FunctionDets extends PkBaseEntity {
     description: string;
     examples: string;
     todos: string;
-    static fncsNoBody(): Promise<FunctionDets[]>;
+    static fncsNoBody(): Promise<any>;
     /** Get functions with no body, or body that is not a typescript code block */
     static fncsNoTsBody(): Promise<any>;
-    static fncByName(name: string): Promise<FunctionDets>;
+    static fncByName(name: string): Promise<any>;
 }
 export declare class LogItem extends PkBaseEntity {
     model: string;
@@ -108,8 +108,8 @@ export declare class MsgBuilder extends PkBaseEntity {
     /**
      * Get all keys of a given type where msgType one of `code`, `usr`, 'sys', 'msg', 'all'
      */
-    static getMsgs(msgType?: string): Promise<MsgBuilder[]>;
-    static getMsgKeys(msgType?: string): Promise<string[]>;
+    static getMsgs(msgType?: string): Promise<any>;
+    static getMsgKeys(msgType?: string): Promise<any>;
 }
 export declare const chatEntities: {
     ChatLog: typeof ChatLog;

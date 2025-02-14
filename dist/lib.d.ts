@@ -35,7 +35,7 @@ export declare function mkModelListOpts(opts?: any): any;
  * Returns a processed model list - filtered, sorted, formatted
  *
  */
-export type ModelListOpts = {
+export declare type ModelListOpts = {
     sort?: string | boolean;
     filter?: Strings;
     format?: any;
@@ -53,11 +53,13 @@ export interface IMsgsParams {
     uMsg?: string | string[] | null;
     sMsg?: string | string[] | null;
 }
-export type ChatParams = {
+export declare type ChatParams = {
     sMsg: string;
     uMsg: string;
 };
-export declare function validateJson(data: any): import("pk-ts-node-lib").SimpleObject;
+export declare function validateJson(data: any): {
+    __proto__: {};
+};
 export declare function mkRepPath(lbl?: string, ext?: string): string;
 export declare function writeLog(str: any, { lbl, ext }?: GenObj): void;
 /**

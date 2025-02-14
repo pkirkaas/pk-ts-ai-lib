@@ -3,7 +3,7 @@
  */
 import { Strings } from 'pk-ts-node-lib';
 import { WrapCodeObjs, MsgObj } from './init.js';
-export type BuiltMsg = {
+export declare type BuiltMsg = {
     sMsg: string;
     uMsg: string;
 };

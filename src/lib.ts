@@ -12,6 +12,7 @@ import slugify from 'slugify';
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from "lodash";
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // PkLib Imports
 

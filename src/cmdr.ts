@@ -39,7 +39,7 @@ import {
 //Local Imports
 
 import {
-  providers, OpenAiClient, getPkClient, askLlmProvider,
+  providers, OpenAiClient, getPkClient, askLlmProvider, FunctionNamesSchema,
 } from './init.js';
 
 let funcsCmd = new Command('funcs')
@@ -53,7 +53,8 @@ let funcsCmd = new Command('funcs')
     let modelName = await client.getModelName(filter);
     try {
       //let obj = await client.sdkObject('get-funcs', FuncSigSchema, modelName);
-      let obj = await client.sdkObject('get-funcs', FunctionSignaturesSchemaObj, modelName);
+      //let obj = await client.sdkObject('get-funcs', FunctionSignaturesSchemaObj, modelName);
+      let obj = await client.sdkObject('get-funcs', FunctionNamesSchema, modelName);
       let opath = dbgWrt(obj, 'funcsObj');
       console.log(`Wrote funcs obj to: [${opath}]`);
     } catch (e) {

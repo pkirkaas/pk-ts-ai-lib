@@ -1,14 +1,19 @@
+"use strict";
 /**
  * Testing a direct OpenAI call to parse functions - as suggested by OpenAI
  */
-import { z } from "zod";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+exports.__esModule = true;
+var zod_1 = require("zod");
 //import { Configuration, OpenAIApi } from "openai";
 //import { Configuration, OpenAIApi } from "openai";
-import OpenAI from "openai";
+var openai_1 = __importDefault(require("openai"));
 // Enhanced Zod schema for structured outputs
-const FunctionSignaturesSchema = z.object({
-    functions: z.record(z.string().describe("The name of the exported function"), // Key: Function name
-    z.array(z.string().describe("The TypeScript signature of the function")).describe("An array of TypeScript function signatures for the function")).describe("A mapping of exported function names to their TypeScript signatures"),
+var FunctionSignaturesSchema = zod_1.z.object({
+    functions: zod_1.z.record(zod_1.z.string().describe("The name of the exported function"), // Key: Function name
+    zod_1.z.array(zod_1.z.string().describe("The TypeScript signature of the function")).describe("An array of TypeScript function signatures for the function")).describe("A mapping of exported function names to their TypeScript signatures")
 });
 // Initialize OpenAI API client
 /*
@@ -17,7 +22,7 @@ const configuration = new Configuration({
 });
 */
 //const openai = new OpenAIApi(configuration);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+var openai = new openai_1["default"]({ apiKey: process.env.OPENAI_API_KEY });
 /**
  * Reads a TypeScript file and submits it to OpenAI for parsing.
  * @param filePath - Path to the TypeScript file to parse.

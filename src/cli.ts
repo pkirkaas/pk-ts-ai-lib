@@ -19,6 +19,7 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 
 // local imports
 import {
+  tstZodSchemas, tstZods,
   codeFiles, askMsg,
   tstMsgs,
   initMsgsDB, //processMsgsDB,
@@ -59,6 +60,10 @@ export async function parseChatArgs(args, chatOpts: any = {}) {
 }
 
 let fncs = {
+  tstZod:(...args) => {
+    let schemas = tstZodSchemas(args);
+    console.log({schemas});
+  },
   tstMsgs:() => {
     tstMsgs();
   },

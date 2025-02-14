@@ -6,8 +6,9 @@ export declare const hfModels: {
     llama3170b: string;
     phi3mini4k: string;
 };
-export declare const hf: any;
+import { HfInference } from "@huggingface/inference";
+export declare const hf: HfInference;
 export declare let defaultContent: string;
 export declare let defaultSystem: string;
-export declare function hfChat(content?: string, model?: any): Promise<any>;
+export declare function hfChat(content?: string, model?: any): Promise<import("@huggingface/tasks").ChatCompletionOutput>;
 //# sourceMappingURL=hflib.d.ts.map

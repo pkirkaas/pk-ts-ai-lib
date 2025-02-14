@@ -12,6 +12,9 @@ export * from './lib.js';
 export * from './sqliteLib/index.js';
 export * from './ts-analysis/index.js';
 
+// Tests
+export * from './tests/zod-schemas.js';
+
 // NPM Imports
 import mime from 'mime';
 import fs from 'fs-extra';

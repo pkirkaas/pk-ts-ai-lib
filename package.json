@@ -47,9 +47,7 @@
     "pk-ts-sqlite-lib": "github:pkirkaas/pk-ts-sqlite-lib#working",
     "together-ai": "*",
     "ts-morph": "*",
-    "ts-node": "*",
     "typeorm": "*",
-    "typescript": "*",
     "typescript-ast-util": "*"
   }
 }

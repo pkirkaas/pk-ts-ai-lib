@@ -4,7 +4,7 @@
  */
 import "reflect-metadata";
 import { GenObj } from 'pk-ts-common-lib';
-import { FunctionDets, MsgBuilder } from '../init.js';
+import { MsgBuilder } from '../init.js';
 export declare function getLogDS(): Promise<any>;
 export declare function getMsgsDS(dropSchema?: boolean): Promise<any>;
 export declare function initMsgsDB(dropSchema?: boolean): Promise<any>;
@@ -17,7 +17,7 @@ export declare function initFncDets(provider: string, model?: string): Promise<a
 /**
  * Return the first empty function, or array of first `arr` empty fncs, or false
  */
-export declare function getEmptyFncMD({ provider, model, arr }?: GenObj): Promise<false | FunctionDets | FunctionDets[]>;
+export declare function getEmptyFncMD({ provider, model, arr }?: GenObj): Promise<any>;
 /**
  * Return object keyed by fnc name, val MetaData
  */
