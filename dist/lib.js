@@ -11,6 +11,7 @@ import { fncSchema, providers, } from './init.js';
 export function consoleDir(arg, opts = { depth: null, showHidden: true, colors: true }) {
     console.dir(arg, opts);
 }
+//Zod/Schema support for structured output
 /**
  * Create a structured output schema for openai
  * @param name:string

@@ -2,6 +2,7 @@
  * Test various Zod schemas
  */
 // NPM Imports
+import "zod-metadata/register";
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 // Pk Lib Imports
@@ -38,7 +39,7 @@ export function tstZodSchemas(keyx) {
             throw new PkError(`Invalid key:`, { key });
         }
         let zod = tstZods[key];
-        let schema = zodToJsonSchema(zod);
+        let schema = zodToJsonSchema(zod, key);
         schemas[key] = schema;
     }
     //  let zods = keys.map(k => tstZods[k]);

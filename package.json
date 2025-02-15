@@ -18,8 +18,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf ./dist ./node_modules package-lock.json && nice npm i --verbose && tsc",
-    "cleandos": "rm -rf ./dist ./node_modules package-lock.json && start /low npm i --verbose && tsc"
+    "clean": "rm -rf ./dist ./node_modules package-lock.json &&  npm i && tsc"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "*",

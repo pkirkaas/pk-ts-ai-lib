@@ -2,6 +2,7 @@
  * Test various Zod schemas
  */
 // NPM Imports
+import "zod-metadata/register";
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
@@ -13,6 +14,14 @@ import {
   ask, multiAsk, dtFmt, parseArgs, JSON5Stringify, JSONStringify, inArr1NinArr2, strIncludesAny,
 } from 'pk-ts-node-lib';
 
+export interface StructureSpec {
+  name?: string,
+  definition: string, // Text description of the schema for LLM
+  schema: z.ZodTypeAny,
+  examples?:any[],
+}
+
+
 
 const FunctionNameSchema = z.string()
   .min(1)
@@ -23,7 +32,10 @@ const FunctionNameSchema = z.string()
 
 export const FunctionNamesSchema = z.object({
   functionNames: z.array(FunctionNameSchema).describe('An array of exported function names'),
-});
+})
+//@ts-ignore
+//.meta({examples: ['func1', 'func2']})
+;
 
 export const tstZods = {
   /*
@@ -49,7 +61,7 @@ export function tstZodSchemas(keyx?:Strings) {
       throw new PkError(`Invalid key:`, { key });
     }
     let zod = tstZods[key];
-    let schema = zodToJsonSchema(zod);
+    let schema = zodToJsonSchema(zod,key);
     schemas[key] = schema;
   }
 

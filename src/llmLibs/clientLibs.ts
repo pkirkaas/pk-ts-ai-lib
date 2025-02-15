@@ -40,7 +40,7 @@ import {
 import {
    getProviderConfig,  getLlmProvider, ModelListOpts,
   defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg,
-  chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg,
+  chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg, StructureSpec,
 } from '../init.js';
 
 
@@ -313,22 +313,31 @@ export abstract class BaseClient {
   }
 
   /**
-   * Generate an object from 
+   * Generate an object from input messages & schema
+   * @param spec:StructureSpec - The schema & definition for the object returned
+   * @param msgx:Strings - The messages to ask the user for input
+   * TODO: Add 'output' option to return array of objects
+   * TODO: Add ProviderOptions param to allow for provider-specific options - temperature, etc
    */
-  //async sdkObject(msgs:Strings, schema:z.ZodType, modelName?:string):Promise<any> {
 
 
-  async sdkObject(msgs:Strings, schema:z.ZodType, modelName?:Strings):Promise<any> {
-    let msgKeys = mkArray(msgs);
-    let {uMsg, sMsg} = buildMsg(msgKeys);
+  async sdkObject(spec:StructureSpec, msgx:Strings, modelName?:Strings):Promise<any> {
+    let msgs = mkArray(msgx);
+    let {uMsg, sMsg} = buildMsg(msgs);
+    let {schema, definition } = spec;
+    let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
+    let sdef = `\n${predef}\n${definition}\n`;
+
     let messages:SdkMessages = [
       {role:'system', content : sMsg},
+      {role:'system', content : sdef},
       {role:'user', content:uMsg,},
     ];
     modelName = await this.getModelName(modelName);
     let model = this.sdkClient(modelName);
     let res = await generateObject({model, schema, messages,});
-    return res;
+    let obj = res.object;
+    return obj;
   }
 
   /**

@@ -20,3 +20,5 @@
 - Fix problem with tag matches - false empty tags
 - TEMPORARY WORKAROUND - FIX tstMsgs when figure out why empty tags
 - Longer term - improve buildMsgs - more flexible, allow different tags, force ask, etc
+- More with providing provider configs (temp, etc)
+= Figure out how to get max tokens per model

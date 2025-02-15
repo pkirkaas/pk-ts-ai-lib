@@ -6,6 +6,12 @@
 import { Command } from 'commander';
 import type { Command as CommandType } from 'commander';
 import { z } from 'zod';
+
+// Local Imports
+import { StructureSpec,
+} from './init.js';
+
+// Exports & implementations
 export const StringArraySchema = z.string().array();
 export const FuncSigSchema = z.object({
   functionName: z.string().describe('Exported function name'),
@@ -19,7 +25,19 @@ const FunctionSignaturesSchemaObj = z.object({
       z.string().describe("The TypeScript signature of the function")
     ).describe("An array of TypeScript function signatures for the function")
   ).describe("A mapping of exported function names to their TypeScript signatures"),
-});
+})
+.describe("Object keyed by each exported TypeScript function name to array of all the function signatures")
+.strict();
+
+const funcsStruct: StructureSpec = {
+  name: 'FunctionSignatures',
+  definition: 'A mapping of exported function names to their TypeScript signatures',
+  schema: FunctionSignaturesSchemaObj,
+};
+
+
+
+
 const FunctionSignaturesSchema = z.record(
     z.string().describe("The name of the exported function"), // Key: Function name
     z.array(
@@ -54,7 +72,7 @@ let funcsCmd = new Command('funcs')
     try {
       //let obj = await client.sdkObject('get-funcs', FuncSigSchema, modelName);
       //let obj = await client.sdkObject('get-funcs', FunctionSignaturesSchemaObj, modelName);
-      let obj = await client.sdkObject('get-funcs', FunctionNamesSchema, modelName);
+      let obj = await client.sdkObject(funcsStruct, 'get-funcs',  modelName);
       let opath = dbgWrt(obj, 'funcsObj');
       console.log(`Wrote funcs obj to: [${opath}]`);
     } catch (e) {

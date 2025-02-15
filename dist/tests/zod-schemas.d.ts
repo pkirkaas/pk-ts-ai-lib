@@ -1,8 +1,15 @@
 /**
  * Test various Zod schemas
  */
+import "zod-metadata/register";
 import { z } from 'zod';
 import { Strings } from 'pk-ts-node-lib';
+export interface StructureSpec {
+    name?: string;
+    definition: string;
+    schema: z.ZodTypeAny;
+    examples?: any[];
+}
 export declare const FunctionNamesSchema: z.ZodObject<{
     functionNames: z.ZodArray<z.ZodEffects<z.ZodString, string, string>, "many">;
 }, "strip", z.ZodTypeAny, {

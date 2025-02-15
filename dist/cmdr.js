@@ -4,6 +4,7 @@
 // NPM Imports
 import { Command } from 'commander';
 import { z } from 'zod';
+// Exports & implementations
 export const StringArraySchema = z.string().array();
 export const FuncSigSchema = z.object({
     functionName: z.string().describe('Exported function name'),
@@ -12,14 +13,21 @@ export const FuncSigSchema = z.object({
 const FunctionSignaturesSchemaObj = z.object({
     functions: z.record(z.string().describe("The name of the exported function"), // Key: Function name
     z.array(z.string().describe("The TypeScript signature of the function")).describe("An array of TypeScript function signatures for the function")).describe("A mapping of exported function names to their TypeScript signatures"),
-});
+})
+    .describe("Object keyed by each exported TypeScript function name to array of all the function signatures")
+    .strict();
+const funcsStruct = {
+    name: 'FunctionSignatures',
+    definition: 'A mapping of exported function names to their TypeScript signatures',
+    schema: FunctionSignaturesSchemaObj,
+};
 const FunctionSignaturesSchema = z.record(z.string().describe("The name of the exported function"), // Key: Function name
 z.array(z.string().describe("The TypeScript signature of the function")).describe("An array of TypeScript function signatures for the function")).describe("A mapping of exported function names to their TypeScript signatures");
 //export const 
 // PK-Lib imports
 import { dbgWrt, } from 'pk-ts-sqlite-lib';
 //Local Imports
-import { getPkClient, askLlmProvider, FunctionNamesSchema, } from './init.js';
+import { getPkClient, askLlmProvider, } from './init.js';
 let funcsCmd = new Command('funcs')
     .description("Test 'generateObject for common func names")
     .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
@@ -32,7 +40,7 @@ let funcsCmd = new Command('funcs')
     try {
         //let obj = await client.sdkObject('get-funcs', FuncSigSchema, modelName);
         //let obj = await client.sdkObject('get-funcs', FunctionSignaturesSchemaObj, modelName);
-        let obj = await client.sdkObject('get-funcs', FunctionNamesSchema, modelName);
+        let obj = await client.sdkObject(funcsStruct, 'get-funcs', modelName);
         let opath = dbgWrt(obj, 'funcsObj');
         console.log(`Wrote funcs obj to: [${opath}]`);
     }

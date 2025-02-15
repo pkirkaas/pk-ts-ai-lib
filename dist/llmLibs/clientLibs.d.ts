@@ -5,7 +5,7 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
 import { GenObj } from 'pk-ts-node-lib';
-import { ModelListOpts, Strings, BuiltMsg } from '../init.js';
+import { ModelListOpts, Strings, BuiltMsg, StructureSpec } from '../init.js';
 export declare const aiSdkClients: {
     togetherai: {
         client: import("@ai-sdk/togetherai").TogetherAIProvider;
@@ -126,9 +126,13 @@ export declare abstract class BaseClient {
     sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
     sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
     /**
-     * Generate an object from
+     * Generate an object from input messages & schema
+     * @param spec:StructureSpec - The schema & definition for the object returned
+     * @param msgx:Strings - The messages to ask the user for input
+     * TODO: Add 'output' option to return array of objects
+     * TODO: Add ProviderOptions param to allow for provider-specific options - temperature, etc
      */
-    sdkObject(msgs: Strings, schema: z.ZodType, modelName?: Strings): Promise<any>;
+    sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings): Promise<any>;
     /**
      * Returns the models available for the provider
      */

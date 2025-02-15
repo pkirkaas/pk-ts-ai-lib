@@ -35,6 +35,7 @@ export function consoleDir(arg:any, opts={depth:null, showHidden:true, colors:tr
   console.dir(arg,opts);
 }
 
+//Zod/Schema support for structured output
 
 /**
  * Create a structured output schema for openai
