@@ -13,8 +13,6 @@ export * from './ts-analysis/index.js';
 // Tests
 export * from './tests/zod-schemas.js';
 import { getLogDS, } from './sqliteLib/index.js';
-import fncSchema from './FncSchemas/fnc2schema.json' with { type: 'json' };
-export { fncSchema };
 await getLogDS();
 /**
  * The Function Task message, for either single function or array of functions.

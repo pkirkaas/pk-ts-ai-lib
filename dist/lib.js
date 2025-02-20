@@ -4,9 +4,9 @@
 import setTitle from 'console-title';
 import { z } from 'zod';
 // PkLib Imports
-import { typeOf, writeData, ajvSchema, isSimpleObject, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
+import { writeData, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
-import { fncSchema, providers, } from './init.js';
+import { providers, } from './init.js';
 // Move to common/node lib
 export function consoleDir(arg, opts = { depth: null, showHidden: true, colors: true }) {
     console.dir(arg, opts);
@@ -118,20 +118,25 @@ export function getProviderConfig(provider = null) {
     return providers[provider];
 }
 ;
+/**
+ * @deprecated
+ */
 export function validateJson(data) {
+    /*
     if (typeof data === 'string') {
-        data = JSON.parse(data);
+      data = JSON.parse(data);
     }
     if (!isSimpleObject(data)) {
-        let tod = typeOf(data);
-        throw new PkError(`validateJson - Invalid type [${tod}] for 'data':`, { data });
+      let tod = typeOf(data);
+      throw new PkError(`validateJson - Invalid type [${tod}] for 'data':`, { data });
     }
     let validate = ajvSchema(fncSchema, { strictSchema: false });
     let valid = validate(data);
     if (!valid) {
-        throw new PkError(`Invalid FncSchema data:`, { data, errors: validate.errors });
+      throw new PkError(`Invalid FncSchema data:`, { data, errors: validate.errors });
     }
     return data;
+    */
 }
 export function mkRepPath(lbl = 'log-out', ext = 'md') {
     return `./out/${lbl}-${Date.now()}.${ext}`;

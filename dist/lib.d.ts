@@ -57,7 +57,10 @@ export type ChatParams = {
     sMsg: string;
     uMsg: string;
 };
-export declare function validateJson(data: any): import("pk-ts-node-lib").SimpleObject;
+/**
+ * @deprecated
+ */
+export declare function validateJson(data: any): void;
 export declare function mkRepPath(lbl?: string, ext?: string): string;
 export declare function writeLog(str: any, { lbl, ext }?: GenObj): void;
 /**

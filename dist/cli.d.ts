@@ -3,8 +3,4 @@
  * Tests moved to tests.ts
  */
 export declare let msgKeys: {};
-export declare function parseChatArgs(args: any, chatOpts?: any): Promise<{
-    msgs: any;
-    opts: any;
-}>;
 //# sourceMappingURL=cli.d.ts.map

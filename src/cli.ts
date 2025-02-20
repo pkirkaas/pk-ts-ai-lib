@@ -40,24 +40,6 @@ export let msgKeys = {
 
 };
 
-export async function parseChatArgs(args, chatOpts: any = {}) {
-  if (typeof chatOpts === 'string') {
-    chatOpts = { provider: chatOpts };
-  }
-  if (!isSimpleObject(chatOpts)) {
-    throw new PkError(`chatDefaults must be an object`);
-  }
-  let optDefaults = { sMsg: 'default', dropSchema: false, forceAsk: false, ...chatOpts };
-  let { arr: msgs, opts, } = parseArgs(args, optDefaults);
-  if (opts.provider) {
-    opts.provider = getLlmProvider(opts.provider);
-  }
-  if (isEmpty(msgs) || opts.forceAsk) {
-    let umsg = await ask(`What to ask?`);
-    msgs.push(umsg);
-  }
-  return { msgs, opts };
-}
 
 let fncs = {
   tstZod:(...args) => {
@@ -81,7 +63,7 @@ let fncs = {
     let models = await client.filterModels();
     console.log({models});
   },
-  async tstNewMsg(...args) {
+  async tstMsg(...args) {
     if (isEmpty(args)) {
       args.push('text-popup');
     }
@@ -95,8 +77,9 @@ let fncs = {
     }
     let srcs = codeFiles[key];
     console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
-    let res = wrapCodeNew(srcs);
-    dbgWrt(res, 'tstWrapCode');
+    let res = wrapCodeNew(srcs, true);
+
+    dbgWrt({key,res,}, 'tstWrapCode');
     console.log(`\nDone w. tstWrapCode\n`);
 
   },

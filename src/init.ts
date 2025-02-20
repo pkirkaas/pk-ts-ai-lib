@@ -40,9 +40,9 @@ import {
   LogItem, logEntities, getLogDS,
 } from './sqliteLib/index.js';
 
-import fncSchema from './FncSchemas/fnc2schema.json' with {type: 'json'};
+//import fncSchema from './FncSchemas/fnc2schema.json' with {type: 'json'};
 
-export { fncSchema };
+//export { fncSchema };
 export type Strings = string | string[];
 export type MsgObj = { [key: string]: WrapCodeParams };
 

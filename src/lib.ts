@@ -25,7 +25,8 @@ import {
 // Local Imports
 
 import {
-  fncSchema, buildMsg,
+  //fncSchema,
+   buildMsg,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, initChatLog,
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
 } from './init.js';
@@ -171,8 +172,11 @@ export type ChatParams = {
   uMsg: string,
 };
 
-
+/**
+ * @deprecated
+ */
 export function validateJson(data) {
+  /*
   if (typeof data === 'string') {
     data = JSON.parse(data);
   }
@@ -186,6 +190,7 @@ export function validateJson(data) {
     throw new PkError(`Invalid FncSchema data:`, { data, errors: validate.errors });
   }
   return data;
+  */
 
 }
 export function mkRepPath(lbl = 'log-out', ext = 'md') {

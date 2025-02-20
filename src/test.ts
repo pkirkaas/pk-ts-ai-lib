@@ -25,16 +25,19 @@ import {
 } from './init.js';
 
 // JSON Imports
+/*
 import geminiAllProps from './allPropsJsons/GeminiAllProps.json' with {type: "json"};
 import claudeAllProps from './allPropsJsons/ClaudeAllProps.json' with {type: "json"};
 import oaiAllProps from './allPropsJsons/OAIAllProps.json' with {type: "json"};
 
 import fncSchema from './FncSchemas/fnc2schema.json' with {type: 'json'};
+*/
 
 
 /**
  * Validates JSON schema itself, then the JSON results from OpenAI, Gemini & Claude
  */
+/*
 export function tstFncJsons() {
   let jsons = { geminiAllProps, claudeAllProps, oaiAllProps };
   console.log(`Validating fncSchema iteself`);
@@ -51,6 +54,7 @@ export function tstFncJsons() {
   }
   console.log(`Validation finished`);
 }
+  */
 
 export async function tstDbLog() {
   let ds = await getLogDS();
@@ -79,10 +83,12 @@ let fncs = {
     let lgRes = await tstDbLog();
     console.log(`Done w. tstDbLog, res:`, { lgRes });
   },
+  /*
   tstFncJsons: async() => {
     let res = tstFncJsons();
     console.log(`Done w. tstFncJsons, res:`,{res});
   },
+  */
 };
 
 await runCli(fncs);

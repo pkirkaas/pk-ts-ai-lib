@@ -533,13 +533,8 @@ You are an expert with the latest versions (4.1)  of the NPM AI SDK client libra
 This will be a long term, multi-step process, with multiple steps, and multiple iterations of training, and multiple iterations of testing and evaluation.
 `,
 
-tsmorph: `[[ts]] You are deeply familiar with the npm TypeScript parsing package \`ts-morph\`
+tsmorph: `[[ts]] You are deeply familiar with the latest verstion of npm TypeScript parsing package/wapper \`ts-morph\` (v >= 25) for TypeScript code analysis, generation and manipulation, including the latest features and capabilities of the library, and the latest versions of the library's dependencies.
 `,
-
-
-
-
-
 
   aicodetrain: `[[aicodetrainbase]]
 The first step is to prepare the source code and extract the relevant information from the code in a suitable structure to support the requirements.
