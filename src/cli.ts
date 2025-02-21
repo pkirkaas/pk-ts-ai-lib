@@ -75,9 +75,10 @@ let fncs = {
     if (!key) {
       key = "commonlib";
     }
-    let srcs = codeFiles[key];
-    console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
-    let res = wrapCodeNew(srcs, true);
+    //let srcs = codeFiles[key];
+    //console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
+    console.log(`CLI: tstWrapCode: ${key}`,);
+    let res = wrapCodeNew(key, true);
 
     dbgWrt({key,res,}, 'tstWrapCode');
     console.log(`\nDone w. tstWrapCode\n`);

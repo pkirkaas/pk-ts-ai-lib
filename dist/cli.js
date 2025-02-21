@@ -6,7 +6,7 @@
 import { dbgWrt, runCli, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { tstZodSchemas, codeFiles, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, } from './init.js';
+import { tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, } from './init.js';
 // Implementations
 export let msgKeys = {};
 let fncs = {
@@ -43,9 +43,10 @@ let fncs = {
         if (!key) {
             key = "commonlib";
         }
-        let srcs = codeFiles[key];
-        console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
-        let res = wrapCodeNew(srcs, true);
+        //let srcs = codeFiles[key];
+        //console.log(`CLI: tstWrapCode: ${key}, srcs:\n`, srcs);
+        console.log(`CLI: tstWrapCode: ${key}`);
+        let res = wrapCodeNew(key, true);
         dbgWrt({ key, res, }, 'tstWrapCode');
         console.log(`\nDone w. tstWrapCode\n`);
     },

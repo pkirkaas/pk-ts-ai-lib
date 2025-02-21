@@ -15,7 +15,7 @@ import {
 
 // Local Imports
 import {
-  matchPattern,
+  matchPattern, codeFiles,
   MsgObj,
 
 } from './init.js';
@@ -141,6 +141,25 @@ export function isWrapCodeObj(src: any): src is WrapCodeObj {
 }
 
 /**
+ * Allow string arg to 'wrapCodeNew' to be either a file/dir path, 
+ * OR key to codeFiles object
+ */
+export function toWrapCodeObj(arg:string | WrapCodeObj):WrapCodeObj {
+  if (isWrapCodeObj(arg)) {
+    return arg;
+  }
+  if (isString(arg)) {
+    if (arg in codeFiles) {
+      return codeFiles[arg] as WrapCodeObj;
+    }
+    if (fs.existsSync(arg)) {
+      return {fpaths:arg};
+    }
+  }
+  throw new PkError(`Invalid arg to toWrapCodeObj:`,{arg});
+}
+
+/**
  * Wraps code in markdown code blocks
  * @param argx:WrapCodeParams - string or object w. fpaths, or array of such
  * @param dbg - debug - just list the file paths
@@ -156,7 +175,8 @@ export function wrapCodeNew(argx: WrapCodeParams, dbg?: any): string {
   let aCnt = 0;
   for (let arg of args) {
     aCnt++;
-    let codeObj: WrapCodeObj = isWrapCodeObj(arg) ? arg : { fpaths: arg };
+    //let codeObj: WrapCodeObj = isWrapCodeObj(arg) ? arg : { fpaths: arg };
+    let codeObj = toWrapCodeObj(arg);
     let { fpaths, debug, root, desc, excPatterns, types, dirExc } = codeObj;
     let fpathsArr = mkArray(fpaths);
     let excPatternsArr = defaultExcPatterns.concat(mkArray(excPatterns));

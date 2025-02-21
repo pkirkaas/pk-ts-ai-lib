@@ -78,6 +78,11 @@ export type WrapCodeObjs = {
 };
 export declare function isWrapCodeObj(src: any): src is WrapCodeObj;
 /**
+ * Allow string arg to 'wrapCodeNew' to be either a file/dir path,
+ * OR key to codeFiles object
+ */
+export declare function toWrapCodeObj(arg: string | WrapCodeObj): WrapCodeObj;
+/**
  * Wraps code in markdown code blocks
  * @param argx:WrapCodeParams - string or object w. fpaths, or array of such
  * @param dbg - debug - just list the file paths
