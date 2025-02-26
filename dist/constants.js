@@ -68,7 +68,8 @@ export const providers = {
         },
         apiKey: process.env.OPENAI_API_KEY,
         //model: 'chatgpt-4o-latest',
-        model: "gpt-4o-2024-11-20",
+        //model: "gpt-4o-2024-11-20",
+        model: "o1-preview",
         //model:"o3-mini-2025-01-31", // No access?
     },
     togetherai: {
@@ -81,7 +82,7 @@ export const providers = {
         pkClientClass: ClaudeClient,
         //baseURL: "",
         //type: "vertex",
-        model: 'claude-3-5-sonnet-latest',
+        model: 'claude-3-7-sonnet-latest',
         apiKey: process.env.ANTHROPIC_API_KEY,
         defaultOpts: {
             ...anthropicCodeParams,

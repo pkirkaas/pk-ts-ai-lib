@@ -2,11 +2,6 @@
 
 - Re-implement the function doc tasks
 - Make msgStr overloaded to support more msg arg types - also system
-- Refactor provider constants
-- Abstract client libs in subdir, add client to provider constants - most use OpenAI client, even if other providers - then easier to abstract rest
-- Continue abstract client libs, testing lms, commander script
-- Really work the Vercel AI SDK
-- Implement new tests in Commander
 - Continue abstraction combining client classes & sdk clients
 - NORMALIZE/IMPROVE naming/exports
 - customize filterModels for TogetherAI - so many models, types, etc
@@ -14,11 +9,9 @@
 - Work more on exporting as lib
 - Handle tags in CLI followup input
 - Continue code cleanup
-- Create ProviderConfig type
 - Move all all node terminal i/o out of main funcs to allow use in WebApp
 - CHECK FOR EMPTY Text Msg content when building messages/tags!
-- Fix problem with tag matches - false empty tags
-- TEMPORARY WORKAROUND - FIX tstMsgs when figure out why empty tags
 - Longer term - improve buildMsgs - more flexible, allow different tags, force ask, etc
 - More with providing provider configs (temp, etc)
-= Figure out how to get max tokens per model
+- Figure out how to get max tokens per model (not possible from APIs, manual lookup)
+- For chats - first response, get all parameters - each response, get tokens used

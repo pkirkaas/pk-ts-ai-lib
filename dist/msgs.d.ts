@@ -99,6 +99,7 @@ export declare let systemMessages: {
     win: string;
     linux: string;
     wsl: string;
+    pcspec: string;
     tsfnc: string;
     pureJson: string;
     tsanalyze: string;

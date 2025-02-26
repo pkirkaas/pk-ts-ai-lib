@@ -124,7 +124,7 @@ export declare abstract class BaseClient {
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
-    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
+    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams, msgKeys?: string[]): Promise<SdkMessages>;
     /**
      * Generate an object from input messages & schema
      * @param spec:StructureSpec - The schema & definition for the object returned

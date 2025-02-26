@@ -53,7 +53,7 @@ export class ChatLogger {
             msgKeys = uMsg;
         }
         this.msgKeys = mkArray(msgKeys);
-        this.label = this.msgKeys.join('-').substring(0, 25);
+        this.label = this.msgKeys.join('-').substring(0, 35);
         this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
         this.title = `${this.provider} - ${this.label}`;
         let outName = safeFile(`${this.label}--${this.provider}-${this.stamp}.md`);
@@ -196,9 +196,9 @@ export class BaseClient {
             //bMsg = buildMsg(msgKeys);
             bMsg = buildMsg(msgs);
         }
-        return this.sdkChatBuilt(bMsg, filter, sdkChatParams);
+        return this.sdkChatBuilt(bMsg, filter, sdkChatParams, msgKeys);
     }
-    async sdkChatBuilt(bMsg, filter, sdkChatParams = defaultSdkChatParams) {
+    async sdkChatBuilt(bMsg, filter, sdkChatParams = defaultSdkChatParams, msgKeys = []) {
         let { uMsg, sMsg } = bMsg;
         let providerConfig = this.providerConfig;
         //modelName = modelName || this.modelName;
@@ -212,7 +212,7 @@ export class BaseClient {
         ];
         //let chatConfig = {temperature};
         let chatConfig = sdkChatParams;
-        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, });
+        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, });
         while (uMsg) {
             let response = await this.singleSdkChat(messages, modelName, sdkChatParams);
             let assistant = response.text;

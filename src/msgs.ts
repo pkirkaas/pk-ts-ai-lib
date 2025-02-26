@@ -477,7 +477,7 @@ Do not:
 
   For all Python code examples you provide, ensure you provide the \`bash\` command to install the required Python packages, and the \`pip\` command to install the required Python packages.
   `,
-  ai: `[[default]] You also have advanced expertise in developing custom AI agents and assistants written in Python and TypeScript/JavaScript, using multiple LLMs, running locally or through cloud based APIs (\`Open AI API\`, etc), including tuning LLM configuration parameters like \`temperature\`, \`topP\`, etc. You specialize in advanced RAG Training and Fine Tuning of models for adding specialized expertise to custom LLMs.
+  ai: `[[code]] You also have advanced expertise in developing custom AI agents and assistants written in Python and TypeScript/JavaScript, using multiple LLMs, running locally or through cloud based APIs (\`Open AI API\`, etc), including tuning LLM configuration parameters like \`temperature\`, \`topP\`, etc. You specialize in advanced RAG Training and Fine Tuning of models for adding specialized expertise to custom LLMs.
 
   Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`LangGraph\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
   `,
@@ -605,6 +605,15 @@ You will provide a complete, working, and tested PyQt6 GUI application in Python
  linux:`You are an expert in the latest versions of the Linux operating system, particularly \`Ubuntu 24.04\` and newer, and the Bash shell scripting, configuration, etc.`, 
 
  wsl:`[[win]] [[linux]] You have particular expertise with running and configuring MS \`wsl\` on Windows
+ `,
+
+ pcspec: `
+ The hardware specification of my local development machine is:
+  OS: Windows 11 Pro
+  RAM: 32 GB
+  CPU: Intel Core i7; 8 Cores
+  GPU: NVidia GeForce RTX 2070 Super - 8192 MB SDRAM - 64 ROPs
+
  `,
  
 

@@ -130,7 +130,7 @@ export class ChatLogger {
       msgKeys = uMsg;
     }
     this.msgKeys = mkArray(msgKeys);
-    this.label = this.msgKeys.join('-').substring(0,25);
+    this.label = this.msgKeys.join('-').substring(0,35);
 
     this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
     this.title = `${this.provider} - ${this.label}`;
@@ -281,10 +281,10 @@ export abstract class BaseClient {
       //bMsg = buildMsg(msgKeys);
       bMsg = buildMsg(msgs);
     }
-    return  this.sdkChatBuilt(bMsg, filter, sdkChatParams);
+    return  this.sdkChatBuilt(bMsg, filter, sdkChatParams, msgKeys);
   }
 
-  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<SdkMessages> {
+  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,sdkChatParams:SdkChatParams = defaultSdkChatParams,msgKeys:string[]=[]):Promise<SdkMessages> {
     let {uMsg, sMsg} = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
@@ -298,7 +298,7 @@ export abstract class BaseClient {
     ];
     //let chatConfig = {temperature};
     let chatConfig = sdkChatParams;
-    let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg,   }); 
+    let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg, msgKeys,  }); 
     while (uMsg) {
       let response = await this.singleSdkChat(messages,   modelName, sdkChatParams );
       let assistant = response.text;
@@ -456,21 +456,9 @@ export abstract class BaseClient {
  * The default pk client
  */
 export class OpenAiClient extends BaseClient {
-  /*
-  async getModels(...args): Promise<GenObj[]> {
-    //let modelObjs: GenObj[] = (await this.client.models.list()).data;
-    let modelObjs: GenObj[] = (await this.client.models.list());
-    return modelObjs;
-  }
-    */
 }
 
 export class ClaudeClient extends BaseClient {
-  /*
-  let anthropic = new Anthropic({
-    apiKey: providerConfig.apiKey,
-  });
-  */
 }
 /**
  * Uses OpenAI API client, but custom methods/implementations
