@@ -56,6 +56,10 @@ export declare function extractMsgTags(str: string, msgType: string): string[];
 export declare function assertMsgType(msgType: string): void;
 export declare function tagReplace(tag: string, msgType: string, strip?: any): string;
 /**
+ * Return array of all sysMsg keys, or expand a sMsg key
+ */
+export declare function sysMsgs(sKey?: string): Promise<string>;
+/**
  * Accept sysMsg keys, ask user for uMsg
  * @return Promise<BuiltMsg>
  */
@@ -73,8 +77,6 @@ export declare function buildSysMsg(msg: string): string;
 export declare let codeFiles: WrapCodeObjs;
 export declare let defaultSysMsg: string;
 export declare let systemMessages: {
-    tstdef: string;
-    tstnest: string;
     default: string;
     code: string;
     python: string;

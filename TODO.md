@@ -15,3 +15,4 @@
 - More with providing provider configs (temp, etc)
 - Figure out how to get max tokens per model (not possible from APIs, manual lookup)
 - For chats - first response, get all parameters - each response, get tokens used
+- Continue/finish native claude chat for deep thinking mode w. new sonnet 3.7

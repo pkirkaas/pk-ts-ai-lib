@@ -2,7 +2,7 @@
  * Predefined constants & options, like system messages, etc
  */
 // Local Imports
-import { defaultSysMsg, ClaudeClient, TogetherClient, } from './init.js';
+import { ClaudeClient, TogetherClient, } from './init.js';
 import { VertexAI } from '@google-cloud/vertexai';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from "openai";
@@ -15,9 +15,14 @@ export let oaiCodeParams = {
     presence_penalty: 0.0,
 };
 export let anthropicCodeParams = {
-    temperature: .15,
+    temperature: .05,
     top_p: 0.2,
-    max_tokens: 8192,
+    //max_tokens: 8192,
+    max_tokens: 60000,
+    thinking: {
+        type: "enabled",
+        budget_tokens: 40000,
+    }
 };
 export const defaultGenerationConfig = {
     temperature: .15,
@@ -86,8 +91,8 @@ export const providers = {
         apiKey: process.env.ANTHROPIC_API_KEY,
         defaultOpts: {
             ...anthropicCodeParams,
-            max_tokens: 8192,
-            system: defaultSysMsg,
+            //max_tokens: 8192,
+            //system: defaultSysMsg,
         },
     },
     gengemini: {

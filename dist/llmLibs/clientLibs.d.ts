@@ -78,7 +78,7 @@ export declare class ChatLogger {
      * Write message to log file - type "user" or "assistant"
      */
     wrtUsr(msg: string): void;
-    wrtAssistant(msg: string): void;
+    wrtAssistant(msg: string, dets?: GenObj): void;
 }
 /**
  * Abstract Client class to provide common interface to different API clients -
@@ -94,9 +94,10 @@ export declare abstract class BaseClient {
     modelName: string;
     constructor(provider: string);
     createNativeClient(...args: any[]): import("pk-ts-node-lib").GenericObject;
+    mkSdkChatParams(params?: SdkChatParams): SdkChatParams;
     get sdkClient(): any;
     get providerConfig(): GenObj;
-    nativeChat(msg: any): Promise<void>;
+    nativeChat(msg: any): Promise<any>;
     /**
      * Possibly interactive method to set this.modelName & return the model name, based on provider & params
      * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
@@ -132,7 +133,7 @@ export declare abstract class BaseClient {
      * TODO: Add 'output' option to return array of objects
      * TODO: Add ProviderOptions param to allow for provider-specific options - temperature, etc
      */
-    sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings): Promise<any>;
+    sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings, providerOptions?: GenObj): Promise<any>;
     /**
      * Returns the models available for the provider
      */
@@ -152,8 +153,10 @@ export declare abstract class BaseClient {
  * The default pk client
  */
 export declare class OpenAiClient extends BaseClient {
+    nativeChat(msg: any): Promise<string>;
 }
 export declare class ClaudeClient extends BaseClient {
+    nativeChat(msg: any): Promise<string>;
 }
 /**
  * Uses OpenAI API client, but custom methods/implementations

@@ -115,16 +115,30 @@ program.addCommand( new Command('modelName')
     console.log({ modelName });
   }));
 
-program.addCommand( new Command('sdkchat')
-  .description("Chat with AI")
-  .argument('[user]', 'Initial Usr Msg', '')
-  .action(async (user, options) => {
+program.addCommand( new Command('nchat')
+  .description("Chat with Native SDK")
+  .argument('[msg]', 'Initial Usr Msg', '')
+  .action(async (msg, options) => {
     let opts = program.opts();
     //let {provider} = opts;
     let provider = opts.provider || await askLlmProvider();
     let client = getPkClient(provider);
-    //let chatRes = await client.sdkChat({user});
-    let chatRes = await client.sdkChat(user);
+    let chatRes = await client.nativeChat(msg);
+    dbgWrt(chatRes);
+    console.log({ chatRes });
+  })
+);
+
+
+program.addCommand( new Command('sdkchat')
+  .description("Chat with AI SDK")
+  .argument('[msg]', 'Initial Usr Msg', '')
+  .action(async (msg, options) => {
+    let opts = program.opts();
+    //let {provider} = opts;
+    let provider = opts.provider || await askLlmProvider();
+    let client = getPkClient(provider);
+    let chatRes = await client.sdkChat(msg);
     dbgWrt(chatRes);
     console.log({ chatRes });
   })

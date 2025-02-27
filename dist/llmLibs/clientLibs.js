@@ -7,7 +7,7 @@ import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
+import { dbgWrt, ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
 import { getProviderConfig, getLlmProvider, buildMsg, askMsg, } from '../init.js';
 export const aiSdkClients = {
@@ -21,7 +21,8 @@ export const defaultSdkChatParams = {
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
-    max_tokens: 4096
+    max_tokens: 8192,
+    //max_tokens: 4096,
 };
 ;
 /**
@@ -76,9 +77,10 @@ export class ChatLogger {
         this.followupCnt++;
         writeData(`\n\n---\n\n# Followup to ${this.provider} ${this.followupCnt}:\n\n**User:**\n${msg}\n\n`, this.outPath, true);
     }
-    wrtAssistant(msg) {
+    wrtAssistant(msg, dets) {
         this.initFile();
-        writeData(`\n\n**${this.provider} Assistant:**\n\n${msg}\n`, this.outPath, true);
+        let { usage, finish } = dets;
+        writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
     }
 }
 /**
@@ -104,6 +106,11 @@ export class BaseClient {
         let { clientLib = OpenAI, baseURL, apiKey } = this.providerConfig;
         this.client = new clientLib({ baseURL, apiKey });
         return this.client;
+    }
+    mkSdkChatParams(params = {}) {
+        let pConfig = this.providerConfig.defaultOpts;
+        let cParams = { ...defaultSdkChatParams, ...pConfig, ...params };
+        return cParams;
     }
     get sdkClient() {
         let sdkClient;
@@ -175,7 +182,8 @@ export class BaseClient {
      *
      */
     //async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<ChatCompletionMessageParam> {
-    async singleSdkChat(messages, modelName, sdkChatParams = defaultSdkChatParams) {
+    async singleSdkChat(messages, modelName, sdkChatParams = {}) {
+        sdkChatParams = this.mkSdkChatParams(sdkChatParams);
         let model = this.sdkClient(modelName);
         //@ts-ignore
         let response = await generateText({ messages, model, ...sdkChatParams });
@@ -185,12 +193,17 @@ export class BaseClient {
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     //async sdkChat({user,system,modelName,temperature}) {
-    async sdkChat(msgs, ASK = false, filter, sdkChatParams = defaultSdkChatParams) {
+    async sdkChat(msgs, ASK = false, filter, sdkChatParams = {}) {
+        //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
+        sdkChatParams = this.mkSdkChatParams(sdkChatParams);
         let bMsg;
         let msgKeys = mkArray(msgs);
-        if (ASK) {
+        if (ASK || isEmpty(msgs)) {
             //bMsg = await askMsg(msgKeys);
             bMsg = await askMsg(msgs);
+            if (isEmpty(msgs)) {
+                msgKeys = mkArray(bMsg.uMsg);
+            }
         }
         else {
             //bMsg = buildMsg(msgKeys);
@@ -198,7 +211,14 @@ export class BaseClient {
         }
         return this.sdkChatBuilt(bMsg, filter, sdkChatParams, msgKeys);
     }
-    async sdkChatBuilt(bMsg, filter, sdkChatParams = defaultSdkChatParams, msgKeys = []) {
+    async sdkChatBuilt(bMsg, filter, sdkChatParams = {}, msgKeys = []) {
+        function getDets(resp) {
+            let usage = resp?.usage?.totalTokens;
+            let finish = resp?.finishReason;
+            return { usage, finish };
+        }
+        sdkChatParams = this.mkSdkChatParams(sdkChatParams);
+        //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
         let { uMsg, sMsg } = bMsg;
         let providerConfig = this.providerConfig;
         //modelName = modelName || this.modelName;
@@ -213,12 +233,19 @@ export class BaseClient {
         //let chatConfig = {temperature};
         let chatConfig = sdkChatParams;
         let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, });
+        let msgCnt = 0;
         while (uMsg) {
             let response = await this.singleSdkChat(messages, modelName, sdkChatParams);
             let assistant = response.text;
+            let dets = getDets(response);
+            if (!msgCnt) { // First message - get statistics
+                let info = { msgCnt, modelName, sdkChatParams, response, dets };
+                dbgWrt(info, `resp-${modelName}`);
+            }
+            msgCnt++;
             messages.push({ role: 'assistant', content: assistant });
             stdOut(chalk.blue(`\n\n${assistant}\n\n`));
-            chatLog.wrtAssistant(assistant);
+            chatLog.wrtAssistant(assistant, dets);
             uMsg = await ask(`Followup for ${this.provider}?`);
             messages.push({ role: 'user', content: uMsg });
             chatLog.wrtUsr(uMsg);
@@ -232,8 +259,10 @@ export class BaseClient {
      * TODO: Add 'output' option to return array of objects
      * TODO: Add ProviderOptions param to allow for provider-specific options - temperature, etc
      */
-    async sdkObject(spec, msgx, modelName) {
+    async sdkObject(spec, msgx, modelName, providerOptions = {}) {
         let msgs = mkArray(msgx);
+        //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
+        providerOptions = this.mkSdkChatParams(providerOptions);
         let { uMsg, sMsg } = buildMsg(msgs);
         let { schema, definition } = spec;
         let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
@@ -245,7 +274,7 @@ export class BaseClient {
         ];
         modelName = await this.getModelName(modelName);
         let model = this.sdkClient(modelName);
-        let res = await generateObject({ model, schema, messages, });
+        let res = await generateObject({ model, schema, messages, providerOptions, });
         let obj = res.object;
         return obj;
     }
@@ -364,8 +393,16 @@ export class BaseClient {
  * The default pk client
  */
 export class OpenAiClient extends BaseClient {
+    async nativeChat(msg) {
+        console.log(`in OpenAI nativeChat w msg:`, { msg });
+        return 'OpenAI Native CHat';
+    }
 }
 export class ClaudeClient extends BaseClient {
+    async nativeChat(msg) {
+        console.log(`in Claude nativeChat w msg:`, { msg });
+        return 'Claude Native CHat';
+    }
 }
 /**
  * Uses OpenAI API client, but custom methods/implementations

@@ -7,7 +7,6 @@ build/
 
 dbs/
 out/
-package-lock.json
 
 tmp/
 *.tmp

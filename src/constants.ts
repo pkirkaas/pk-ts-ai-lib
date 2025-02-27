@@ -31,9 +31,14 @@ export let oaiCodeParams = {
 };
 
 export let anthropicCodeParams = {
-  temperature: .15,
+  temperature: .05,
   top_p: 0.2,
-  max_tokens: 8192,
+  //max_tokens: 8192,
+  max_tokens: 60000,
+  thinking: {
+    type:"enabled",
+    budget_tokens: 40000,
+  }
 };
 
 export const defaultGenerationConfig = { // For Google/VertexAI 
@@ -122,8 +127,8 @@ export const providers:Providers = {
     apiKey: process.env.ANTHROPIC_API_KEY,
     defaultOpts: {
       ...anthropicCodeParams,
-      max_tokens: 8192,
-      system: defaultSysMsg,
+      //max_tokens: 8192,
+      //system: defaultSysMsg,
     },
   },
   gengemini: { // Use Gemini API instead of VertexAI

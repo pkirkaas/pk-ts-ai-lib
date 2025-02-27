@@ -14,6 +14,10 @@ export declare let anthropicCodeParams: {
     temperature: number;
     top_p: number;
     max_tokens: number;
+    thinking: {
+        type: string;
+        budget_tokens: number;
+    };
 };
 export declare const defaultGenerationConfig: {
     temperature: number;

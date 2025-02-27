@@ -6,7 +6,7 @@
 import { dbgWrt, runCli, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, } from './init.js';
+import { sysMsgs, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, } from './init.js';
 // Implementations
 export let msgKeys = {};
 let fncs = {
@@ -16,6 +16,11 @@ let fncs = {
     },
     tstMsgs: () => {
         tstMsgs();
+    },
+    sysMsgs: async (sMsg) => {
+        console.log(`All sysMsg keys, or expanded sysMsg for key [${sMsg}]`);
+        let res = await sysMsgs(sMsg);
+        console.log(res);
     },
     askMsg: async (...smsgs) => {
         console.log(`Ask user msg for sysmsg`);

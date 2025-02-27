@@ -4,7 +4,7 @@
  */
 import "reflect-metadata";
 import { GenObj } from 'pk-ts-common-lib';
-import { FunctionDets, MsgBuilder } from '../init.js';
+import { FunctionDets, ChatLog, MsgBuilder } from '../init.js';
 export declare function getLogDS(): Promise<any>;
 export declare function getMsgsDS(dropSchema?: boolean): Promise<any>;
 export declare function initMsgsDB(dropSchema?: boolean): Promise<any>;
@@ -40,5 +40,5 @@ export interface IChatLog {
     chatinfo?: string;
     dropSchema?: boolean;
 }
-export declare function initChatLog(chatOpts: IChatLog): Promise<any>;
+export declare function initChatLog(chatOpts: IChatLog): Promise<ChatLog>;
 //# sourceMappingURL=to-lib.d.ts.map

@@ -19,6 +19,7 @@ import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPro
 
 // local imports
 import {
+  sysMsgs,
   tstZodSchemas, tstZods,
   codeFiles, askMsg,
   tstMsgs,
@@ -48,6 +49,11 @@ let fncs = {
   },
   tstMsgs:() => {
     tstMsgs();
+  },
+  sysMsgs: async (sMsg?:string) => {
+    console.log(`All sysMsg keys, or expanded sysMsg for key [${sMsg}]`);
+    let res = await sysMsgs(sMsg);
+    console.log(res);
   },
   askMsg: async (...smsgs) => {
     console.log(`Ask user msg for sysmsg`);

@@ -68,7 +68,8 @@ export const defaultSdkChatParams: SdkChatParams = {
     top_p: 1,
     frequency_penalty: 0,
     presence_penalty: 0,
-    max_tokens: 4096
+    max_tokens: 8192,
+    //max_tokens: 4096,
 }
 /*
 export interface AnthropicConfig {
@@ -155,9 +156,10 @@ export class ChatLogger {
     this.followupCnt++;
     writeData(`\n\n---\n\n# Followup to ${this.provider} ${this.followupCnt}:\n\n**User:**\n${msg}\n\n`, this.outPath, true);
   }
-  wrtAssistant(msg:string) {
+  wrtAssistant(msg:string, dets?:GenObj) {
     this.initFile();
-    writeData(`\n\n**${this.provider} Assistant:**\n\n${msg}\n`, this.outPath, true);
+    let {usage, finish} = dets;
+    writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
   }
 }
 
@@ -186,6 +188,11 @@ export abstract class BaseClient {
     this.client = new clientLib({ baseURL, apiKey });
     return this.client;
   }
+  mkSdkChatParams(params:SdkChatParams={}):SdkChatParams {
+    let pConfig = this.providerConfig.defaultOpts;
+    let cParams = {...defaultSdkChatParams, ...pConfig, ...params};
+    return cParams;
+  }
   get sdkClient(): any { // Maybe replace w. function to allow settings/opts?
     let sdkClient:any;
     let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
@@ -205,7 +212,7 @@ export abstract class BaseClient {
     return getProviderConfig(this.provider);
   }
 
-  async nativeChat(msg) {
+  async nativeChat(msg):Promise<any> {
   }
 
   /**
@@ -260,7 +267,8 @@ export abstract class BaseClient {
    * 
    */
   //async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<ChatCompletionMessageParam> {
-  async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<any> {
+  async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = {}):Promise<any> {
+    sdkChatParams = this.mkSdkChatParams(sdkChatParams);
     let model = this.sdkClient(modelName);
     //@ts-ignore
     let response = await generateText({messages,  model, ...sdkChatParams});
@@ -271,12 +279,17 @@ export abstract class BaseClient {
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs:Strings, ASK=false, filter?:Strings,sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<SdkMessages> {
+  async sdkChat(msgs:Strings, ASK=false, filter?:Strings,sdkChatParams:SdkChatParams = {}):Promise<SdkMessages> {
+    //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
+    sdkChatParams = this.mkSdkChatParams(sdkChatParams);
     let bMsg:BuiltMsg;
     let msgKeys = mkArray(msgs);
-    if (ASK) {
+    if (ASK || isEmpty(msgs)) {
       //bMsg = await askMsg(msgKeys);
       bMsg = await askMsg(msgs);
+      if (isEmpty(msgs)) {
+        msgKeys = mkArray(bMsg.uMsg);
+      }
     } else {
       //bMsg = buildMsg(msgKeys);
       bMsg = buildMsg(msgs);
@@ -284,7 +297,14 @@ export abstract class BaseClient {
     return  this.sdkChatBuilt(bMsg, filter, sdkChatParams, msgKeys);
   }
 
-  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,sdkChatParams:SdkChatParams = defaultSdkChatParams,msgKeys:string[]=[]):Promise<SdkMessages> {
+  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,sdkChatParams:SdkChatParams = {},msgKeys:string[]=[]):Promise<SdkMessages> {
+    function getDets(resp:GenObj) { // Get token usage from response
+      let usage = resp?.usage?.totalTokens;
+      let finish = resp?.finishReason;
+      return {usage, finish};
+    }
+    sdkChatParams = this.mkSdkChatParams(sdkChatParams);
+    //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
     let {uMsg, sMsg} = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
@@ -299,12 +319,19 @@ export abstract class BaseClient {
     //let chatConfig = {temperature};
     let chatConfig = sdkChatParams;
     let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg, msgKeys,  }); 
+    let msgCnt = 0;
     while (uMsg) {
       let response = await this.singleSdkChat(messages,   modelName, sdkChatParams );
       let assistant = response.text;
+      let dets = getDets(response);
+      if (!msgCnt) { // First message - get statistics
+        let info = {msgCnt,modelName,sdkChatParams, response, dets};
+        dbgWrt(info,`resp-${modelName}`);
+      }
+      msgCnt++;
       messages.push({role:'assistant', content:assistant});
       stdOut(chalk.blue(`\n\n${assistant}\n\n`));
-      chatLog.wrtAssistant(assistant);
+      chatLog.wrtAssistant(assistant, dets);
       uMsg = await ask(`Followup for ${this.provider}?`);
       messages.push({role:'user', content:uMsg});
       chatLog.wrtUsr(uMsg);
@@ -321,8 +348,10 @@ export abstract class BaseClient {
    */
 
 
-  async sdkObject(spec:StructureSpec, msgx:Strings, modelName?:Strings):Promise<any> {
+  async sdkObject(spec:StructureSpec, msgx:Strings, modelName?:Strings, providerOptions:GenObj={}):Promise<any> {
     let msgs = mkArray(msgx);
+    //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
+    providerOptions = this.mkSdkChatParams(providerOptions);
     let {uMsg, sMsg} = buildMsg(msgs);
     let {schema, definition } = spec;
     let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
@@ -335,7 +364,7 @@ export abstract class BaseClient {
     ];
     modelName = await this.getModelName(modelName);
     let model = this.sdkClient(modelName);
-    let res = await generateObject({model, schema, messages,});
+    let res = await generateObject({model, schema, messages, providerOptions,});
     let obj = res.object;
     return obj;
   }
@@ -456,9 +485,17 @@ export abstract class BaseClient {
  * The default pk client
  */
 export class OpenAiClient extends BaseClient {
+  async nativeChat(msg) {
+    console.log(`in OpenAI nativeChat w msg:`,{msg});
+    return 'OpenAI Native CHat';
+  }
 }
 
 export class ClaudeClient extends BaseClient {
+  async nativeChat(msg) {
+    console.log(`in Claude nativeChat w msg:`,{msg});
+    return 'Claude Native CHat';
+  }
 }
 /**
  * Uses OpenAI API client, but custom methods/implementations
