@@ -322,7 +322,13 @@ export function nestReplaceTags(msgStr: string, msgType: string, strip?: any): s
       } else {
         usedTags.push(tag);
       }
-      msgStr = msgStr.replaceAll(wrapped, rep);
+
+      // Try stripping repeats
+      msgStr = msgStr.replace(wrapped, rep);
+      msgStr = msgStr.replaceAll(wrapped, '');
+
+      // Orig
+    //  msgStr = msgStr.replaceAll(wrapped, rep);
     }
     msgTags = extractMsgTags(msgStr, msgType);
   }
@@ -466,6 +472,8 @@ Before you respond, you will review your solution again, and PLEASE, PLEASE take
 `;
 
 export let systemMessages = {
+  tstsim: `Simlple, single sys msg`,
+  tstrpt: `[[tstsim]] [[tstsim]]`,
   default: defaultSysMsg,
   code: `[[default]] 
 The context is a new software application in very early stages of development and prototyping. Therefore, backward compatibility is not a concern. Production optimization or deployment is not a concern. Performance is not a concern. Legacy code or package support is not a concern. We want to make use of the latest features of all libraries and packages, including beta versions and release candidates. Stability of library packages is not a concern. 

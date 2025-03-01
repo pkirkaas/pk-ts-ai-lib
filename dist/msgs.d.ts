@@ -78,6 +78,8 @@ export declare function buildSysMsg(msg: string): string;
 export declare let codeFiles: WrapCodeObjs;
 export declare let defaultSysMsg: string;
 export declare let systemMessages: {
+    tstsim: string;
+    tstrpt: string;
     default: string;
     code: string;
     python: string;

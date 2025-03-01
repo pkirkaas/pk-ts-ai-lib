@@ -73,8 +73,8 @@ let fncs = {
     if (isEmpty(args)) {
       args.push('text-popup');
     }
-    let {uMsg, sMsg} = buildMsg(args);
-    let outPath = dbgWrt({what:"tstBuildMsg", args, uMsg, sMsg,}, 'buildMsg' );
+    let {uMsg, sMsg, msgKeys} = buildMsg(args);
+    let outPath = dbgWrt({what:"tstBuildMsg", args, uMsg, sMsg, msgKeys,}, 'buildMsg' );
     console.log(`Tested buildMsg to [${outPath}] with args:`,{args});
   },
   tstWrapCode(key?: string) {
