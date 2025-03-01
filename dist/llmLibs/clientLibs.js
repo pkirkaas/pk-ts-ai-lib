@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import OpenAI from "openai";
 import { generateText, generateObject, } from 'ai';
+import _ from 'lodash';
 import { openai, createOpenAI, } from "@ai-sdk/openai";
 import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
@@ -39,15 +40,17 @@ export class ChatLogger {
     outPath;
     label;
     chatinfo;
+    chatType;
     followupCnt = 0;
     divider = '\n\n# Conversation:\n\n---\n\n';
     logInited = false;
     title;
-    constructor({ provider, modelName, chatConfig = {}, uMsg, sMsg, msgKeys = [], outPath = '' }) {
+    constructor({ provider, modelName, chatConfig = {}, uMsg, sMsg, msgKeys = [], chatType = 'uDefChat', outPath = '' }) {
         this.provider = provider;
         this.modelName = modelName;
         this.sMsg = sMsg;
         this.uMsg = uMsg;
+        this.chatType = chatType;
         this.chatConfig = chatConfig;
         this.stamp = `${Date.now()}`;
         if (isEmpty(msgKeys)) {
@@ -56,8 +59,8 @@ export class ChatLogger {
         this.msgKeys = mkArray(msgKeys);
         this.label = this.msgKeys.join('-').substring(0, 35);
         this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
-        this.title = `${this.provider} - ${this.label}`;
-        let outName = safeFile(`${this.label}--${this.provider}-${this.stamp}.md`);
+        this.title = `${this.provider}-${this.chatType}-${this.label}`;
+        let outName = safeFile(`${this.label}-${this.chatType}-${this.provider}-${this.stamp}.md`);
         this.outPath = outPath || `./out/chats/${dtFmt('html')}/${safeFile(this.label)}/${outName}`;
     }
     initFile(args) {
@@ -77,10 +80,18 @@ export class ChatLogger {
         this.followupCnt++;
         writeData(`\n\n---\n\n# Followup to ${this.provider} ${this.followupCnt}:\n\n**User:**\n${msg}\n\n`, this.outPath, true);
     }
-    wrtAssistant(msg, dets) {
+    wrtAssistant(msg, dets = {}) {
         this.initFile();
+        let outStr = `\n\n**${this.provider} Assistant** `;
+        //(Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
         let { usage, finish } = dets;
-        writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+        //writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+        if (!isEmpty(dets)) {
+            let detsStr = JSON5Stringify(dets);
+            outStr += `Usage:\n\`\`\`${detsStr}\n\`\`\`\n`;
+        }
+        //writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+        writeData(`${outStr}\n\n${msg}\n\n`, this.outPath, true);
     }
 }
 /**
@@ -101,6 +112,7 @@ export class BaseClient {
         this.createNativeClient();
         //let clientLib = this.providerConfig.clientLib || OpenAI;
     }
+    mk;
     // Constructor actions that can be overridden in subclasses
     createNativeClient(...args) {
         let { clientLib = OpenAI, baseURL, apiKey } = this.providerConfig;
@@ -130,8 +142,28 @@ export class BaseClient {
     get providerConfig() {
         return getProviderConfig(this.provider);
     }
-    async nativeChat(msg) {
+    /**
+     * To take uMsg tags & build uMsg & sMsg to call nativeChat
+     * Can take 'ASK' param to force interactive ask for usr msg
+     * TODO? Should extract filter & get model here, or nativeChat
+     */
+    async nativeChat(msgs, params) {
+        //let {ASK=false, filter, ...opts} = params||{};
+        let { ASK = false, ...opts } = params || {};
+        let bMsg = await this.prepChat(msgs, ASK);
+        return this.nativeChatBuilt({ bMsg, ...opts });
     }
+    async nativeChatBuilt(params) {
+        console.log("Not implemented in Base!", { params });
+        return "Not done in Base";
+    }
+    //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {},): Promise<any> 
+    /*
+    async nativeChatBuilt({bMsg: BuiltMsg, [key:string]:any}):Promise<any> {
+      //filter?: Strings, chatParams: GenObj = {},): Promise<any> {
+      return "Under Construction";
+    }
+      */
     /**
      * Possibly interactive method to set this.modelName & return the model name, based on provider & params
      * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
@@ -189,29 +221,30 @@ export class BaseClient {
         let response = await generateText({ messages, model, ...sdkChatParams });
         return response;
     }
+    async prepChat(msgs, ASK = false) {
+        let bMsg;
+        if (ASK || isEmpty(msgs)) {
+            bMsg = await askMsg(msgs);
+        }
+        else {
+            bMsg = buildMsg(msgs);
+        }
+        return bMsg;
+    }
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     //async sdkChat({user,system,modelName,temperature}) {
     async sdkChat(msgs, ASK = false, filter, sdkChatParams = {}) {
-        //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
+        let bMsg = await this.prepChat(msgs, ASK);
         sdkChatParams = this.mkSdkChatParams(sdkChatParams);
-        let bMsg;
-        let msgKeys = mkArray(msgs);
-        if (ASK || isEmpty(msgs)) {
-            //bMsg = await askMsg(msgKeys);
-            bMsg = await askMsg(msgs);
-            if (isEmpty(msgs)) {
-                msgKeys = mkArray(bMsg.uMsg);
-            }
-        }
-        else {
-            //bMsg = buildMsg(msgKeys);
-            bMsg = buildMsg(msgs);
-        }
-        return this.sdkChatBuilt(bMsg, filter, sdkChatParams, msgKeys);
+        return this.sdkChatBuilt(bMsg, filter, sdkChatParams);
     }
-    async sdkChatBuilt(bMsg, filter, sdkChatParams = {}, msgKeys = []) {
+    mkChatLog({ chatType = "Undefined", uMsg = '', sMsg = '', msgKeys = [], chatConfig = {} }) {
+        return new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
+    }
+    async sdkChatBuilt(bMsg, filter, sdkChatParams = {}) {
+        let chatType = 'sdkChat';
         function getDets(resp) {
             let usage = resp?.usage?.totalTokens;
             let finish = resp?.finishReason;
@@ -219,7 +252,7 @@ export class BaseClient {
         }
         sdkChatParams = this.mkSdkChatParams(sdkChatParams);
         //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
-        let { uMsg, sMsg } = bMsg;
+        let { uMsg, sMsg, msgKeys = [] } = bMsg;
         let providerConfig = this.providerConfig;
         //modelName = modelName || this.modelName;
         let modelName = await this.getModelName(filter);
@@ -232,7 +265,7 @@ export class BaseClient {
         ];
         //let chatConfig = {temperature};
         let chatConfig = sdkChatParams;
-        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, });
+        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
         let msgCnt = 0;
         while (uMsg) {
             let response = await this.singleSdkChat(messages, modelName, sdkChatParams);
@@ -393,15 +426,107 @@ export class BaseClient {
  * The default pk client
  */
 export class OpenAiClient extends BaseClient {
-    async nativeChat(msg) {
-        console.log(`in OpenAI nativeChat w msg:`, { msg });
-        return 'OpenAI Native CHat';
+    //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
+    async nativeChatBuilt(params) {
+        let { bMsg, ...opts } = params || {};
+        console.log(`in OpenAI nativeChat w msg:`, { bMsg });
+        return 'Unimplemented OpenAI Native Chat';
     }
 }
 export class ClaudeClient extends BaseClient {
-    async nativeChat(msg) {
-        console.log(`in Claude nativeChat w msg:`, { msg });
-        return 'Claude Native CHat';
+    async nativeChatBuilt(params) {
+        let { bMsg, filter, ...chatParams } = params;
+        //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
+        let chatType = "Claude Native";
+        let { uMsg, sMsg, msgKeys } = bMsg;
+        let system = sMsg;
+        let model = await this.getModelName(filter);
+        let { temperature = .1, max_tokens = 32000, budget_tokens } = chatParams;
+        //ONLY if budget_tokens will use 'thinking'
+        let claude37Defs = {
+            //model: "claude-3-7-sonnet-20250219",
+            model,
+            temperature,
+            max_tokens,
+            system,
+        };
+        if (budget_tokens) {
+            if (budget_tokens >= max_tokens) {
+                throw new PkError(`budget_tokens >= max_tokens`, { budget_tokens, max_tokens });
+            }
+            let thinking = {
+                thinking: {
+                    type: "enabled",
+                    budget_tokens,
+                },
+                betas: ["output-128k-2025-02-19"]
+            };
+            claude37Defs = { ...claude37Defs, ...thinking };
+            console.error(`In claude native chat, with extended thinking`);
+        }
+        else {
+            console.error(`In claude native chat, NO extended thinking!!!`);
+        }
+        let chatConfig = _.merge({}, claude37Defs, chatParams);
+        let chatLog = this.mkChatLog({ chatConfig, uMsg, sMsg, msgKeys, chatType, });
+        let msgCnt = 0;
+        let messages = [{
+                role: "user",
+                content: uMsg,
+            }];
+        let args = { ...chatConfig, messages };
+        while (uMsg) {
+            let response = await this.client.beta.messages.create(args);
+            dbgWrt({ args, response }, 'cldDeepResp');
+            console.log(`Returned from test of new Claude 3.7`);
+            let assistant = this.extractAssistantResponse(response);
+            let usage = this.extractUsageInfo(response);
+            chatLog.wrtAssistant(assistant, usage);
+            return 'done w. test of claude 3.7';
+            msgCnt++;
+            messages.push({ role: 'assistant', content: assistant });
+            stdOut(chalk.blue(`\n\n${assistant}\n\n`));
+            uMsg = await ask(`Followup for ${this.provider}?`);
+            messages.push({ role: 'user', content: uMsg });
+            chatLog.wrtUsr(uMsg);
+        }
+        return messages;
+    }
+    /**
+   * Extracts usage information from the Anthropic API response
+   * @param response - The response from the Anthropic API
+   * @returns An object containing token usage information
+   */
+    extractUsageInfo(response) {
+        return {
+            inputTokens: response.usage?.input_tokens || 0,
+            outputTokens: response.usage?.output_tokens || 0,
+            thinkingTokens: response.usage?.thinking_tokens || 0,
+            totalTokens: (response.usage?.input_tokens || 0) +
+                (response.usage?.output_tokens || 0) +
+                (response.usage?.thinking_tokens || 0),
+            stopReason: response.stop_reason,
+            stopSequence: response.stop_sequence
+        };
+    }
+    /**
+   * Extracts the assistant's response content from the Anthropic API response
+   * @param response - The response from the Anthropic API
+   * @returns The text content of the assistant's response
+   */
+    //extractAssistantResponse(response: Anthropic.Beta.Messages.Response): string {
+    extractAssistantResponse(response) {
+        // The content is an array of content blocks
+        if (Array.isArray(response.content)) {
+            // Filter for text blocks and join them
+            return response.content
+                .filter(block => block.type === 'text')
+                //.map(block => (block as Anthropic.ContentBlock.Text).text)
+                .map(block => block.text)
+                .join('\n');
+        }
+        return `\nCLAUDE RESPONSE PARSE FAILED:
+  ENCODED RESP:\n${JSON5Stringify(response)}\n`;
     }
 }
 /**

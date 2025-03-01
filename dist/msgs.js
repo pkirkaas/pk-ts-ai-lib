@@ -217,7 +217,7 @@ export async function sysMsgs(sKey) {
  */
 export async function askMsg(smsgx) {
     console.log({ smsgx });
-    let smsgs = mkArray(smsgx);
+    let msgKeys = mkArray(smsgx);
     let msgType = 'sysmsg';
     let smsgStr = '\n';
     let smsgObj = getMsgObj(msgType);
@@ -227,9 +227,9 @@ export async function askMsg(smsgx) {
         if (!smsgKeys.includes(skey)) {
             throw new PkError(`skey [${skey}] not found in sMsg keys`);
         }
-        smsgs = [skey];
+        msgKeys = [skey];
     }
-    for (let smsg of smsgs) {
+    for (let smsg of msgKeys) {
         if (wordCnt(smsg) > 1) { // Literal message string
             smsgStr += `${smsg}\n`;
         }
@@ -242,19 +242,19 @@ export async function askMsg(smsgx) {
     } // We have a tagged umessage string, with uMsg, sMsg, code & comment tags
     let sMsg = nestReplaceTags(buildSysMsg(smsgStr), 'code').trim() || defaultSysMsg;
     let uMsg = await ask(`Ask:`);
-    return { sMsg, uMsg };
+    return { sMsg, uMsg, msgKeys };
 }
 /**
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
 export function buildMsg(msgx) {
-    let msgs = mkArray(msgx);
+    let msgKeys = mkArray(msgx);
     let msgType = 'usrmsg';
     let msgStr = '\n';
     let umsgObj = getMsgObj(msgType);
     let umsgKeys = Object.keys(umsgObj);
-    for (let msg of msgs) {
+    for (let msg of msgKeys) {
         if (wordCnt(msg) > 1) { // Literal message string
             msgStr += `${msg}\n`;
         }
@@ -271,7 +271,7 @@ export function buildMsg(msgx) {
     let uMsg = nestReplaceTags(nestReplaceTags(usrMsg, 'sysmsg', true), 'code');
     // If special force ask key, 
     //assertEmbeddeds(uMsg, sMsg);
-    return { uMsg, sMsg };
+    return { uMsg, sMsg, msgKeys };
 }
 export function nestReplaceTags(msgStr, msgType, strip) {
     assertMsgType(msgType);
@@ -459,7 +459,7 @@ Do not:
 
 For all Python code examples you provide, ensure you provide the \`bash\` command to install the required Python packages, and the \`pip\` command to install the required Python packages.
   `,
-    ai: `[[code]] You also have advanced expertise in developing custom AI agents and assistants written in Python and TypeScript/JavaScript, using multiple LLMs, running locally or through cloud based APIs (\`Open AI API\`, etc), including tuning LLM configuration parameters like \`temperature\`, \`topP\`, etc. You specialize in advanced RAG Training and Fine Tuning of models for adding specialized expertise to custom LLMs.
+    ai: `[[code]] You also have advanced expertise in developing custom AI agents and assistants written in Python and TypeScript/JavaScript, using multiple LLMs, running locally or through cloud based APIs (\`Open AI API\`, \`Anthropic\`, etc), including tuning LLM configuration parameters like \`temperature\`, \`topP\`, etc. You specialize in advanced RAG Training and Fine Tuning of models for adding specialized expertise to custom LLMs.
 
 Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`LangGraph\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
   `,

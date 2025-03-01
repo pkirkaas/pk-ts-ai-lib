@@ -11,17 +11,19 @@
 import Anthropic from '@anthropic-ai/sdk';
 import chalk from 'chalk';
 import OpenAI from "openai";
-import { generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
-  generateObject, GenerateTextResult, 
+import {
+  generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
+  generateObject, GenerateTextResult,
 } from 'ai';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from 'lodash';
-import { google, createGoogleGenerativeAI,
+import {
+  google, createGoogleGenerativeAI,
 } from '@ai-sdk/google';
-import {z} from 'zod';
-import { openai, createOpenAI, } from "@ai-sdk/openai"
-import { anthropic, createAnthropic, } from "@ai-sdk/anthropic"
+import { z } from 'zod';
+import { openai, createOpenAI, } from "@ai-sdk/openai";
+import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
@@ -38,19 +40,19 @@ import {
 
 
 import {
-   getProviderConfig,  getLlmProvider, ModelListOpts,
+  getProviderConfig, getLlmProvider, ModelListOpts,
   defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg,
   chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg, StructureSpec,
 } from '../init.js';
 
 
-export const aiSdkClients =  { // Keyed by 'providers' key
-  togetherai: {client:togetherai, create:createTogetherAI,},
-  openai: {client:openai, create:createOpenAI,},
-  anthropic: {client:anthropic, create:createAnthropic,},
-  xai: {client:xai, create:createXai,},
-  
-}
+export const aiSdkClients = { // Keyed by 'providers' key
+  togetherai: { client: togetherai, create: createTogetherAI, },
+  openai: { client: openai, create: createOpenAI, },
+  anthropic: { client: anthropic, create: createAnthropic, },
+  xai: { client: xai, create: createXai, },
+
+};
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
  */
@@ -64,13 +66,13 @@ export interface SdkChatParams {
 }
 
 export const defaultSdkChatParams: SdkChatParams = {
-    temperature: 0,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-    max_tokens: 8192,
-    //max_tokens: 4096,
-}
+  temperature: 0,
+  top_p: 1,
+  frequency_penalty: 0,
+  presence_penalty: 0,
+  max_tokens: 8192,
+  //max_tokens: 4096,
+};
 /*
 export interface AnthropicConfig {
   system?: string,
@@ -92,74 +94,84 @@ export interface SdkMessage {
 export type SdkMessages = SdkMessage[];
 
 export interface GetModelParams {
-  filter:Strings,
+  filter: Strings,
 };
 
-  export type SdkObjectParams = {
-    msgs:Strings,
-    schema:z.ZodSchema,
-    //output?:"object" | "array" | Falsy,
-    output?:"object" | "array", // Uh, not necessary if can infer Schema type is array?
+export type SdkObjectParams = {
+  msgs: Strings,
+  schema: z.ZodSchema,
+  //output?:"object" | "array" | Falsy,
+  output?: "object" | "array", // Uh, not necessary if can infer Schema type is array?
 
-  };
+};
 /**
  * Log chats - to file and/or DB
  */
 export class ChatLogger {
-  provider:string;
-  modelName:string;
-  uMsg:string;
-  msgKeys:string[];
-  chatConfig:GenObj;
-  sMsg:string;
-  stamp:string;
-  outPath:string;
-  label:string;
-  chatinfo:string;
-  followupCnt=0;
+  provider: string;
+  modelName: string;
+  uMsg: string;
+  msgKeys: string[];
+  chatConfig: GenObj;
+  sMsg: string;
+  stamp: string;
+  outPath: string;
+  label: string;
+  chatinfo: string;
+  chatType: string;
+  followupCnt = 0;
   divider = '\n\n# Conversation:\n\n---\n\n';
   logInited = false;
-  title:string;
-  constructor({provider,modelName, chatConfig={}, uMsg, sMsg, msgKeys=[], outPath=''}) {
+  title: string;
+  constructor({ provider, modelName, chatConfig = {}, uMsg, sMsg, msgKeys = [], chatType = 'uDefChat', outPath = '' }) {
     this.provider = provider;
     this.modelName = modelName;
     this.sMsg = sMsg;
     this.uMsg = uMsg;
+    this.chatType = chatType;
     this.chatConfig = chatConfig;
     this.stamp = `${Date.now()}`;
     if (isEmpty(msgKeys)) {
       msgKeys = uMsg;
     }
     this.msgKeys = mkArray(msgKeys);
-    this.label = this.msgKeys.join('-').substring(0,35);
+    this.label = this.msgKeys.join('-').substring(0, 35);
 
     this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
-    this.title = `${this.provider} - ${this.label}`;
+    this.title = `${this.provider}-${this.chatType}-${this.label}`;
 
-    let outName = safeFile(`${this.label}--${this.provider}-${this.stamp}.md`);
+    let outName = safeFile(`${this.label}-${this.chatType}-${this.provider}-${this.stamp}.md`);
     this.outPath = outPath || `./out/chats/${dtFmt('html')}/${safeFile(this.label)}/${outName}`;
   }
-  initFile(args?:any) {
+  initFile(args?: any) {
     if (!this.logInited) {
-    writeData(`# ${this.title}\n\n<title>${this.title}</title>\n\n` + 
-    `# Chat Session: ${this.chatinfo}\n\n**chatConfig:**\n\`\`\`\n${JSON5Stringify(this.chatConfig)}\n\`\`\`` +
-    `\n\n**Sys Msg:**\n${this.sMsg}\n\n**User Msg**:\n${this.uMsg}\n\n${this.divider}\n\n`, this.outPath);
-    this.logInited = true;
-    stdOut(chalk.bold(`\nLogging [${this.title}] chat to: [${this.outPath}]\n`));
+      writeData(`# ${this.title}\n\n<title>${this.title}</title>\n\n` +
+        `# Chat Session: ${this.chatinfo}\n\n**chatConfig:**\n\`\`\`\n${JSON5Stringify(this.chatConfig)}\n\`\`\`` +
+        `\n\n**Sys Msg:**\n${this.sMsg}\n\n**User Msg**:\n${this.uMsg}\n\n${this.divider}\n\n`, this.outPath);
+      this.logInited = true;
+      stdOut(chalk.bold(`\nLogging [${this.title}] chat to: [${this.outPath}]\n`));
     }
   }
   /**
    * Write message to log file - type "user" or "assistant"
    */
-  wrtUsr(msg:string) {
+  wrtUsr(msg: string) {
     this.initFile();
     this.followupCnt++;
     writeData(`\n\n---\n\n# Followup to ${this.provider} ${this.followupCnt}:\n\n**User:**\n${msg}\n\n`, this.outPath, true);
   }
-  wrtAssistant(msg:string, dets?:GenObj) {
+  wrtAssistant(msg: string, dets: any={}) {
     this.initFile();
-    let {usage, finish} = dets;
-    writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+    let outStr = `\n\n**${this.provider} Assistant** `;
+    //(Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+    let { usage, finish } = dets;
+    //writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+    if (!isEmpty(dets)) {
+      let detsStr = JSON5Stringify(dets);
+      outStr += `Usage:\n\`\`\`${detsStr}\n\`\`\`\n`;
+    }
+    //writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
+    writeData(`${outStr}\n\n${msg}\n\n`, this.outPath, true);
   }
 }
 
@@ -174,13 +186,15 @@ export abstract class BaseClient {
   client: GenObj; // The initialized API Client SDK
   provider: string; // The provider name for the default provider config, with URL, default opts, etc
   chatFilePath: string; // The file patch for the specific chat log. Initialized in 'chat' method.
-  temperature:number;
-  modelName:string;
+  temperature: number;
+  modelName: string;
   constructor(provider: string) {
     this.provider = getLlmProvider(provider);
     this.createNativeClient();
     //let clientLib = this.providerConfig.clientLib || OpenAI;
   }
+
+  mk;
 
   // Constructor actions that can be overridden in subclasses
   createNativeClient(...args) {
@@ -188,22 +202,22 @@ export abstract class BaseClient {
     this.client = new clientLib({ baseURL, apiKey });
     return this.client;
   }
-  mkSdkChatParams(params:SdkChatParams={}):SdkChatParams {
+  mkSdkChatParams(params: SdkChatParams = {}): SdkChatParams {
     let pConfig = this.providerConfig.defaultOpts;
-    let cParams = {...defaultSdkChatParams, ...pConfig, ...params};
+    let cParams = { ...defaultSdkChatParams, ...pConfig, ...params };
     return cParams;
   }
   get sdkClient(): any { // Maybe replace w. function to allow settings/opts?
-    let sdkClient:any;
+    let sdkClient: any;
     let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
     let name = this.provider;
     let { apiKey, baseURL, } = this.providerConfig;
-    if(this.provider==='openai') { // strict
+    if (this.provider === 'openai') { // strict
       let compatibility = 'strict';
       let reasoningEffort = 'high';
-     sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort, name, });
+      sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort, name, });
     } else {
-     sdkClient = aisdk.create({ apiKey, baseURL, name });
+      sdkClient = aisdk.create({ apiKey, baseURL, name });
     }
     return sdkClient;
   }
@@ -212,14 +226,34 @@ export abstract class BaseClient {
     return getProviderConfig(this.provider);
   }
 
-  async nativeChat(msg):Promise<any> {
+  /**
+   * To take uMsg tags & build uMsg & sMsg to call nativeChat
+   * Can take 'ASK' param to force interactive ask for usr msg
+   * TODO? Should extract filter & get model here, or nativeChat
+   */
+  async nativeChat(msgs: Strings, params?:GenObj): Promise<any> {
+    //let {ASK=false, filter, ...opts} = params||{};
+    let {ASK=false,  ...opts} = params||{};
+    let bMsg = await this.prepChat(msgs, ASK);
+    return this.nativeChatBuilt({bMsg, ...opts});
   }
 
+  async nativeChatBuilt(params:{bMsg:BuiltMsg,[key:string]:any}):Promise<any> {
+    console.log("Not implemented in Base!",{params});
+    return "Not done in Base";
+  }
+  //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {},): Promise<any> 
+  /*
+  async nativeChatBuilt({bMsg: BuiltMsg, [key:string]:any}):Promise<any> {
+    //filter?: Strings, chatParams: GenObj = {},): Promise<any> {
+    return "Under Construction";
+  }
+    */
   /**
    * Possibly interactive method to set this.modelName & return the model name, based on provider & params
    * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
    */
-  async getModelName(filter?:Strings):Promise<string> {
+  async getModelName(filter?: Strings): Promise<string> {
     if ((!filter || (filter === 'current')) && this.modelName) {
       return this.modelName;
     }
@@ -230,17 +264,17 @@ export abstract class BaseClient {
         return this.modelName;
       }
     }
-    let models = await this.filterModels({filter});
+    let models = await this.filterModels({ filter });
     let names = this.modelObjsToNames(models);
     if (!Array.isArray(names) || !names.length) {
-      throw new PkError(`For provider: [${this.provider}] no models found for filter:`,filter);
+      throw new PkError(`For provider: [${this.provider}] no models found for filter:`, filter);
     }
     if (names.length === 1) {
       this.modelName = names[0];
       return this.modelName;
     }
     // Several matching models - choose
-    let modelName = await ask(`Choose a model for provider [${this.provider}]`,{choices:names});
+    let modelName = await ask(`Choose a model for provider [${this.provider}]`, { choices: names });
     this.modelName = modelName;
     return this.modelName;
   }
@@ -248,7 +282,7 @@ export abstract class BaseClient {
   /**
    * Array of model objects to string array of model names
    */
-  modelObjsToNames(models:any[]):string[] {
+  modelObjsToNames(models: any[]): string[] {
     let names = models.map((model) => model.name || model.id);
     return names;
   }
@@ -267,73 +301,76 @@ export abstract class BaseClient {
    * 
    */
   //async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<ChatCompletionMessageParam> {
-  async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = {}):Promise<any> {
+  async singleSdkChat(messages: SdkMessages, modelName: string, sdkChatParams: SdkChatParams = {}): Promise<any> {
     sdkChatParams = this.mkSdkChatParams(sdkChatParams);
     let model = this.sdkClient(modelName);
     //@ts-ignore
-    let response = await generateText({messages,  model, ...sdkChatParams});
+    let response = await generateText({ messages, model, ...sdkChatParams });
     return response;
+  }
+
+  async prepChat(msgs: Strings, ASK = false): Promise<BuiltMsg> {
+    let bMsg: BuiltMsg;
+    if (ASK || isEmpty(msgs)) {
+      bMsg = await askMsg(msgs);
+    } else {
+      bMsg = buildMsg(msgs);
+    }
+    return bMsg;
   }
 
   /**
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs:Strings, ASK=false, filter?:Strings,sdkChatParams:SdkChatParams = {}):Promise<SdkMessages> {
-    //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
+  async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<SdkMessages> {
+    let bMsg = await this.prepChat(msgs, ASK);
     sdkChatParams = this.mkSdkChatParams(sdkChatParams);
-    let bMsg:BuiltMsg;
-    let msgKeys = mkArray(msgs);
-    if (ASK || isEmpty(msgs)) {
-      //bMsg = await askMsg(msgKeys);
-      bMsg = await askMsg(msgs);
-      if (isEmpty(msgs)) {
-        msgKeys = mkArray(bMsg.uMsg);
-      }
-    } else {
-      //bMsg = buildMsg(msgKeys);
-      bMsg = buildMsg(msgs);
-    }
-    return  this.sdkChatBuilt(bMsg, filter, sdkChatParams, msgKeys);
+    return this.sdkChatBuilt(bMsg, filter, sdkChatParams,);
   }
 
-  async sdkChatBuilt(bMsg:BuiltMsg,  filter?:Strings,sdkChatParams:SdkChatParams = {},msgKeys:string[]=[]):Promise<SdkMessages> {
-    function getDets(resp:GenObj) { // Get token usage from response
+  mkChatLog({ chatType = "Undefined", uMsg = '', sMsg = '', msgKeys = [], chatConfig = {} }): ChatLogger {
+    return new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
+  }
+
+  async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<SdkMessages> {
+    let chatType = 'sdkChat';
+    function getDets(resp: GenObj) { // Get token usage from response
       let usage = resp?.usage?.totalTokens;
       let finish = resp?.finishReason;
-      return {usage, finish};
+      return { usage, finish };
     }
     sdkChatParams = this.mkSdkChatParams(sdkChatParams);
     //sdkChatParams = {...defaultSdkChatParams, ...sdkChatParams,};
-    let {uMsg, sMsg} = bMsg;
+    let { uMsg, sMsg, msgKeys = [] } = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
     let modelName = await this.getModelName(filter);
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);
     }
-    let messages:SdkMessages = [
-      {role:'system', content : sMsg},
-      {role:'user', content:uMsg,},
+    let messages: SdkMessages = [
+      { role: 'system', content: sMsg },
+      { role: 'user', content: uMsg, },
     ];
     //let chatConfig = {temperature};
     let chatConfig = sdkChatParams;
-    let chatLog = new ChatLogger({provider:this.provider, modelName:this.modelName, chatConfig, uMsg, sMsg, msgKeys,  }); 
+    let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
     let msgCnt = 0;
     while (uMsg) {
-      let response = await this.singleSdkChat(messages,   modelName, sdkChatParams );
+      let response = await this.singleSdkChat(messages, modelName, sdkChatParams);
       let assistant = response.text;
       let dets = getDets(response);
       if (!msgCnt) { // First message - get statistics
-        let info = {msgCnt,modelName,sdkChatParams, response, dets};
-        dbgWrt(info,`resp-${modelName}`);
+        let info = { msgCnt, modelName, sdkChatParams, response, dets };
+        dbgWrt(info, `resp-${modelName}`);
       }
       msgCnt++;
-      messages.push({role:'assistant', content:assistant});
+      messages.push({ role: 'assistant', content: assistant });
       stdOut(chalk.blue(`\n\n${assistant}\n\n`));
       chatLog.wrtAssistant(assistant, dets);
       uMsg = await ask(`Followup for ${this.provider}?`);
-      messages.push({role:'user', content:uMsg});
+      messages.push({ role: 'user', content: uMsg });
       chatLog.wrtUsr(uMsg);
     }
     return messages;
@@ -348,23 +385,23 @@ export abstract class BaseClient {
    */
 
 
-  async sdkObject(spec:StructureSpec, msgx:Strings, modelName?:Strings, providerOptions:GenObj={}):Promise<any> {
+  async sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings, providerOptions: GenObj = {}): Promise<any> {
     let msgs = mkArray(msgx);
     //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
     providerOptions = this.mkSdkChatParams(providerOptions);
-    let {uMsg, sMsg} = buildMsg(msgs);
-    let {schema, definition } = spec;
+    let { uMsg, sMsg } = buildMsg(msgs);
+    let { schema, definition } = spec;
     let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
     let sdef = `\n${predef}\n${definition}\n`;
 
-    let messages:SdkMessages = [
-      {role:'system', content : sMsg},
-      {role:'system', content : sdef},
-      {role:'user', content:uMsg,},
+    let messages: SdkMessages = [
+      { role: 'system', content: sMsg },
+      { role: 'system', content: sdef },
+      { role: 'user', content: uMsg, },
     ];
     modelName = await this.getModelName(modelName);
     let model = this.sdkClient(modelName);
-    let res = await generateObject({model, schema, messages, providerOptions,});
+    let res = await generateObject({ model, schema, messages, providerOptions, });
     let obj = res.object;
     return obj;
   }
@@ -485,16 +522,111 @@ export abstract class BaseClient {
  * The default pk client
  */
 export class OpenAiClient extends BaseClient {
-  async nativeChat(msg) {
-    console.log(`in OpenAI nativeChat w msg:`,{msg});
-    return 'OpenAI Native CHat';
+  //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
+  async nativeChatBuilt(params:{bMsg:BuiltMsg,[key:string]:any}):Promise<any> {
+    let {bMsg,  ...opts} = params||{};
+    console.log(`in OpenAI nativeChat w msg:`, { bMsg });
+    return 'Unimplemented OpenAI Native Chat';
   }
 }
 
 export class ClaudeClient extends BaseClient {
-  async nativeChat(msg) {
-    console.log(`in Claude nativeChat w msg:`,{msg});
-    return 'Claude Native CHat';
+
+  async nativeChatBuilt(params:{bMsg:BuiltMsg,[key:string]:any}):Promise<any> {
+    let {bMsg,  filter, ...chatParams} = params;
+  //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
+    let chatType = "Claude Native";
+    let { uMsg, sMsg, msgKeys } = bMsg;
+    let system = sMsg;
+    let model = await this.getModelName(filter);
+    let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
+    //ONLY if budget_tokens will use 'thinking'
+    let claude37Defs:GenObj = {
+      //model: "claude-3-7-sonnet-20250219",
+      model,
+      temperature,
+      max_tokens,
+      system,
+    };
+    if (budget_tokens) {
+      if (budget_tokens >= max_tokens) {
+        throw new PkError(`budget_tokens >= max_tokens`,{budget_tokens,max_tokens});
+      }
+      let thinking = {
+      thinking: {
+        type: "enabled",
+        budget_tokens,
+      },
+      betas: ["output-128k-2025-02-19"]
+      };
+      claude37Defs = {...claude37Defs, ...thinking};
+      console.error(`In claude native chat, with extended thinking`);
+    } else {
+      console.error(`In claude native chat, NO extended thinking!!!`);
+    }
+    let chatConfig = _.merge({}, claude37Defs, chatParams);
+    let chatLog = this.mkChatLog({ chatConfig, uMsg, sMsg, msgKeys, chatType, });
+    let msgCnt = 0;
+    let messages: GenObj[] = [{
+      role: "user",
+      content: uMsg,
+    }];
+    let args = { ...chatConfig, messages };
+    while (uMsg) {
+      let response = await this.client.beta.messages.create(args);
+      dbgWrt({ args, response }, 'cldDeepResp');
+      console.log(`Returned from test of new Claude 3.7`);
+      let assistant = this.extractAssistantResponse(response);
+      let usage = this.extractUsageInfo(response);
+      chatLog.wrtAssistant(assistant,usage);
+      return 'done w. test of claude 3.7';
+      msgCnt++;
+      messages.push({ role: 'assistant', content: assistant });
+      stdOut(chalk.blue(`\n\n${assistant}\n\n`));
+      uMsg = await ask(`Followup for ${this.provider}?`);
+      messages.push({ role: 'user', content: uMsg });
+      chatLog.wrtUsr(uMsg);
+    }
+    return messages;
+
+  }
+
+  /**
+ * Extracts usage information from the Anthropic API response
+ * @param response - The response from the Anthropic API
+ * @returns An object containing token usage information
+ */
+extractUsageInfo(response: GenObj):GenObj {
+  return {
+    inputTokens: response.usage?.input_tokens || 0,
+    outputTokens: response.usage?.output_tokens || 0,
+    thinkingTokens: response.usage?.thinking_tokens || 0,
+    totalTokens: (response.usage?.input_tokens || 0) + 
+                 (response.usage?.output_tokens || 0) + 
+                 (response.usage?.thinking_tokens || 0),
+    stopReason: response.stop_reason,
+    stopSequence: response.stop_sequence
+  };
+}
+  /**
+ * Extracts the assistant's response content from the Anthropic API response
+ * @param response - The response from the Anthropic API
+ * @returns The text content of the assistant's response
+ */
+  //extractAssistantResponse(response: Anthropic.Beta.Messages.Response): string {
+  extractAssistantResponse(response: GenObj): string {
+    // The content is an array of content blocks
+    if (Array.isArray(response.content)) {
+      // Filter for text blocks and join them
+      return response.content
+        .filter(block => block.type === 'text')
+        //.map(block => (block as Anthropic.ContentBlock.Text).text)
+        .map(block => block.text)
+        .join('\n');
+    }
+
+    return `\nCLAUDE RESPONSE PARSE FAILED:
+  ENCODED RESP:\n${JSON5Stringify(response)}\n`;
   }
 }
 /**

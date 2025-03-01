@@ -75,6 +75,7 @@ export const providers = {
         //model: 'chatgpt-4o-latest',
         //model: "gpt-4o-2024-11-20",
         model: "o1-preview",
+        //model:"gpt-4.5-preview",
         //model:"o3-mini-2025-01-31", // No access?
     },
     togetherai: {

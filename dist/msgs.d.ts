@@ -6,6 +6,7 @@ import { WrapCodeObjs, MsgObj } from './init.js';
 export type BuiltMsg = {
     sMsg: string;
     uMsg: string;
+    msgKeys?: string[];
 };
 /**
  * Throws if any embeds remain in string(s)

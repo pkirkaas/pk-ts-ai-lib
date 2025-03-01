@@ -60,17 +60,19 @@ export declare class ChatLogger {
     outPath: string;
     label: string;
     chatinfo: string;
+    chatType: string;
     followupCnt: number;
     divider: string;
     logInited: boolean;
     title: string;
-    constructor({ provider, modelName, chatConfig, uMsg, sMsg, msgKeys, outPath }: {
+    constructor({ provider, modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, outPath }: {
         provider: any;
         modelName: any;
         chatConfig?: {};
         uMsg: any;
         sMsg: any;
         msgKeys?: any[];
+        chatType?: string;
         outPath?: string;
     });
     initFile(args?: any): void;
@@ -78,7 +80,7 @@ export declare class ChatLogger {
      * Write message to log file - type "user" or "assistant"
      */
     wrtUsr(msg: string): void;
-    wrtAssistant(msg: string, dets?: GenObj): void;
+    wrtAssistant(msg: string, dets?: any): void;
 }
 /**
  * Abstract Client class to provide common interface to different API clients -
@@ -93,11 +95,21 @@ export declare abstract class BaseClient {
     temperature: number;
     modelName: string;
     constructor(provider: string);
+    mk: any;
     createNativeClient(...args: any[]): import("pk-ts-node-lib").GenericObject;
     mkSdkChatParams(params?: SdkChatParams): SdkChatParams;
     get sdkClient(): any;
     get providerConfig(): GenObj;
-    nativeChat(msg: any): Promise<any>;
+    /**
+     * To take uMsg tags & build uMsg & sMsg to call nativeChat
+     * Can take 'ASK' param to force interactive ask for usr msg
+     * TODO? Should extract filter & get model here, or nativeChat
+     */
+    nativeChat(msgs: Strings, params?: GenObj): Promise<any>;
+    nativeChatBuilt(params: {
+        bMsg: BuiltMsg;
+        [key: string]: any;
+    }): Promise<any>;
     /**
      * Possibly interactive method to set this.modelName & return the model name, based on provider & params
      * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
@@ -121,11 +133,19 @@ export declare abstract class BaseClient {
      *
      */
     singleSdkChat(messages: SdkMessages, modelName: string, sdkChatParams?: SdkChatParams): Promise<any>;
+    prepChat(msgs: Strings, ASK?: boolean): Promise<BuiltMsg>;
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
-    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams, msgKeys?: string[]): Promise<SdkMessages>;
+    mkChatLog({ chatType, uMsg, sMsg, msgKeys, chatConfig }: {
+        chatType?: string;
+        uMsg?: string;
+        sMsg?: string;
+        msgKeys?: any[];
+        chatConfig?: {};
+    }): ChatLogger;
+    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
     /**
      * Generate an object from input messages & schema
      * @param spec:StructureSpec - The schema & definition for the object returned
@@ -153,10 +173,28 @@ export declare abstract class BaseClient {
  * The default pk client
  */
 export declare class OpenAiClient extends BaseClient {
-    nativeChat(msg: any): Promise<string>;
+    nativeChatBuilt(params: {
+        bMsg: BuiltMsg;
+        [key: string]: any;
+    }): Promise<any>;
 }
 export declare class ClaudeClient extends BaseClient {
-    nativeChat(msg: any): Promise<string>;
+    nativeChatBuilt(params: {
+        bMsg: BuiltMsg;
+        [key: string]: any;
+    }): Promise<any>;
+    /**
+   * Extracts usage information from the Anthropic API response
+   * @param response - The response from the Anthropic API
+   * @returns An object containing token usage information
+   */
+    extractUsageInfo(response: GenObj): GenObj;
+    /**
+   * Extracts the assistant's response content from the Anthropic API response
+   * @param response - The response from the Anthropic API
+   * @returns The text content of the assistant's response
+   */
+    extractAssistantResponse(response: GenObj): string;
 }
 /**
  * Uses OpenAI API client, but custom methods/implementations
