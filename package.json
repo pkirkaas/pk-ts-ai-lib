@@ -42,6 +42,7 @@
     "@llamaindex/openai": "^0.1.54",
     "@llamaindex/readers": "^2.0.2",
     "@lmstudio/sdk": "*",
+    "@types/uuid": "^10.0.0",
     "ai": "*",
     "chromadb": "^1.10.4",
     "console-title": "*",
@@ -57,6 +58,7 @@
     "ts-morph": "*",
     "typeorm": "*",
     "typescript": "*",
-    "typescript-ast-util": "*"
+    "typescript-ast-util": "*",
+    "uuid": "^11.1.0"
   }
 }

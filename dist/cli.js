@@ -6,7 +6,7 @@
 import { dbgWrt, runCli, } from 'pk-ts-node-lib';
 import { isEmpty, } from 'pk-ts-common-lib';
 // local imports
-import { sysMsgs, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, } from './init.js';
+import { sysMsgs, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, logPretty, } from './init.js';
 // Implementations
 export let msgKeys = {};
 let fncs = {
@@ -42,6 +42,10 @@ let fncs = {
         }
         let { uMsg, sMsg, msgKeys } = buildMsg(args);
         let outPath = dbgWrt({ what: "tstBuildMsg", args, uMsg, sMsg, msgKeys, }, 'buildMsg');
+        //console.log(`Built Msg:`,{msgKeys,sMsg,uMsg});
+        logPretty({ msgKeys, sMsg, uMsg });
+        //    console.log(sMsg);
+        //    stdOut(JSON5Stringify({msgKeys,sMsg,uMsg}));
         console.log(`Tested buildMsg to [${outPath}] with args:`, { args });
     },
     tstWrapCode(key) {

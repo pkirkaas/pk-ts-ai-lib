@@ -10,7 +10,7 @@ import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 //PkLib Imports
 import { dbgWrt, ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
-import { getProviderConfig, getLlmProvider, buildMsg, askMsg, } from '../init.js';
+import { getProviderConfig, getLlmProvider, wrapStr, buildMsg, askMsg, } from '../init.js';
 export const aiSdkClients = {
     togetherai: { client: togetherai, create: createTogetherAI, },
     openai: { client: openai, create: createOpenAI, },
@@ -88,7 +88,8 @@ export class ChatLogger {
         //writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
         if (!isEmpty(dets)) {
             let detsStr = JSON5Stringify(dets);
-            outStr += `Usage:\n\`\`\`${detsStr}\n\`\`\`\n`;
+            //outStr += `Usage:\n\`\`\`\n${detsStr}\n\`\`\`\n`;
+            outStr += `Usage:${wrapStr(detsStr)}`;
         }
         //writeData(`\n\n**${this.provider} Assistant** (Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
         writeData(`${outStr}\n\n${msg}\n\n`, this.outPath, true);
@@ -441,7 +442,9 @@ export class ClaudeClient extends BaseClient {
         let { uMsg, sMsg, msgKeys } = bMsg;
         let system = sMsg;
         let model = await this.getModelName(filter);
-        let { temperature = .1, max_tokens = 32000, budget_tokens } = chatParams;
+        //let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
+        //let {temperature=.1,max_tokens=4096,budget_tokens} = chatParams;
+        let { temperature = .1, max_tokens = 8192, budget_tokens } = chatParams;
         //ONLY if budget_tokens will use 'thinking'
         let claude37Defs = {
             //model: "claude-3-7-sonnet-20250219",
@@ -449,6 +452,11 @@ export class ClaudeClient extends BaseClient {
             temperature,
             max_tokens,
             system,
+            /*
+            metadata: {
+              conversation_id: uuidv4(),
+            },
+            */
         };
         if (budget_tokens) {
             if (budget_tokens >= max_tokens) {
@@ -482,7 +490,7 @@ export class ClaudeClient extends BaseClient {
             let assistant = this.extractAssistantResponse(response);
             let usage = this.extractUsageInfo(response);
             chatLog.wrtAssistant(assistant, usage);
-            return 'done w. test of claude 3.7';
+            //  return 'done w. test of claude 3.7';
             msgCnt++;
             messages.push({ role: 'assistant', content: assistant });
             stdOut(chalk.blue(`\n\n${assistant}\n\n`));

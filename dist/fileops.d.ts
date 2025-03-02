@@ -101,6 +101,14 @@ export declare function wrapCodeFiles(fpathx: Strings, { root, desc }: {
     root?: string;
     desc?: string;
 }): string;
+/**
+ * wrap a preformatted string (JSON prettyprint, etc) in markdown
+ * because really error prone to do it manually
+ * @param prestr:string - preformatted string
+ * @param lang:string default '' - TODO - check lang in md lang keys
+ * @return string wrapped for markdown block
+ */
+export declare function wrapStr(prestr: string, lang?: string): string;
 type CodeBlocks = {
     [key: string]: string[];
 };
@@ -121,5 +129,10 @@ export declare function getAllFiles(dir: string, opts?: any): string[];
  * takes a string response from a chatbot and extracts the code blocks
  */
 export declare function extractCode(resStr: string): CodeBlocks;
+/**
+ * Console.log replacement - excepts outputs string values directly, without
+ */
+export declare function formatValue(value: any, indentLevel?: number): any;
+export declare function logPretty(...args: any[]): void;
 export {};
 //# sourceMappingURL=fileops.d.ts.map

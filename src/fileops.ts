@@ -28,10 +28,10 @@ import {
  * Error if duplicate file names
  * return obj of {key: msg}
  */
-export function getFileMsgObj(rootdirx?: Strings):MsgObj {
+export function getFileMsgObj(rootdirx?: Strings): MsgObj {
   rootdirx = rootdirx || './text-messages';
   let rootdirs = mkArray(rootdirx);
-  let ret:MsgObj = {};
+  let ret: MsgObj = {};
   for (let rootdir of rootdirs) {
     if (!isDirectory(rootdir)) {
       throw new PkError(`Not a directory [${rootdir}]`);
@@ -44,11 +44,11 @@ export function getFileMsgObj(rootdirx?: Strings):MsgObj {
         if (bname in ret) {
           throw new PkError(`Duplicate file name key [${bname}] in [${f}]`);
         }
-        let contents = fs.readFileSync(slashPath(rootdir,f), 'utf8'); 
+        let contents = fs.readFileSync(slashPath(rootdir, f), 'utf8');
         if (!contents || !isString(contents) || isEmpty(contents.trim())) {
           throw new PkError(`No contents for bname: [${bname}]`);
         }
-        ret[bname] = fs.readFileSync(slashPath(rootdir,f), 'utf8');
+        ret[bname] = fs.readFileSync(slashPath(rootdir, f), 'utf8');
       }
     }
   }
@@ -134,7 +134,7 @@ export type WrapCodeObj =
 
 export type WrapCodeParam = string | WrapCodeObj;
 export type WrapCodeParams = WrapCodeParam | WrapCodeParam[];
-export type WrapCodeObjs = { [key: string]: WrapCodeParams };
+export type WrapCodeObjs = { [key: string]: WrapCodeParams; };
 
 export function isWrapCodeObj(src: any): src is WrapCodeObj {
   return isSimpleObject(src) && 'fpaths' in src;
@@ -144,7 +144,7 @@ export function isWrapCodeObj(src: any): src is WrapCodeObj {
  * Allow string arg to 'wrapCodeNew' to be either a file/dir path, 
  * OR key to codeFiles object
  */
-export function toWrapCodeObj(arg:string | WrapCodeObj):WrapCodeObj {
+export function toWrapCodeObj(arg: string | WrapCodeObj): WrapCodeObj {
   if (isWrapCodeObj(arg)) {
     return arg;
   }
@@ -153,10 +153,10 @@ export function toWrapCodeObj(arg:string | WrapCodeObj):WrapCodeObj {
       return codeFiles[arg] as WrapCodeObj;
     }
     if (fs.existsSync(arg)) {
-      return {fpaths:arg};
+      return { fpaths: arg };
     }
   }
-  throw new PkError(`Invalid arg to toWrapCodeObj:`,{arg});
+  throw new PkError(`Invalid arg to toWrapCodeObj:`, { arg });
 }
 
 /**
@@ -241,6 +241,17 @@ export function wrapCodeFiles(fpathx: Strings, { root = '', desc = '' }: { root?
     outStr += `\nThe code in file: \`${fname}\`\n\`\`\`${lang}\n${code}\n\`\`\`\n`;
   }
   return outStr;
+}
+
+/**
+ * wrap a preformatted string (JSON prettyprint, etc) in markdown
+ * because really error prone to do it manually
+ * @param prestr:string - preformatted string
+ * @param lang:string default '' - TODO - check lang in md lang keys
+ * @return string wrapped for markdown block
+ */
+export function wrapStr(prestr:string,lang:string=''):string {
+  return `\n\`\`\`${lang}\n${prestr}\n\`\`\`\n`;
 }
 
 type CodeBlocks = { [key: string]: string[]; };
@@ -343,4 +354,44 @@ export function extractCode(resStr: string,): CodeBlocks {
  */
 function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+
+
+
+
+
+
+
+//Port to node lib if works
+import util from 'util';
+
+/**
+ * Console.log replacement - excepts outputs string values directly, without 
+ */
+export function formatValue(value, indentLevel=0) {
+  const indent = ' '.repeat(indentLevel * 2); // Indentation for nested structures
+
+  if (typeof value === 'string') {
+    return value.split('\n').map(line => indent + line).join('\n'); // Preserve multi-line strings
+  }
+
+  if (Array.isArray(value)) {
+    return '[\n' + value.map(item => formatValue(item, indentLevel + 1)).join(',\n') + '\n' + indent + ']';
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    return '{\n' + Object.entries(value)
+      .map(([k, v]) => `${indent}  ${k}: ${formatValue(v, indentLevel + 1)}`)
+      .join(',\n') + '\n' + indent + '}';
+  }
+  return util.inspect(value, { depth: null, colors: true }); // Default console formatting for non-string types
+}
+
+export function logPretty(...args) {
+  console.log('\n');
+  for (let arg of args) {
+    console.log(formatValue(arg)); // Start with zero indentation
+  }
+  console.log('\n');
 }

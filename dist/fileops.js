@@ -208,6 +208,16 @@ export function wrapCodeFiles(fpathx, { root = '', desc = '' }) {
     }
     return outStr;
 }
+/**
+ * wrap a preformatted string (JSON prettyprint, etc) in markdown
+ * because really error prone to do it manually
+ * @param prestr:string - preformatted string
+ * @param lang:string default '' - TODO - check lang in md lang keys
+ * @return string wrapped for markdown block
+ */
+export function wrapStr(prestr, lang = '') {
+    return `\n\`\`\`${lang}\n${prestr}\n\`\`\`\n`;
+}
 export let languages = Object.values(exts);
 /**
  * Returns an array of all files in a directory, recursively
@@ -300,5 +310,32 @@ export function extractCode(resStr) {
  */
 function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+//Port to node lib if works
+import util from 'util';
+/**
+ * Console.log replacement - excepts outputs string values directly, without
+ */
+export function formatValue(value, indentLevel = 0) {
+    const indent = ' '.repeat(indentLevel * 2); // Indentation for nested structures
+    if (typeof value === 'string') {
+        return value.split('\n').map(line => indent + line).join('\n'); // Preserve multi-line strings
+    }
+    if (Array.isArray(value)) {
+        return '[\n' + value.map(item => formatValue(item, indentLevel + 1)).join(',\n') + '\n' + indent + ']';
+    }
+    if (typeof value === 'object' && value !== null) {
+        return '{\n' + Object.entries(value)
+            .map(([k, v]) => `${indent}  ${k}: ${formatValue(v, indentLevel + 1)}`)
+            .join(',\n') + '\n' + indent + '}';
+    }
+    return util.inspect(value, { depth: null, colors: true }); // Default console formatting for non-string types
+}
+export function logPretty(...args) {
+    console.log('\n');
+    for (let arg of args) {
+        console.log(formatValue(arg)); // Start with zero indentation
+    }
+    console.log('\n');
 }
 //# sourceMappingURL=fileops.js.map

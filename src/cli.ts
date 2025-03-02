@@ -10,11 +10,11 @@ import _ from "lodash";
 // pk-lib imports
 
 import {
-  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm,
+  getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm, 
   writeData, pkToDate, dtFmt, GenObj,
 } from 'pk-ts-node-lib';
 
-import { mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPropsWithTypes, objInfo, } from 'pk-ts-common-lib';
+import { JSON5Stringify, mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPropsWithTypes, objInfo, } from 'pk-ts-common-lib';
 
 
 // local imports
@@ -33,6 +33,7 @@ import {
   systemMessages, providers, timeout,
   validateJson,  getFncsMD,
   dbReport, OpenAiClient,ClaudeClient,
+  logPretty,
 } from './init.js';
 
 // Implementations
@@ -75,6 +76,10 @@ let fncs = {
     }
     let {uMsg, sMsg, msgKeys} = buildMsg(args);
     let outPath = dbgWrt({what:"tstBuildMsg", args, uMsg, sMsg, msgKeys,}, 'buildMsg' );
+    //console.log(`Built Msg:`,{msgKeys,sMsg,uMsg});
+    logPretty({msgKeys,sMsg,uMsg});
+//    console.log(sMsg);
+//    stdOut(JSON5Stringify({msgKeys,sMsg,uMsg}));
     console.log(`Tested buildMsg to [${outPath}] with args:`,{args});
   },
   tstWrapCode(key?: string) {

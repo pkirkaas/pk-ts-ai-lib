@@ -84,6 +84,8 @@ export declare let systemMessages: {
     code: string;
     python: string;
     ai: string;
+    hf: string;
+    claude: string;
     aiclient: string;
     pyapp: string;
     llmgoals: string;
