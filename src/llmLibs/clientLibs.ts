@@ -543,7 +543,8 @@ export class ClaudeClient extends BaseClient {
     let model = await this.getModelName(filter);
     //let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=4096,budget_tokens} = chatParams;
-    let {temperature=.1,max_tokens=8192,budget_tokens} = chatParams;
+    //let {temperature=.1,max_tokens=8192,budget_tokens} = chatParams;
+    let {temperature=.3,max_tokens=16192,budget_tokens=8192} = chatParams;
     //ONLY if budget_tokens will use 'thinking'
     let claude37Defs:GenObj = {
       //model: "claude-3-7-sonnet-20250219",
@@ -551,17 +552,13 @@ export class ClaudeClient extends BaseClient {
       temperature,
       max_tokens,
       system,
-      /*
-      metadata: {
-        conversation_id: uuidv4(),
-      },
-      */
     };
     if (budget_tokens) {
       if (budget_tokens >= max_tokens) {
         throw new PkError(`budget_tokens >= max_tokens`,{budget_tokens,max_tokens});
       }
       let thinking = {
+      temperature:1,
       thinking: {
         type: "enabled",
         budget_tokens,

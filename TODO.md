@@ -8,12 +8,11 @@
 - Also maybe pick/omit opt keys for filterModels - maybe custom per provider, like pricing for Together?
 - Work more on exporting as lib
 - Handle tags in CLI followup input
-- Continue code cleanup
 - Move all all node terminal i/o out of main funcs to allow use in WebApp
 - CHECK FOR EMPTY Text Msg content when building messages/tags!
 - Longer term - improve buildMsgs - more flexible, allow different tags, force ask, etc
 - More with providing provider configs (temp, etc)
 - Figure out how to get max tokens per model (not possible from APIs, manual lookup)
 - For chats - first response, get all parameters - each response, get tokens used
-- Continue/finish native claude chat for deep thinking mode w. new sonnet 3.7
 - CHECK! Fix repeated sysmsgs, and clean up!!
+- More zod schemas for TS Lib parsing
