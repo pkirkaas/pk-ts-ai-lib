@@ -181,7 +181,7 @@ export function wrapCodeNew(argx, dbg) {
  * @returns {string} - Markdown code blocks
  *
  */
-export function wrapCodeFiles(fpathx, { root = '', desc = '' }) {
+export function wrapCodeFiles(fpathx, { root = '', desc = '' } = {}) {
     let fpaths = mkArray(fpathx);
     //console.log('Enter wrapCodeFiles - ',{  root, desc, fpaths });
     let rootDir = root ? slashPath(path.resolve(root)) : '';

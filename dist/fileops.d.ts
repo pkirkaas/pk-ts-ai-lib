@@ -97,7 +97,7 @@ export declare function wrapCodeNew(argx: WrapCodeParams, dbg?: any): string;
  * @returns {string} - Markdown code blocks
  *
  */
-export declare function wrapCodeFiles(fpathx: Strings, { root, desc }: {
+export declare function wrapCodeFiles(fpathx: Strings, { root, desc }?: {
     root?: string;
     desc?: string;
 }): string;

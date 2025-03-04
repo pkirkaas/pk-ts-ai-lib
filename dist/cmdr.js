@@ -52,6 +52,27 @@ program.addCommand(new Command('funcs')
         console.error(`Caught error:`, e, `wrote to [${errPath}]`);
     }
 }));
+program.addCommand(new Command('decomp')
+    .description("Test 'generateObject for common func names")
+    .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
+    .action(async (filter, options) => {
+    let opts = program.opts();
+    //let {provider} = opts;
+    let provider = opts.provider || await askLlmProvider();
+    let client = getPkClient(provider);
+    let modelName = await client.getModelName(filter);
+    try {
+        //let obj = await client.sdkObject('get-funcs', FuncSigSchema, modelName);
+        //let obj = await client.sdkObject('get-funcs', FunctionSignaturesSchemaObj, modelName);
+        let obj = await client.sdkTsDecomp();
+        let opath = dbgWrt(obj, `sdkDecomp-${provider}`);
+        console.log(`Wrote funcs obj to: [${opath}]`);
+    }
+    catch (e) {
+        let errPath = dbgWrt(e, 'ErrOut');
+        console.error(`Caught error:`, e, `wrote to [${errPath}]`);
+    }
+}));
 program.addCommand(new Command('models')
     .description("List models for provider")
     .argument('[filter]', 'Filter Models by', '')

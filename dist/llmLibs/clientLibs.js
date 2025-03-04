@@ -2,15 +2,17 @@ import chalk from 'chalk';
 import OpenAI from "openai";
 import { generateText, generateObject, } from 'ai';
 import _ from 'lodash';
+import fs from 'fs';
+import mime from 'mime';
 import { openai, createOpenAI, } from "@ai-sdk/openai";
 import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { dbgWrt, ask, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
+import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
 // Local Imports
-import { getProviderConfig, getLlmProvider, wrapStr, buildMsg, askMsg, } from '../init.js';
+import { getProviderConfig, getLlmProvider, wrapStr, mkDecompParams, buildMsg, wrapCodeFiles, askMsg, } from '../init.js';
 export const aiSdkClients = {
     togetherai: { client: togetherai, create: createTogetherAI, },
     openai: { client: openai, create: createOpenAI, },
@@ -313,6 +315,33 @@ export class BaseClient {
         return obj;
     }
     /**
+     * Test decomp of TS Source Code file
+     */
+    async sdkTsDecomp(fpath, modelName, providerOptions = {}) {
+        let { messages, schema, } = mkDecompParams(fpath);
+        //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
+        providerOptions = this.mkSdkChatParams(providerOptions);
+        /*
+        let { uMsg, sMsg } = buildMsg(msgs);
+        let { schema, definition } = spec;
+        let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
+        let sdef = `\n${predef}\n${definition}\n`;
+    
+        let messages: SdkMessages = [
+          { role: 'system', content: sMsg },
+          { role: 'system', content: sdef },
+          { role: 'user', content: uMsg, },
+        ];
+        */
+        modelName = await this.getModelName(modelName);
+        let model = this.sdkClient(modelName);
+        console.error(`Trying sdkTsDecomp w.`, { model, schema, messages, fpath, });
+        dbgWrt({ model, schema, messages, fpath, }, 'gobjParams');
+        let res = await generateObject({ model, schema, messages, providerOptions, });
+        let obj = res.object;
+        return obj;
+    }
+    /**
      * Returns the models available for the provider
      */
     async getModels(...args) {
@@ -563,5 +592,45 @@ export function getPkClient(provider) {
     let clientClass = getPkClientClass(provider);
     let client = new clientClass(provider);
     return client;
+}
+// Alternate TS mime types: application/x-typescript, text/typescript, text/javascript
+/** Returns a message file object to insert in the message array
+ * @deprecated - until fixed
+*/
+export function sdkFileMsgFPart(fpath, role = 'user') {
+    if (!isFile(fpath)) {
+        throw new PkError(`File [${fpath}] not found`);
+    }
+    let data = fs.readFileSync(fpath, { encoding: 'utf8' });
+    let tsMimeTypes = [
+        'application/typescript',
+        'application/x-typescript',
+        'text/typescript',
+        'text/javascript',
+    ];
+    let k = 0; // Change to try different mime types for TS
+    let mimeType = fpath.endsWith('.ts') ? tsMimeTypes[k] : mime.getType(fpath);
+    let content = [{ type: "file", mimeType, data }];
+    let retMsg = {
+        //@ts-ignore
+        role,
+        content,
+    };
+    return retMsg;
+}
+/**
+ * Just try wrapCodeFiles - works
+ */
+export function sdkFileMsg(fpath, role = 'user') {
+    if (!isFile(fpath)) {
+        throw new PkError(`File [${fpath}] not found`);
+    }
+    let content = wrapCodeFiles(fpath);
+    let retMsg = {
+        //@ts-ignore
+        role,
+        content,
+    };
+    return retMsg;
 }
 //# sourceMappingURL=clientLibs.js.map

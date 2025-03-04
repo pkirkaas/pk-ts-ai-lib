@@ -17,7 +17,8 @@ import {
 export interface StructureSpec {
   name?: string,
   definition: string, // Text description of the schema for LLM
-  schema: z.ZodTypeAny,
+  //schema: z.ZodTypeAny,
+  schema: z.Schema, // Does this work?
   examples?:any[],
 }
 

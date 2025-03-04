@@ -1,4 +1,4 @@
-import { CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage } from 'ai';
+import { CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage, CoreMessage } from 'ai';
 import { z } from 'zod';
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -155,6 +155,10 @@ export declare abstract class BaseClient {
      */
     sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings, providerOptions?: GenObj): Promise<any>;
     /**
+     * Test decomp of TS Source Code file
+     */
+    sdkTsDecomp(fpath?: string, modelName?: Strings, providerOptions?: GenObj): Promise<any>;
+    /**
      * Returns the models available for the provider
      */
     getModels(...args: any[]): Promise<GenObj[]>;
@@ -212,4 +216,20 @@ export declare function getPkClientClass(provider: any): any;
  *
  */
 export declare function getPkClient(provider: string): any;
+export type SdkFileMsg = {
+    content: {
+        type: string;
+        data: string;
+        mimeType: string;
+    };
+    role: string;
+};
+/** Returns a message file object to insert in the message array
+ * @deprecated - until fixed
+*/
+export declare function sdkFileMsgFPart(fpath: string, role?: string): CoreMessage;
+/**
+ * Just try wrapCodeFiles - works
+ */
+export declare function sdkFileMsg(fpath: string, role?: string): CoreMessage;
 //# sourceMappingURL=clientLibs.d.ts.map

@@ -13,16 +13,18 @@ import chalk from 'chalk';
 import OpenAI from "openai";
 import {
   generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
-  generateObject, GenerateTextResult,
+  generateObject, GenerateTextResult, CoreMessage, FilePart,
 } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import _ from 'lodash';
+import fs from 'fs';
 import {
   google, createGoogleGenerativeAI,
 } from '@ai-sdk/google';
 import { z } from 'zod';
+import mime from 'mime';
 import { openai, createOpenAI, } from "@ai-sdk/openai";
 import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
@@ -41,9 +43,9 @@ import {
 
 
 import {
-  getProviderConfig, getLlmProvider, ModelListOpts, wrapStr,
-  defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg,
-  chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg, StructureSpec,
+  getProviderConfig, getLlmProvider, ModelListOpts, wrapStr, mkDecompParams,
+  defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg, wrapCodeFiles,
+  chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg, StructureSpec, Role,
 } from '../init.js';
 
 
@@ -161,7 +163,7 @@ export class ChatLogger {
     this.followupCnt++;
     writeData(`\n\n---\n\n# Followup to ${this.provider} ${this.followupCnt}:\n\n**User:**\n${msg}\n\n`, this.outPath, true);
   }
-  wrtAssistant(msg: string, dets: any={}) {
+  wrtAssistant(msg: string, dets: any = {}) {
     this.initFile();
     let outStr = `\n\n**${this.provider} Assistant** `;
     //(Usage: [${usage}], Finish: [${finish}]):\n\n${msg}\n\n`, this.outPath, true);
@@ -233,15 +235,15 @@ export abstract class BaseClient {
    * Can take 'ASK' param to force interactive ask for usr msg
    * TODO? Should extract filter & get model here, or nativeChat
    */
-  async nativeChat(msgs: Strings, params?:GenObj): Promise<any> {
+  async nativeChat(msgs: Strings, params?: GenObj): Promise<any> {
     //let {ASK=false, filter, ...opts} = params||{};
-    let {ASK=false,  ...opts} = params||{};
+    let { ASK = false, ...opts } = params || {};
     let bMsg = await this.prepChat(msgs, ASK);
-    return this.nativeChatBuilt({bMsg, ...opts});
+    return this.nativeChatBuilt({ bMsg, ...opts });
   }
 
-  async nativeChatBuilt(params:{bMsg:BuiltMsg,[key:string]:any}):Promise<any> {
-    console.log("Not implemented in Base!",{params});
+  async nativeChatBuilt(params: { bMsg: BuiltMsg, [key: string]: any; }): Promise<any> {
+    console.log("Not implemented in Base!", { params });
     return "Not done in Base";
   }
   //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {},): Promise<any> 
@@ -409,6 +411,33 @@ export abstract class BaseClient {
   }
 
   /**
+   * Test decomp of TS Source Code file
+   */
+  async sdkTsDecomp(fpath?:string, modelName?: Strings, providerOptions: GenObj = {}): Promise<any> {
+    let {messages, schema,} = mkDecompParams(fpath);
+    //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
+    providerOptions = this.mkSdkChatParams(providerOptions);
+    /*
+    let { uMsg, sMsg } = buildMsg(msgs);
+    let { schema, definition } = spec;
+    let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
+    let sdef = `\n${predef}\n${definition}\n`;
+
+    let messages: SdkMessages = [
+      { role: 'system', content: sMsg },
+      { role: 'system', content: sdef },
+      { role: 'user', content: uMsg, },
+    ];
+    */
+    modelName = await this.getModelName(modelName);
+    let model = this.sdkClient(modelName);
+    console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
+    dbgWrt({model, schema, messages,fpath,},'gobjParams');
+    let res = await generateObject({ model, schema, messages, providerOptions, });
+    let obj = res.object;
+    return obj;
+  }
+  /**
    * Returns the models available for the provider
    */
   async getModels(...args): Promise<GenObj[]> {
@@ -525,8 +554,8 @@ export abstract class BaseClient {
  */
 export class OpenAiClient extends BaseClient {
   //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
-  async nativeChatBuilt(params:{bMsg:BuiltMsg,[key:string]:any}):Promise<any> {
-    let {bMsg,  ...opts} = params||{};
+  async nativeChatBuilt(params: { bMsg: BuiltMsg, [key: string]: any; }): Promise<any> {
+    let { bMsg, ...opts } = params || {};
     console.log(`in OpenAI nativeChat w msg:`, { bMsg });
     return 'Unimplemented OpenAI Native Chat';
   }
@@ -534,9 +563,9 @@ export class OpenAiClient extends BaseClient {
 
 export class ClaudeClient extends BaseClient {
 
-  async nativeChatBuilt(params:{bMsg:BuiltMsg,[key:string]:any}):Promise<any> {
-    let {bMsg,  filter, ...chatParams} = params;
-  //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
+  async nativeChatBuilt(params: { bMsg: BuiltMsg, [key: string]: any; }): Promise<any> {
+    let { bMsg, filter, ...chatParams } = params;
+    //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
     let chatType = "Claude Native";
     let { uMsg, sMsg, msgKeys } = bMsg;
     let system = sMsg;
@@ -544,9 +573,9 @@ export class ClaudeClient extends BaseClient {
     //let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=4096,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=8192,budget_tokens} = chatParams;
-    let {temperature=.3,max_tokens=16192,budget_tokens=8192} = chatParams;
+    let { temperature = .3, max_tokens = 16192, budget_tokens = 8192 } = chatParams;
     //ONLY if budget_tokens will use 'thinking'
-    let claude37Defs:GenObj = {
+    let claude37Defs: GenObj = {
       //model: "claude-3-7-sonnet-20250219",
       model,
       temperature,
@@ -555,17 +584,17 @@ export class ClaudeClient extends BaseClient {
     };
     if (budget_tokens) {
       if (budget_tokens >= max_tokens) {
-        throw new PkError(`budget_tokens >= max_tokens`,{budget_tokens,max_tokens});
+        throw new PkError(`budget_tokens >= max_tokens`, { budget_tokens, max_tokens });
       }
       let thinking = {
-      temperature:1,
-      thinking: {
-        type: "enabled",
-        budget_tokens,
-      },
-      betas: ["output-128k-2025-02-19"]
+        temperature: 1,
+        thinking: {
+          type: "enabled",
+          budget_tokens,
+        },
+        betas: ["output-128k-2025-02-19"]
       };
-      claude37Defs = {...claude37Defs, ...thinking};
+      claude37Defs = { ...claude37Defs, ...thinking };
       console.error(`In claude native chat, with extended thinking`);
     } else {
       console.error(`In claude native chat, NO extended thinking!!!`);
@@ -584,8 +613,8 @@ export class ClaudeClient extends BaseClient {
       console.log(`Returned from test of new Claude 3.7`);
       let assistant = this.extractAssistantResponse(response);
       let usage = this.extractUsageInfo(response);
-      chatLog.wrtAssistant(assistant,usage);
-    //  return 'done w. test of claude 3.7';
+      chatLog.wrtAssistant(assistant, usage);
+      //  return 'done w. test of claude 3.7';
       msgCnt++;
       messages.push({ role: 'assistant', content: assistant });
       stdOut(chalk.blue(`\n\n${assistant}\n\n`));
@@ -602,18 +631,18 @@ export class ClaudeClient extends BaseClient {
  * @param response - The response from the Anthropic API
  * @returns An object containing token usage information
  */
-extractUsageInfo(response: GenObj):GenObj {
-  return {
-    inputTokens: response.usage?.input_tokens || 0,
-    outputTokens: response.usage?.output_tokens || 0,
-    thinkingTokens: response.usage?.thinking_tokens || 0,
-    totalTokens: (response.usage?.input_tokens || 0) + 
-                 (response.usage?.output_tokens || 0) + 
-                 (response.usage?.thinking_tokens || 0),
-    stopReason: response.stop_reason,
-    stopSequence: response.stop_sequence
-  };
-}
+  extractUsageInfo(response: GenObj): GenObj {
+    return {
+      inputTokens: response.usage?.input_tokens || 0,
+      outputTokens: response.usage?.output_tokens || 0,
+      thinkingTokens: response.usage?.thinking_tokens || 0,
+      totalTokens: (response.usage?.input_tokens || 0) +
+        (response.usage?.output_tokens || 0) +
+        (response.usage?.thinking_tokens || 0),
+      stopReason: response.stop_reason,
+      stopSequence: response.stop_sequence
+    };
+  }
   /**
  * Extracts the assistant's response content from the Anthropic API response
  * @param response - The response from the Anthropic API
@@ -670,23 +699,62 @@ export function getPkClient(provider: string) {
   return client;
 }
 
+// Encoding content for AI-SDK generateObject, etc
 
+export type SdkFileMsg = {
+  content: {
+    type: string,
+    data: string,
+    mimeType: string,
+  },
+  role: string,
+};
+// Alternate TS mime types: application/x-typescript, text/typescript, text/javascript
+/** Returns a message file object to insert in the message array
+ * @deprecated - until fixed 
+*/
+export function sdkFileMsgFPart(fpath: string, role = 'user'): CoreMessage {
+  if (!isFile(fpath)) {
+    throw new PkError(`File [${fpath}] not found`);
+  }
+  let data = fs.readFileSync(fpath, { encoding: 'utf8' });
+  let tsMimeTypes = [
+    'application/typescript',
+    'application/x-typescript',
+    'text/typescript',
+    'text/javascript',
+  ];
+  let k=0; // Change to try different mime types for TS
+  let mimeType = fpath.endsWith('.ts') ? tsMimeTypes[k] : mime.getType(fpath);
+  let content:FilePart[] =  [{ type: "file", mimeType, data }];
+  let retMsg:CoreMessage = {
+    //@ts-ignore
+    role,
+    content,
+  }
+  // as CoreMessage
+  ;
+  return retMsg;
+}
 
+/**
+ * Just try wrapCodeFiles - works
+ */
+export function sdkFileMsg(fpath: string, role = 'user'): CoreMessage {
+  if (!isFile(fpath)) {
+    throw new PkError(`File [${fpath}] not found`);
+  }
+  let content = wrapCodeFiles(fpath);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  let retMsg:CoreMessage = {
+    //@ts-ignore
+    role,
+    content,
+  }
+  // as CoreMessage
+  ;
+  return retMsg;
+}
 
 
 

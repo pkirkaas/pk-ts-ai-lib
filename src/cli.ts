@@ -6,6 +6,7 @@
 // npm lib imports
 
 import _ from "lodash";
+import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // pk-lib imports
 
@@ -19,7 +20,8 @@ import { JSON5Stringify, mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, 
 
 // local imports
 import {
-  sysMsgs,
+
+  sysMsgs, decompSchema,
   tstZodSchemas, tstZods,
   codeFiles, askMsg,
   tstMsgs,
@@ -33,7 +35,7 @@ import {
   systemMessages, providers, timeout,
   validateJson,  getFncsMD,
   dbReport, OpenAiClient,ClaudeClient,
-  logPretty,
+  logPretty, sdkFileMsg,
 } from './init.js';
 
 // Implementations
@@ -44,6 +46,15 @@ export let msgKeys = {
 
 
 let fncs = {
+  tZod:() => {
+    let jsSchema = zodToJsonSchema(decompSchema);
+    console.log(jsSchema);
+  },
+  fMsg:() => {
+    let fpath = "C:/www/TypeScriptLibs/Pk-Ts-Node/src/index.ts";
+    let fmsg = sdkFileMsg(fpath);
+    console.log({fmsg});
+  },
   tstZod:(...args) => {
     let schemas = tstZodSchemas(args);
     console.log({schemas});

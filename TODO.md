@@ -16,3 +16,5 @@
 - For chats - first response, get all parameters - each response, get tokens used
 - CHECK! Fix repeated sysmsgs, and clean up!!
 - More zod schemas for TS Lib parsing
+- Add better/more options & defaults for chats & object gen
+- Create SDK Provider for 'lms'

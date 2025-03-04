@@ -7,7 +7,7 @@ import { Strings } from 'pk-ts-node-lib';
 export interface StructureSpec {
     name?: string;
     definition: string;
-    schema: z.ZodTypeAny;
+    schema: z.Schema;
     examples?: any[];
 }
 export declare const FunctionNamesSchema: z.ZodObject<{
