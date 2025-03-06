@@ -110,12 +110,13 @@ export const providers:Providers = {
     apiKey: process.env.OPENAI_API_KEY,
     //model: 'chatgpt-4o-latest',
     //model: "gpt-4o-2024-11-20",
-    //model: "o1-preview",
-    model:"gpt-4.5-preview",
-    //model:"o3-mini-2025-01-31", // No access?
+    //model: "o1", // $15
+    model: "o3-mini", // $1.10, supports structured outputs, functions
+    //model:"gpt-4.5-preview", // EXPENSIVE! $75
   },
   togetherai: {
     baseURL: "https://api.together.xyz/v1",
+    filters:['qwen', 'deepseek', 'meta-llama',],
     apiKey: process.env.TOGETHER_API_KEY,
     pkClientClass: TogetherClient,
   },

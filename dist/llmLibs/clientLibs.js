@@ -8,6 +8,7 @@ import { openai, createOpenAI, } from "@ai-sdk/openai";
 import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
 import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
@@ -18,6 +19,7 @@ export const aiSdkClients = {
     openai: { client: openai, create: createOpenAI, },
     anthropic: { client: anthropic, create: createAnthropic, },
     xai: { client: xai, create: createXai, },
+    lms: { create: createOpenAICompatible },
 };
 export const defaultSdkChatParams = {
     temperature: 0,
@@ -181,6 +183,9 @@ export class BaseClient {
             if (this.modelName) {
                 return this.modelName;
             }
+        }
+        if (!filter && providerConfig.filters) {
+            filter = providerConfig.filters;
         }
         let models = await this.filterModels({ filter });
         let names = this.modelObjsToNames(models);

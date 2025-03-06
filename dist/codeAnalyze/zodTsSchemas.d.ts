@@ -45,7 +45,7 @@ export declare const decompSchema: z.ZodObject<{
  * Test messages for sdk generateObject
  */
 export declare function mkDecompParams(fpath?: string): {
-    messages: SdkMessage[];
+    messages: import("ai").CoreMessage[];
     schema: z.ZodObject<{
         exports: z.ZodArray<z.ZodObject<{
             name: z.ZodString;

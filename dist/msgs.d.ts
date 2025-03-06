@@ -127,6 +127,7 @@ export declare let systemMessages: {
 };
 export declare let usrMessages: {
     wrappedschema: string;
+    back: string;
     pqtBrowser: string;
     embeddings: string;
     aicp2: string;

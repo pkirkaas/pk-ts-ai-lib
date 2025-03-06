@@ -54,7 +54,7 @@ export const aiSdkClients = { // Keyed by 'providers' key
   openai: { client: openai, create: createOpenAI, },
   anthropic: { client: anthropic, create: createAnthropic, },
   xai: { client: xai, create: createXai, },
-
+  lms: {create:createOpenAICompatible},
 };
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
@@ -85,13 +85,8 @@ export interface AnthropicConfig {
   */
 
 // Type to represent a message in the conversation history
-export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
-/*
-export interface SdkMessage {
-  role: 'user' | 'assistant' | 'system',
-  content: string,
-}
-  */
+//export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
+export type SdkMessage = CoreMessage;
 
 // Type to hold the chat context
 export type SdkMessages = SdkMessage[];
@@ -267,6 +262,9 @@ export abstract class BaseClient {
       if (this.modelName) {
         return this.modelName;
       }
+    }
+    if (!filter && providerConfig.filters) {
+      filter = providerConfig.filters;
     }
     let models = await this.filterModels({ filter });
     let names = this.modelObjsToNames(models);

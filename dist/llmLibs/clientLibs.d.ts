@@ -1,9 +1,10 @@
-import { CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage, CoreMessage } from 'ai';
+import { CoreMessage } from 'ai';
 import { z } from 'zod';
 import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { GenObj } from 'pk-ts-node-lib';
 import { ModelListOpts, Strings, BuiltMsg, StructureSpec } from '../init.js';
 export declare const aiSdkClients: {
@@ -23,6 +24,9 @@ export declare const aiSdkClients: {
         client: import("@ai-sdk/xai").XaiProvider;
         create: typeof createXai;
     };
+    lms: {
+        create: typeof createOpenAICompatible;
+    };
 };
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
@@ -36,7 +40,7 @@ export interface SdkChatParams {
     [key: string]: any;
 }
 export declare const defaultSdkChatParams: SdkChatParams;
-export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
+export type SdkMessage = CoreMessage;
 export type SdkMessages = SdkMessage[];
 export interface GetModelParams {
     filter: Strings;

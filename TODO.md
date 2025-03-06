@@ -18,3 +18,5 @@
 - More zod schemas for TS Lib parsing
 - Add better/more options & defaults for chats & object gen
 - Create SDK Provider for 'lms'
+- Work more on Together API
+- Improve model chooser, include date, price, etc
