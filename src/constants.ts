@@ -80,25 +80,6 @@ export const providers:Providers = {
     },
     //clientLib: OpenAI,
   },
-  xai: {
-    apiKey: process.env.GROK_API_KEY,
-    // clientLib: OpenAI,
-    baseURL: "https://api.x.ai/v1",
-    model: "grok-beta",
-    defaultOpts: {
-      ...oaiCodeParams,
-      // max_tokens: 8192,
-    },
-  },
-  ollama: {
-    baseURL: `http://localhost:${OLLAMA_PORT}/v1`,
-    apiKey: 'ollama',
-    defaultOpts: {
-      ...oaiCodeParams,
-      // max_tokens: 8192,
-    },
-    // clientLib: OpenAI,
-  },
   openai: {
     baseURL: 'https://api.openai.com/v1',
     // clientLib: OpenAI,
@@ -108,11 +89,13 @@ export const providers:Providers = {
       // max_tokens: 8192,
     },
     apiKey: process.env.OPENAI_API_KEY,
-    //model: 'chatgpt-4o-latest',
-    //model: "gpt-4o-2024-11-20",
     //model: "o1", // $15
     model: "o3-mini", // $1.10, supports structured outputs, functions
     //model:"gpt-4.5-preview", // EXPENSIVE! $75
+  },
+  groq: {
+    baseURL: "https://api.groq.com/openai/v1",
+    apiKey: process.env.GROQ_API_KEY,
   },
   togetherai: {
     baseURL: "https://api.together.xyz/v1",
@@ -123,14 +106,37 @@ export const providers:Providers = {
   anthropic: {
     clientLib: Anthropic,
     pkClientClass: ClaudeClient,
-    //baseURL: "",
-    //type: "vertex",
     model: 'claude-3-7-sonnet-latest',
     apiKey: process.env.ANTHROPIC_API_KEY,
     defaultOpts: {
       ...anthropicCodeParams,
       //max_tokens: 8192,
       //system: defaultSysMsg,
+    },
+  },
+  nebius: {
+    clientLib: OpenAI,
+    baseURL: "https://api.studio.nebius.ai/v1/",
+    apiKey: process.env.NEBIUS_API_KEY,
+  },
+  /*
+  ollama: {
+    baseURL: `http://localhost:${OLLAMA_PORT}/v1`,
+    apiKey: 'ollama',
+    defaultOpts: {
+      ...oaiCodeParams,
+      // max_tokens: 8192,
+    },
+    // clientLib: OpenAI,
+  },
+  xai: {
+    apiKey: process.env.GROK_API_KEY,
+    // clientLib: OpenAI,
+    baseURL: "https://api.x.ai/v1",
+    model: "grok-beta",
+    defaultOpts: {
+      ...oaiCodeParams,
+      // max_tokens: 8192,
     },
   },
   gengemini: { // Use Gemini API instead of VertexAI
@@ -155,17 +161,12 @@ export const providers:Providers = {
     apiKey: process.env.GEMINI_API_KEY,
     location: 'us-central1',
   },
-  nebius: {
-    clientLib: OpenAI,
-    baseURL: "https://api.studio.nebius.ai/v1/",
-    apiKey: process.env.NEBIUS_API_KEY,
-  },
   nvidia: {
     clientLib: OpenAI,
     baseURL: 'https://integrate.api.nvidia.com/v1',
     apiKey: process.env.NVIDIA_API_KEY,
   },
-
+  */
 };
 
 export const timeout = 96 * 60 * 60 * 1000; //96 hour timeout

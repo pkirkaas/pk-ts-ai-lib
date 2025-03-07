@@ -24,6 +24,7 @@
     "@ai-sdk/anthropic": "*",
     "@ai-sdk/deepseek": "*",
     "@ai-sdk/google": "*",
+    "@ai-sdk/groq": "^1.1.12",
     "@ai-sdk/openai": "*",
     "@ai-sdk/openai-compatible": "*",
     "@ai-sdk/provider": "^1.0.6",

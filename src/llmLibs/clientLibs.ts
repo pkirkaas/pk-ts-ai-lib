@@ -29,6 +29,7 @@ import { openai, createOpenAI, } from "@ai-sdk/openai";
 import { anthropic, createAnthropic, } from "@ai-sdk/anthropic";
 import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
+import { groq, createGroq } from '@ai-sdk/groq';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 //import {Message} from '@anthropic-ai/sdk';
@@ -52,9 +53,11 @@ import {
 export const aiSdkClients = { // Keyed by 'providers' key
   togetherai: { client: togetherai, create: createTogetherAI, },
   openai: { client: openai, create: createOpenAI, },
+  groq: { client: groq, create: createGroq, },
   anthropic: { client: anthropic, create: createAnthropic, },
   xai: { client: xai, create: createXai, },
   lms: {create:createOpenAICompatible},
+  nebius: {create:createOpenAICompatible},
 };
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
@@ -193,7 +196,6 @@ export abstract class BaseClient {
     //let clientLib = this.providerConfig.clientLib || OpenAI;
   }
 
-  mk;
 
   // Constructor actions that can be overridden in subclasses
   createNativeClient(...args) {

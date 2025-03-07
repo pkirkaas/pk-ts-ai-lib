@@ -4,6 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
+import { createGroq } from '@ai-sdk/groq';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { GenObj } from 'pk-ts-node-lib';
 import { ModelListOpts, Strings, BuiltMsg, StructureSpec } from '../init.js';
@@ -16,6 +17,10 @@ export declare const aiSdkClients: {
         client: import("@ai-sdk/openai").OpenAIProvider;
         create: typeof createOpenAI;
     };
+    groq: {
+        client: import("@ai-sdk/groq").GroqProvider;
+        create: typeof createGroq;
+    };
     anthropic: {
         client: import("@ai-sdk/anthropic").AnthropicProvider;
         create: typeof createAnthropic;
@@ -25,6 +30,9 @@ export declare const aiSdkClients: {
         create: typeof createXai;
     };
     lms: {
+        create: typeof createOpenAICompatible;
+    };
+    nebius: {
         create: typeof createOpenAICompatible;
     };
 };
@@ -99,7 +107,6 @@ export declare abstract class BaseClient {
     temperature: number;
     modelName: string;
     constructor(provider: string);
-    mk: any;
     createNativeClient(...args: any[]): import("pk-ts-node-lib").GenericObject;
     mkSdkChatParams(params?: SdkChatParams): SdkChatParams;
     get sdkClient(): any;
