@@ -1,6 +1,34 @@
 {| ZOD questions |}
 [[zod]]
 
+I am creating zod schemas with the latest zod and typescript.
+
+I want to create a zod enum with an array of strings. If I put the enum values directly in the zod.enum declaration, it works fine. For example:
+
+```ts
+export const baseComponentSchema = z.object({
+  type: z.enum(['class', 'function', 'interface', 'type', 'constant', 'enum'])
+});
+// Works fine
+```
+
+However, I would like to define the enum values as a TS variable and use that in
+the zod schema like:
+
+```ts
+const tsCompTypes = ['class', 'function', 'interface', 'type', 'constant', 'enum'];
+export const baseComponentSchema = z.object({
+  type: z.enum(tsCompTypes)
+});
+// TypeScript error No Overload matches this call
+// Argument of type 'string[]' is not assignable to parameter of type 'readonly [string, ...string[]]'.
+```
+It seems like tsCompTypes has to be 'readonly' somehow.
+
+How can I use a TS array variable as an argument to the `z.enum()` method?
+
+
+
 {|
 I want to create a typescript function that expects a Zod Schema as its first parameter - like:
 
@@ -14,7 +42,6 @@ export function jsonSchemaFromZod(schema:z.ZodSchema):string {
 I want the function to accept ANY valid Zod schema instance, but only zod schema instances. Is the above correct, or are there better ways?
 
 Also, given a zod schema, I want to be able to check if it is an array, object, or primitive schema type. How do I do that?
-|}
 
 
 I am developing a node AI application that uses the OpenAI API for structured outputs.
@@ -76,3 +103,7 @@ I want to use Zod to create JSON schemas for structured output. The openai docum
 How can I define good JSON schemas for OpenAI structured outputs using `zod`?
 
 That is, how best to define a schema directly with Zod that can be converted to a valid JSON schema for OpenAI API structured output
+|}
+
+
+

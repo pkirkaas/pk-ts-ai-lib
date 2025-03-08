@@ -38,6 +38,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import {
   getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, writeData, askConfirm, dtFmt, JSON5Stringify, isEmpty, multiAsk, isSimpleObject, safeFile,
   parseArgs, GenObj, isString, mkArray, strIncludesAny, PkError, typeOf, Falsy, Void,
+  toCamel, camelKeys,
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -47,6 +48,7 @@ import {
   getProviderConfig, getLlmProvider, ModelListOpts, wrapStr, mkDecompParams,
   defaultSysMsg, Strings, logEntities, LogItem, initChatLog, buildMsg, wrapCodeFiles,
   chatEntities, ChatLog, ChatItem, BuiltMsg, askMsg, StructureSpec, Role,
+  oaiCodeParams,
 } from '../init.js';
 
 
@@ -77,6 +79,7 @@ export const defaultSdkChatParams: SdkChatParams = {
   frequency_penalty: 0,
   presence_penalty: 0,
   max_tokens: 8192,
+  reasoningEffort:"high",
   //max_tokens: 4096,
 };
 /*
@@ -89,10 +92,10 @@ export interface AnthropicConfig {
 
 // Type to represent a message in the conversation history
 //export type SdkMessage = CoreUserMessage | CoreSystemMessage | CoreAssistantMessage | CoreToolMessage;
-export type SdkMessage = CoreMessage;
+//export type SdkMessage = CoreMessage;
 
 // Type to hold the chat context
-export type SdkMessages = SdkMessage[];
+//export type SdkMessages = SdkMessage[];
 
 export interface GetModelParams {
   filter: Strings,
@@ -203,9 +206,17 @@ export abstract class BaseClient {
     this.client = new clientLib({ baseURL, apiKey });
     return this.client;
   }
+
+  /**
+   * Make parameters for ai-sdk - from sdk default, provider default, & specific
+   * ai-sdk params are camelCased - convert
+   * Which priority? 
+   */
   mkSdkChatParams(params: SdkChatParams = {}): SdkChatParams {
-    let pConfig = this.providerConfig.defaultOpts;
-    let cParams = { ...defaultSdkChatParams, ...pConfig, ...params };
+    let pConfig = camelKeys(this.providerConfig.defaultOpts);
+    params = camelKeys(params);
+    let ckDefaultSdkChatParams = camelKeys(defaultSdkChatParams);
+    let cParams = { ...ckDefaultSdkChatParams, ...pConfig, ...params };
     return cParams;
   }
   get sdkClient(): any { // Maybe replace w. function to allow settings/opts?
@@ -305,7 +316,7 @@ export abstract class BaseClient {
    * 
    */
   //async singleSdkChat(messages:SdkMessages, modelName:string, sdkChatParams:SdkChatParams = defaultSdkChatParams):Promise<ChatCompletionMessageParam> {
-  async singleSdkChat(messages: SdkMessages, modelName: string, sdkChatParams: SdkChatParams = {}): Promise<any> {
+  async singleSdkChat(messages: CoreMessage[], modelName: string, sdkChatParams: SdkChatParams = {}): Promise<any> {
     sdkChatParams = this.mkSdkChatParams(sdkChatParams);
     let model = this.sdkClient(modelName);
     //@ts-ignore
@@ -327,7 +338,7 @@ export abstract class BaseClient {
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<SdkMessages> {
+  async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
     let bMsg = await this.prepChat(msgs, ASK);
     sdkChatParams = this.mkSdkChatParams(sdkChatParams);
     return this.sdkChatBuilt(bMsg, filter, sdkChatParams,);
@@ -337,7 +348,7 @@ export abstract class BaseClient {
     return new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
   }
 
-  async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<SdkMessages> {
+  async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<CoreMessage[]> {
     let chatType = 'sdkChat';
     function getDets(resp: GenObj) { // Get token usage from response
       let usage = resp?.usage?.totalTokens;
@@ -353,7 +364,7 @@ export abstract class BaseClient {
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);
     }
-    let messages: SdkMessages = [
+    let messages: CoreMessage[] = [
       { role: 'system', content: sMsg },
       { role: 'user', content: uMsg, },
     ];
@@ -395,10 +406,10 @@ export abstract class BaseClient {
     providerOptions = this.mkSdkChatParams(providerOptions);
     let { uMsg, sMsg } = buildMsg(msgs);
     let { schema, definition } = spec;
-    let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
+    let predef = "You are required to provide a valid JSON object, strictly adhering to the JSON schema provided.\n";
     let sdef = `\n${predef}\n${definition}\n`;
 
-    let messages: SdkMessages = [
+    let messages: CoreMessage[] = [
       { role: 'system', content: sMsg },
       { role: 'system', content: sdef },
       { role: 'user', content: uMsg, },
@@ -423,7 +434,7 @@ export abstract class BaseClient {
     let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
     let sdef = `\n${predef}\n${definition}\n`;
 
-    let messages: SdkMessages = [
+    let messages: CoreMessage[] = [
       { role: 'system', content: sMsg },
       { role: 'system', content: sdef },
       { role: 'user', content: uMsg, },
@@ -431,9 +442,11 @@ export abstract class BaseClient {
     */
     modelName = await this.getModelName(modelName);
     let model = this.sdkClient(modelName);
-    console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
+    //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
+    console.error(`Trying sdkTsDecomp w.`, { messages,fpath,});
     dbgWrt({model, schema, messages,fpath,},'gobjParams');
     let res = await generateObject({ model, schema, messages, providerOptions, });
+    dbgWrt({res},'gobjRes');
     let obj = res.object;
     return obj;
   }
@@ -724,7 +737,7 @@ export function sdkFileMsgFPart(fpath: string, role = 'user'): CoreMessage {
     'text/typescript',
     'text/javascript',
   ];
-  let k=0; // Change to try different mime types for TS
+  let k=2; // Change to try different mime types for TS
   let mimeType = fpath.endsWith('.ts') ? tsMimeTypes[k] : mime.getType(fpath);
   let content:FilePart[] =  [{ type: "file", mimeType, data }];
   let retMsg:CoreMessage = {

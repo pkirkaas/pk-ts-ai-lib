@@ -28,6 +28,7 @@ export let oaiCodeParams = {
   top_p: 0.2,
   frequency_penalty: 0.0,
   presence_penalty: 0.0,
+  max_tokens:8192,
 };
 
 export let anthropicCodeParams = {

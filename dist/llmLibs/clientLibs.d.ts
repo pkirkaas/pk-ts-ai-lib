@@ -48,8 +48,6 @@ export interface SdkChatParams {
     [key: string]: any;
 }
 export declare const defaultSdkChatParams: SdkChatParams;
-export type SdkMessage = CoreMessage;
-export type SdkMessages = SdkMessage[];
 export interface GetModelParams {
     filter: Strings;
 }
@@ -108,6 +106,11 @@ export declare abstract class BaseClient {
     modelName: string;
     constructor(provider: string);
     createNativeClient(...args: any[]): import("pk-ts-node-lib").GenericObject;
+    /**
+     * Make parameters for ai-sdk - from sdk default, provider default, & specific
+     * ai-sdk params are camelCased - convert
+     * Which priority?
+     */
     mkSdkChatParams(params?: SdkChatParams): SdkChatParams;
     get sdkClient(): any;
     get providerConfig(): GenObj;
@@ -143,12 +146,12 @@ export declare abstract class BaseClient {
      * steps
      *
      */
-    singleSdkChat(messages: SdkMessages, modelName: string, sdkChatParams?: SdkChatParams): Promise<any>;
+    singleSdkChat(messages: CoreMessage[], modelName: string, sdkChatParams?: SdkChatParams): Promise<any>;
     prepChat(msgs: Strings, ASK?: boolean): Promise<BuiltMsg>;
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
+    sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<CoreMessage[]>;
     mkChatLog({ chatType, uMsg, sMsg, msgKeys, chatConfig }: {
         chatType?: string;
         uMsg?: string;
@@ -156,7 +159,7 @@ export declare abstract class BaseClient {
         msgKeys?: any[];
         chatConfig?: {};
     }): ChatLogger;
-    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<SdkMessages>;
+    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<CoreMessage[]>;
     /**
      * Generate an object from input messages & schema
      * @param spec:StructureSpec - The schema & definition for the object returned

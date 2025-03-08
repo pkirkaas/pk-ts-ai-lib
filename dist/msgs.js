@@ -582,6 +582,7 @@ Our initial approach is to define a JSON schema to explicitly define all the met
 `,
     zod: `[[node]]
 You are an expert with the latest version of the npm TypeScript first schema/typing package \`zod\`
+(version >= 3), as well as all supporting NPM packages, such as 'zod-to-json-schema', etc.
 `,
     vscode: `[[node]] You are an expert in configuration and usage of the latest \`VSCode\` Software development IDE (v >= 1.9), as well as all extensions `,
     aiprep: `[[ai]] I have prepared the data for my 100 TypeScript functions by extracting metadata about each function in JSON format. The metadata for each function is in the format specified by the \`json-schema\` that follows below. `,

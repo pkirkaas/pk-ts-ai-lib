@@ -6,7 +6,7 @@ import { z } from 'zod';
 // PkLib Imports
 import { writeData, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
-import { providers, } from './init.js';
+import { providers, oaiCodeParams, } from './init.js';
 // Move to common/node lib
 export function consoleDir(arg, opts = { depth: null, showHidden: true, colors: true }) {
     console.dir(arg, opts);
@@ -115,7 +115,11 @@ export function getLlmProvider(provider = null) {
 }
 export function getProviderConfig(provider = null) {
     provider = getLlmProvider(provider);
-    return providers[provider];
+    let config = providers[provider];
+    if (!config.defaultOpts) {
+        config.defaultOpts = oaiCodeParams;
+    }
+    return config;
 }
 ;
 /**

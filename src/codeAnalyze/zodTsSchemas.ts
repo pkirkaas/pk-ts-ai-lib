@@ -14,7 +14,7 @@ import { GenObj, isObject, isSimpleObject, isEmpty,
 } from 'pk-ts-node-lib';
 
 // Local Imports
-import {sdkFileMsg, SdkMessages, SdkMessage, sdkFileMsgFPart,
+import {sdkFileMsg, tsCompStr,  tsCompTypes, sdkFileMsgFPart,
  } from '../init.js'; 
 
 // Exports
@@ -22,81 +22,19 @@ import {sdkFileMsg, SdkMessages, SdkMessage, sdkFileMsgFPart,
 /**
  * Kinds of components exported by TypeScript
  */
-export const tsCompTypes = ['class', 'function', 'interface', 'type', 'constant', 'enum'];
-export const tsCompStr = `[${tsCompTypes.join(',')}]`;
-
-// Testing AI-SDK generateObject with instructions & zod schemas
-
-let sysMsg = `You are an expert TypeScript/JavaScript code analyzer. 
-
-The source code of a TypeScript file is provided as one of the messages.
-
-Identify all exported components in the TypeScript source file provided and classify them by type.
-
-Exported typescript component categories are: ${tsCompStr}
-
-Your response should be a json object that follows the json schema provided.
-
-`;
-
-let usrMsg = `Please identify all exported components in this source file as per the schema`;
 
 export const decompSchema = z.object({
   exports: z.array(
     z.object({
-      name:z.string().describe('The name of the exported component'),
-      lineStart: z.number().describe('Approximate line number where the component export definition starts'),
+      name:z.string().describe('The name of the exported declaration'),
+      //lineStart: z.number().describe('Approximate line number where the component export definition starts'),
       //type:z.enum(tsCompTypes),
-      type:z.string().describe(`The type of the exported TypeScript component, one of ${tsCompStr}`),
-      lineEnd: z.number().describe('Approximate line number where the component export definition ends'),
-    }).describe('The object description of the exported component')
-  ).describe(`Array of exported component object descriptions`)
+      type:z.string().describe(`The type of the exported TypeScript declaration, one of ${tsCompStr}`),
+      //lineEnd: z.number().describe('Approximate line number where the component export definition ends'),
+    }).describe('The object description of the exported declaration')
+  ).describe(`Array of exported TypeScript descriptions`)
 });
 
-/**
- * Test messages for sdk generateObject
- */
-export function mkDecompParams(fpath='./src/codeAnalyze/zodTsSchemas.ts') {
-  let messages:SdkMessage[] = [
-    mkMsgObj(sysMsg,'system'),
-    sdkFileMsg(fpath, 'system'),
-    //sdkFileMsgFPart(fpath, 'system'),
-    mkMsgObj(usrMsg),
-  ];
-  return {messages, schema:decompSchema,};
-} 
-
-export type Role = 'user' | 'assistant' | 'system' | 'tool';
-export function mkMsgObj(content:any, role:Role='user'):SdkMessage {
-  return {
-    content, role,
-  }
-}
-/*
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert TypeScript/JavaScript code analyzer. First, identify all exported components in the source file and classify them by type.
-
-Output should be a valid JSON object with the following structure:
-{
-  "exports": [
-    {
-      "name": "ComponentName",
-      "type": "class" | "function" | "interface" | "type" | "constant" | "enum",
-      "lineStart": number, // Approximate line where the component starts
-      "lineEnd": number   // Approximate line where the component ends
-    }
-  ]
-}
-
-Include only components that are explicitly exported and would be accessible to consumers of the library.`
-          },
-          {
-            role: "user",
-            content: `Please identify all exported components in this source file from the "${libraryName}" library located at "${filePath}":\n\n${content}`
-          }
-*/
 
 // Base parameter schema used in both functions and methods
 export const parameterSchema = z.object({
@@ -127,7 +65,8 @@ export type Exception = z.infer<typeof exceptionSchema>;
 
 // Base component schema with common fields
 export const baseComponentSchema = z.object({
-  type: z.enum(['class', 'function', 'interface', 'type', 'constant', 'enum'])
+  //type: z.enum(['class', 'function', 'interface', 'type', 'constant', 'enum'])
+  type: z.enum(tsCompTypes)
     .describe("Type of code component"),
   name: z.string().describe("Name of the component"),
   description: z.string().describe("Detailed description of what this component does and its purpose"),
@@ -170,7 +109,7 @@ export const functionComponentSchema = baseComponentSchema.extend({
   isGenerator: z.boolean().describe("Whether this is a generator function"),
   examples: z.array(z.string()).describe("Example code showing how to use this function"),
   usage: z.string().describe("Common usage patterns and best practices"),
-  complexity: z.string().optional().describe("Time/space complexity if applicable")
+  //complexity: z.string().optional().describe("Time/space complexity if applicable")
 });
 
 export type FunctionComponent = z.infer<typeof functionComponentSchema>;

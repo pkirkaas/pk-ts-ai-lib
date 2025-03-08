@@ -3,84 +3,31 @@
  */
 import "zod-metadata/register";
 import { z } from 'zod';
-import { SdkMessage } from '../init.js';
 /**
  * Kinds of components exported by TypeScript
  */
-export declare const tsCompTypes: string[];
-export declare const tsCompStr: string;
 export declare const decompSchema: z.ZodObject<{
     exports: z.ZodArray<z.ZodObject<{
         name: z.ZodString;
-        lineStart: z.ZodNumber;
         type: z.ZodString;
-        lineEnd: z.ZodNumber;
     }, "strip", z.ZodTypeAny, {
         type?: string;
         name?: string;
-        lineStart?: number;
-        lineEnd?: number;
     }, {
         type?: string;
         name?: string;
-        lineStart?: number;
-        lineEnd?: number;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     exports?: {
         type?: string;
         name?: string;
-        lineStart?: number;
-        lineEnd?: number;
     }[];
 }, {
     exports?: {
         type?: string;
         name?: string;
-        lineStart?: number;
-        lineEnd?: number;
     }[];
 }>;
-/**
- * Test messages for sdk generateObject
- */
-export declare function mkDecompParams(fpath?: string): {
-    messages: import("ai").CoreMessage[];
-    schema: z.ZodObject<{
-        exports: z.ZodArray<z.ZodObject<{
-            name: z.ZodString;
-            lineStart: z.ZodNumber;
-            type: z.ZodString;
-            lineEnd: z.ZodNumber;
-        }, "strip", z.ZodTypeAny, {
-            type?: string;
-            name?: string;
-            lineStart?: number;
-            lineEnd?: number;
-        }, {
-            type?: string;
-            name?: string;
-            lineStart?: number;
-            lineEnd?: number;
-        }>, "many">;
-    }, "strip", z.ZodTypeAny, {
-        exports?: {
-            type?: string;
-            name?: string;
-            lineStart?: number;
-            lineEnd?: number;
-        }[];
-    }, {
-        exports?: {
-            type?: string;
-            name?: string;
-            lineStart?: number;
-            lineEnd?: number;
-        }[];
-    }>;
-};
-export type Role = 'user' | 'assistant' | 'system' | 'tool';
-export declare function mkMsgObj(content: any, role?: Role): SdkMessage;
 export declare const parameterSchema: z.ZodObject<{
     name: z.ZodString;
     type: z.ZodString;
@@ -133,7 +80,7 @@ export declare const exceptionSchema: z.ZodObject<{
 }>;
 export type Exception = z.infer<typeof exceptionSchema>;
 export declare const baseComponentSchema: z.ZodObject<{
-    type: z.ZodEnum<["class", "function", "interface", "type", "constant", "enum"]>;
+    type: z.ZodEnum<["class", "function", "interface", "type", "variable", "enum"]>;
     name: z.ZodString;
     description: z.ZodString;
     isExported: z.ZodBoolean;
@@ -154,7 +101,7 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath: z.ZodString;
     dependencies: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    type?: "function" | "type" | "class" | "interface" | "constant" | "enum";
+    type?: "function" | "type" | "class" | "interface" | "variable" | "enum";
     name?: string;
     description?: string;
     isExported?: boolean;
@@ -169,7 +116,7 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath?: string;
     dependencies?: string[];
 }, {
-    type?: "function" | "type" | "class" | "interface" | "constant" | "enum";
+    type?: "function" | "type" | "class" | "interface" | "variable" | "enum";
     name?: string;
     description?: string;
     isExported?: boolean;
@@ -281,7 +228,7 @@ export declare const functionSignatureSchema: z.ZodObject<{
 }>;
 export type FunctionSignature = z.infer<typeof functionSignatureSchema>;
 export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendShape<{
-    type: z.ZodEnum<["class", "function", "interface", "type", "constant", "enum"]>;
+    type: z.ZodEnum<["class", "function", "interface", "type", "variable", "enum"]>;
     name: z.ZodString;
     description: z.ZodString;
     isExported: z.ZodBoolean;
@@ -401,7 +348,6 @@ export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendSha
     isGenerator: z.ZodBoolean;
     examples: z.ZodArray<z.ZodString, "many">;
     usage: z.ZodString;
-    complexity: z.ZodOptional<z.ZodString>;
 }>, "strip", z.ZodTypeAny, {
     usage?: string;
     type?: "function";
@@ -443,7 +389,6 @@ export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendSha
     }[];
     isAsync?: boolean;
     isGenerator?: boolean;
-    complexity?: string;
 }, {
     usage?: string;
     type?: "function";
@@ -485,7 +430,6 @@ export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendSha
     }[];
     isAsync?: boolean;
     isGenerator?: boolean;
-    complexity?: string;
 }>;
 export type FunctionComponent = z.infer<typeof functionComponentSchema>;
 //# sourceMappingURL=zodTsSchemas.d.ts.map

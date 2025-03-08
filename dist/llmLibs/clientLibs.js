@@ -12,7 +12,7 @@ import { groq, createGroq } from '@ai-sdk/groq';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, } from 'pk-ts-node-lib';
+import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, camelKeys, } from 'pk-ts-node-lib';
 // Local Imports
 import { getProviderConfig, getLlmProvider, wrapStr, mkDecompParams, buildMsg, wrapCodeFiles, askMsg, } from '../init.js';
 export const aiSdkClients = {
@@ -30,6 +30,7 @@ export const defaultSdkChatParams = {
     frequency_penalty: 0,
     presence_penalty: 0,
     max_tokens: 8192,
+    reasoningEffort: "high",
     //max_tokens: 4096,
 };
 ;
@@ -126,9 +127,16 @@ export class BaseClient {
         this.client = new clientLib({ baseURL, apiKey });
         return this.client;
     }
+    /**
+     * Make parameters for ai-sdk - from sdk default, provider default, & specific
+     * ai-sdk params are camelCased - convert
+     * Which priority?
+     */
     mkSdkChatParams(params = {}) {
-        let pConfig = this.providerConfig.defaultOpts;
-        let cParams = { ...defaultSdkChatParams, ...pConfig, ...params };
+        let pConfig = camelKeys(this.providerConfig.defaultOpts);
+        params = camelKeys(params);
+        let ckDefaultSdkChatParams = camelKeys(defaultSdkChatParams);
+        let cParams = { ...ckDefaultSdkChatParams, ...pConfig, ...params };
         return cParams;
     }
     get sdkClient() {
@@ -308,7 +316,7 @@ export class BaseClient {
         providerOptions = this.mkSdkChatParams(providerOptions);
         let { uMsg, sMsg } = buildMsg(msgs);
         let { schema, definition } = spec;
-        let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
+        let predef = "You are required to provide a valid JSON object, strictly adhering to the JSON schema provided.\n";
         let sdef = `\n${predef}\n${definition}\n`;
         let messages = [
             { role: 'system', content: sMsg },
@@ -334,7 +342,7 @@ export class BaseClient {
         let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
         let sdef = `\n${predef}\n${definition}\n`;
     
-        let messages: SdkMessages = [
+        let messages: CoreMessage[] = [
           { role: 'system', content: sMsg },
           { role: 'system', content: sdef },
           { role: 'user', content: uMsg, },
@@ -342,9 +350,11 @@ export class BaseClient {
         */
         modelName = await this.getModelName(modelName);
         let model = this.sdkClient(modelName);
-        console.error(`Trying sdkTsDecomp w.`, { model, schema, messages, fpath, });
+        //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
+        console.error(`Trying sdkTsDecomp w.`, { messages, fpath, });
         dbgWrt({ model, schema, messages, fpath, }, 'gobjParams');
         let res = await generateObject({ model, schema, messages, providerOptions, });
+        dbgWrt({ res }, 'gobjRes');
         let obj = res.object;
         return obj;
     }
@@ -615,7 +625,7 @@ export function sdkFileMsgFPart(fpath, role = 'user') {
         'text/typescript',
         'text/javascript',
     ];
-    let k = 0; // Change to try different mime types for TS
+    let k = 2; // Change to try different mime types for TS
     let mimeType = fpath.endsWith('.ts') ? tsMimeTypes[k] : mime.getType(fpath);
     let content = [{ type: "file", mimeType, data }];
     let retMsg = {

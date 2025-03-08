@@ -28,7 +28,7 @@ import {
   //fncSchema,
    buildMsg,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, initChatLog,
-  wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities,
+  wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities, oaiCodeParams,
 } from './init.js';
 
 // Move to common/node lib
@@ -158,7 +158,11 @@ export function getLlmProvider(provider = null) {
 
 export function getProviderConfig(provider = null) {
   provider = getLlmProvider(provider);
-  return providers[provider];
+  let config =  providers[provider];
+  if (!config.defaultOpts) {
+    config.defaultOpts = oaiCodeParams;
+  }
+  return config;
 }
 
 
