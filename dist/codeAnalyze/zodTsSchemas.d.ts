@@ -1,5 +1,6 @@
 /**
  * Zod/JSON schemas for TS Code Analysis
+ * Optimized for use with Vercel AI SDK's generateObject function
  */
 import "zod-metadata/register";
 import { z } from 'zod';
@@ -28,6 +29,12 @@ export declare const decompSchema: z.ZodObject<{
         name?: string;
     }[];
 }>;
+export declare const decompSchemaExample: {
+    exports: {
+        name: string;
+        type: string;
+    }[];
+};
 export declare const parameterSchema: z.ZodObject<{
     name: z.ZodString;
     type: z.ZodString;
@@ -51,6 +58,14 @@ export declare const parameterSchema: z.ZodObject<{
     isRest?: boolean;
 }>;
 export type Parameter = z.infer<typeof parameterSchema>;
+export declare const parameterExample: {
+    name: string;
+    type: string;
+    description: string;
+    defaultValue: string;
+    isOptional: boolean;
+    isRest: boolean;
+};
 export declare const typeParameterSchema: z.ZodObject<{
     name: z.ZodString;
     constraint: z.ZodOptional<z.ZodString>;
@@ -65,6 +80,11 @@ export declare const typeParameterSchema: z.ZodObject<{
     constraint?: string;
 }>;
 export type TypeParameter = z.infer<typeof typeParameterSchema>;
+export declare const typeParameterExample: {
+    name: string;
+    constraint: string;
+    default: string;
+};
 export declare const exceptionSchema: z.ZodObject<{
     type: z.ZodString;
     description: z.ZodString;
@@ -79,6 +99,11 @@ export declare const exceptionSchema: z.ZodObject<{
     conditions?: string;
 }>;
 export type Exception = z.infer<typeof exceptionSchema>;
+export declare const exceptionExample: {
+    type: string;
+    description: string;
+    conditions: string;
+};
 export declare const baseComponentSchema: z.ZodObject<{
     type: z.ZodEnum<["class", "function", "interface", "type", "variable", "enum"]>;
     name: z.ZodString;
@@ -101,7 +126,7 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath: z.ZodString;
     dependencies: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    type?: "function" | "type" | "class" | "interface" | "variable" | "enum";
+    type?: "function" | "type" | "class" | "enum" | "interface" | "variable";
     name?: string;
     description?: string;
     isExported?: boolean;
@@ -116,7 +141,7 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath?: string;
     dependencies?: string[];
 }, {
-    type?: "function" | "type" | "class" | "interface" | "variable" | "enum";
+    type?: "function" | "type" | "class" | "enum" | "interface" | "variable";
     name?: string;
     description?: string;
     isExported?: boolean;
@@ -132,6 +157,22 @@ export declare const baseComponentSchema: z.ZodObject<{
     dependencies?: string[];
 }>;
 export type BaseComponent = z.infer<typeof baseComponentSchema>;
+export declare const baseComponentExample: {
+    type: string;
+    name: string;
+    description: string;
+    isExported: boolean;
+    filePath: string;
+    sourceCode: string;
+    jsdoc: string;
+    visibility: string;
+    decorators: {
+        name: string;
+        arguments: string[];
+    }[];
+    modulePath: string;
+    dependencies: string[];
+};
 export declare const functionSignatureSchema: z.ZodObject<{
     parameters: z.ZodArray<z.ZodObject<{
         name: z.ZodString;
@@ -227,6 +268,35 @@ export declare const functionSignatureSchema: z.ZodObject<{
     }[];
 }>;
 export type FunctionSignature = z.infer<typeof functionSignatureSchema>;
+export declare const functionSignatureExample: {
+    parameters: ({
+        name: string;
+        type: string;
+        description: string;
+        isOptional: boolean;
+        isRest: boolean;
+        defaultValue?: undefined;
+    } | {
+        name: string;
+        type: string;
+        description: string;
+        defaultValue: string;
+        isOptional: boolean;
+        isRest: boolean;
+    })[];
+    returnType: string;
+    returnDescription: string;
+    typeParameters: {
+        name: string;
+        constraint: string;
+        default: string;
+    }[];
+    throwsExceptions: {
+        type: string;
+        description: string;
+        conditions: string;
+    }[];
+};
 export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendShape<{
     type: z.ZodEnum<["class", "function", "interface", "type", "variable", "enum"]>;
     name: z.ZodString;
@@ -432,4 +502,53 @@ export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendSha
     isGenerator?: boolean;
 }>;
 export type FunctionComponent = z.infer<typeof functionComponentSchema>;
+export declare const functionComponentExample: {
+    type: string;
+    signatures: {
+        parameters: ({
+            name: string;
+            type: string;
+            description: string;
+            isOptional: boolean;
+            isRest: boolean;
+            defaultValue?: undefined;
+        } | {
+            name: string;
+            type: string;
+            description: string;
+            defaultValue: string;
+            isOptional: boolean;
+            isRest: boolean;
+        })[];
+        returnType: string;
+        returnDescription: string;
+        typeParameters: {
+            name: string;
+            constraint: string;
+            default: string;
+        }[];
+        throwsExceptions: {
+            type: string;
+            description: string;
+            conditions: string;
+        }[];
+    }[];
+    isAsync: boolean;
+    isGenerator: boolean;
+    examples: string[];
+    usage: string;
+    name: string;
+    description: string;
+    isExported: boolean;
+    filePath: string;
+    sourceCode: string;
+    jsdoc: string;
+    visibility: string;
+    decorators: {
+        name: string;
+        arguments: string[];
+    }[];
+    modulePath: string;
+    dependencies: string[];
+};
 //# sourceMappingURL=zodTsSchemas.d.ts.map
