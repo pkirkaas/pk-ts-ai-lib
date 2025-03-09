@@ -105,7 +105,7 @@ export declare const exceptionExample: {
     conditions: string;
 };
 export declare const baseComponentSchema: z.ZodObject<{
-    type: z.ZodEnum<["class", "function", "interface", "type", "variable", "enum"]>;
+    type: z.ZodEnum<[string, ...string[]]>;
     name: z.ZodString;
     description: z.ZodString;
     isExported: z.ZodBoolean;
@@ -126,7 +126,7 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath: z.ZodString;
     dependencies: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    type?: "function" | "type" | "class" | "enum" | "interface" | "variable";
+    type?: string;
     name?: string;
     description?: string;
     isExported?: boolean;
@@ -141,7 +141,7 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath?: string;
     dependencies?: string[];
 }, {
-    type?: "function" | "type" | "class" | "enum" | "interface" | "variable";
+    type?: string;
     name?: string;
     description?: string;
     isExported?: boolean;
@@ -298,7 +298,7 @@ export declare const functionSignatureExample: {
     }[];
 };
 export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendShape<{
-    type: z.ZodEnum<["class", "function", "interface", "type", "variable", "enum"]>;
+    type: z.ZodEnum<[string, ...string[]]>;
     name: z.ZodString;
     description: z.ZodString;
     isExported: z.ZodBoolean;

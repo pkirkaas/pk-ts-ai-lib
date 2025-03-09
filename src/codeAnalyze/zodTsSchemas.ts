@@ -18,6 +18,8 @@ import {sdkFileMsg, tsCompStr,  tsCompTypes, sdkFileMsgFPart,
 
 // Exports
 
+//export function mk
+
 /**
  * Kinds of components exported by TypeScript
  */
@@ -94,8 +96,8 @@ export const exceptionExample = {
 
 // Base component schema with common fields
 export const baseComponentSchema = z.object({
-  type: z.enum(tsCompTypes)
-    .describe("Type of code component (function, class, interface, etc.)"),
+  //type: z.enum((tsCompTypes as const)) .describe("Type of code component (function, class, interface, etc.)"),
+  type: z.enum(tsCompTypes).describe("Type of code component (function, class, interface, etc.)"),
   name: z.string().describe("Name of the component"),
   description: z.string().describe("Description of what this component does"),
   isExported: z.boolean().describe("Whether this component is exported"),

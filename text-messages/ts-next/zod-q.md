@@ -3,8 +3,38 @@
 
 I am creating zod schemas with the latest zod and typescript.
 
-I want to create a zod enum with an array of strings. If I put the enum values directly in the zod.enum declaration, it works fine. For example:
+I want to create a zod enum with variable created from an array of keys from an object I define.
 
+I know that `z.enum` requires a readonly enum so using `Object.keys` as below generates a typescript error:
+
+```ts
+export const schemaTypeDefs = {
+  class: { },
+  function: { },
+  interface: { },
+  type: { },
+  variable: { },
+  enum: { },
+} as const;
+
+export const tsCompTypes = Object.keys(schemaTypeDefs);
+// Two-step type assertion via unknown
+export const tsCompTypes = Object.keys(schemaTypeDefs) as unknown as readonly [string, ...string[]];
+export const baseComponentSchema = z.object({
+  type: z.enum(tsCompTypes)
+});
+// TypeScript error No Overload matches this call
+// Argument of type 'string[]' is not assignable to parameter of type 'readonly [string, ...string[]]'.
+```
+
+I am using the latest TypeScript version 5.8.
+
+TypeScript is very flexible and I am certain there is some way using assertions, whatever, to use the results of Object.keys as a parameter of `z.enum`.
+
+Please be very creative and propose some solutions.
+
+
+{|
 ```ts
 export const baseComponentSchema = z.object({
   type: z.enum(['class', 'function', 'interface', 'type', 'constant', 'enum'])
@@ -29,7 +59,6 @@ How can I use a TS array variable as an argument to the `z.enum()` method?
 
 
 
-{|
 I want to create a typescript function that expects a Zod Schema as its first parameter - like:
 
 ```ts

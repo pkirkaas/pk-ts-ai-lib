@@ -5,12 +5,16 @@
 import { zodToJsonSchema } from 'zod-to-json-schema';
 // pk-lib imports
 import { dbgWrt, runCli, } from 'pk-ts-node-lib';
-import { isEmpty, } from 'pk-ts-common-lib';
+import { isEmpty, typeOfEach, } from 'pk-ts-common-lib';
 // local imports
-import { sysMsgs, decompSchema, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, logPretty, sdkFileMsg, } from './init.js';
+import { sysMsgs, decompSchema, schemaTypeDefs, tsCompTypes, tsCompStr, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, logPretty, sdkFileMsg, } from './init.js';
 // Implementations
 export let msgKeys = {};
 let fncs = {
+    tstypes: () => {
+        let tv = typeOfEach({ schemaTypeDefs, tsCompTypes, tsCompStr }, true);
+        console.log(tv);
+    },
     tZod: () => {
         let jsSchema = zodToJsonSchema(decompSchema);
         console.log(jsSchema);

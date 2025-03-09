@@ -5,7 +5,15 @@
 import "zod-metadata/register";
 import { z } from 'zod';
 import { CoreMessage } from 'ai';
-export declare const tsCompTypes: readonly ["class", "function", "interface", "type", "variable", "enum"];
+export declare const schemaTypeDefs: {
+    readonly class: {};
+    readonly function: {};
+    readonly interface: {};
+    readonly type: {};
+    readonly variable: {};
+    readonly enum: {};
+};
+export declare const tsCompTypes: readonly [string, ...string[]];
 export declare const tsCompStr: string;
 export declare const tsExpDef = "entities/symbols/declarations/items";
 /**

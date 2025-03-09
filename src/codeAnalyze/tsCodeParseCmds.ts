@@ -38,11 +38,15 @@ export const schemaTypeDefs = {
   },
   enum: {
   },
-};
+} as const;
 //export const tsCompTypes = ['class', 'function', 'interface', 'type', 'variable', 'enum',] as const;
 
 // Define tsCompTypes as a readonly tuple that can be used with z.enum()
-export const tsCompTypes = ['class', 'function', 'interface', 'type', 'variable', 'enum'] as const;
+//export const tsCompTypes = ['class', 'function', 'interface', 'type', 'variable', 'enum'] as const;
+//export const tsCompTypes = Object.keys(schemaTypeDefs) as readonly [string, ...string[]];
+// Two-step type assertion via unknown
+export const tsCompTypes = Object.keys(schemaTypeDefs) as unknown as readonly [string, ...string[]];
+ // as const;
 
 export const tsCompStr = `[${tsCompTypes.join(',')}]`;
 

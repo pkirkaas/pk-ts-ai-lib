@@ -12,7 +12,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 import {
   getFilePaths, slashPath, dbgWrt, ask, runCli, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, isSimpleObject, PkError, multiAsk, parseArgs, getArrArgs, getObjArg, askConfirm, 
-  writeData, pkToDate, dtFmt, GenObj,
+  writeData, pkToDate, dtFmt, GenObj, 
 } from 'pk-ts-node-lib';
 
 import { JSON5Stringify, mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, getProps, allPropsWithTypes, objInfo, } from 'pk-ts-common-lib';
@@ -22,6 +22,7 @@ import { JSON5Stringify, mergeAndConcat, isEmpty, typeOf, typeOfEach, allProps, 
 import {
 
   sysMsgs, decompSchema,
+  schemaTypeDefs, tsCompTypes, tsCompStr,
   tstZodSchemas, tstZods,
   codeFiles, askMsg,
   tstMsgs,
@@ -46,6 +47,11 @@ export let msgKeys = {
 
 
 let fncs = {
+
+  tstypes:() => {
+    let tv = typeOfEach({schemaTypeDefs, tsCompTypes, tsCompStr},true);
+    console.log(tv);
+  },
   tZod:() => {
     let jsSchema = zodToJsonSchema(decompSchema);
     console.log(jsSchema);
