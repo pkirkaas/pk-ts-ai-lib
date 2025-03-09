@@ -25,7 +25,25 @@ functionSignatureSchema, functionComponentSchema,
 
 // Exports
 
-export const tsCompTypes = ['class', 'function', 'interface', 'type', 'variable', 'enum',] as const;
+export const schemaTypeDefs = {
+  class: {
+  },
+  function: {
+  },
+  interface: {
+  },
+  type: {
+  },
+  variable: {
+  },
+  enum: {
+  },
+};
+//export const tsCompTypes = ['class', 'function', 'interface', 'type', 'variable', 'enum',] as const;
+
+// AI! Make the below definition of tsCompTypes a readonly tuple that can be used as an argument to `z.enum()`
+export const tsCompTypes = Object.keys(schemaTypeDefs);// as const;
+
 export const tsCompStr = `[${tsCompTypes.join(',')}]`;
 
 // How to describe the things typescript exports
