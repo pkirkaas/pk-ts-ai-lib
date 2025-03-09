@@ -7,7 +7,6 @@
 import "zod-metadata/register";
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { zodSchema } from "ai";
 
 // PKLIB Imports
 import { GenObj, isObject, isSimpleObject, isEmpty,
@@ -23,16 +22,14 @@ import {sdkFileMsg, tsCompStr,  tsCompTypes, sdkFileMsgFPart,
  * Kinds of components exported by TypeScript
  */
 
-export const decompSchema = zodSchema(
-  z.object({
-    exports: z.array(
-      z.object({
-        name: z.string().describe('Name of the exported declaration'),
-        type: z.string().describe('Type of the exported TypeScript declaration (function, class, interface, etc.)'),
-      }).describe('Exported declaration details')
-    ).describe('List of exported TypeScript declarations')
-  })
-);
+export const decompSchema = z.object({
+  exports: z.array(
+    z.object({
+      name: z.string().describe('Name of the exported declaration'),
+      type: z.string().describe('Type of the exported TypeScript declaration (function, class, interface, etc.)'),
+    }).describe('Exported declaration details')
+  ).describe('List of exported TypeScript declarations')
+});
 
 // Example for the AI model to understand the expected structure
 export const decompSchemaExample = {
@@ -45,16 +42,14 @@ export const decompSchemaExample = {
 
 
 // Base parameter schema used in both functions and methods
-export const parameterSchema = zodSchema(
-  z.object({
-    name: z.string().describe("Parameter name as it appears in the signature"),
-    type: z.string().describe("TypeScript type of the parameter"),
-    description: z.string().describe("Purpose and usage of this parameter"),
-    defaultValue: z.string().optional().describe("Default value if parameter is optional"),
-    isOptional: z.boolean().describe("Whether this parameter can be omitted"),
-    isRest: z.boolean().describe("Whether this is a rest parameter (...args)")
-  })
-);
+export const parameterSchema = z.object({
+  name: z.string().describe("Parameter name as it appears in the signature"),
+  type: z.string().describe("TypeScript type of the parameter"),
+  description: z.string().describe("Purpose and usage of this parameter"),
+  defaultValue: z.string().optional().describe("Default value if parameter is optional"),
+  isOptional: z.boolean().describe("Whether this parameter can be omitted"),
+  isRest: z.boolean().describe("Whether this is a rest parameter (...args)")
+});
 export type Parameter = z.infer<typeof parameterSchema>;
 
 // Example for the AI model
@@ -68,13 +63,11 @@ export const parameterExample = {
 };
 
 // Type parameter schema (for generics)
-export const typeParameterSchema = zodSchema(
-  z.object({
-    name: z.string().describe("Name of the type parameter"),
-    constraint: z.string().optional().describe("Type constraint (extends X)"),
-    default: z.string().optional().describe("Default type if not specified")
-  })
-);
+export const typeParameterSchema = z.object({
+  name: z.string().describe("Name of the type parameter"),
+  constraint: z.string().optional().describe("Type constraint (extends X)"),
+  default: z.string().optional().describe("Default type if not specified")
+});
 export type TypeParameter = z.infer<typeof typeParameterSchema>;
 
 // Example for the AI model
@@ -85,13 +78,11 @@ export const typeParameterExample = {
 };
 
 // Exception schema
-export const exceptionSchema = zodSchema(
-  z.object({
-    type: z.string().describe("Type of the exception that can be thrown"),
-    description: z.string().describe("Description of the exception"),
-    conditions: z.string().describe("When/why this exception is thrown")
-  })
-);
+export const exceptionSchema = z.object({
+  type: z.string().describe("Type of the exception that can be thrown"),
+  description: z.string().describe("Description of the exception"),
+  conditions: z.string().describe("When/why this exception is thrown")
+});
 export type Exception = z.infer<typeof exceptionSchema>;
 
 // Example for the AI model
@@ -102,27 +93,25 @@ export const exceptionExample = {
 };
 
 // Base component schema with common fields
-export const baseComponentSchema = zodSchema(
-  z.object({
-    type: z.enum(tsCompTypes)
-      .describe("Type of code component (function, class, interface, etc.)"),
-    name: z.string().describe("Name of the component"),
-    description: z.string().describe("Description of what this component does"),
-    isExported: z.boolean().describe("Whether this component is exported"),
-    filePath: z.string().describe("Path to the file containing this component"),
-    sourceCode: z.string().describe("Source code signature"),
-    jsdoc: z.string().optional().describe("JSDoc comment if present"),
-    visibility: z.enum(['public', 'protected', 'private', 'internal'])
-      .describe("Visibility level"),
-    decorators: z.array(z.object({
-      name: z.string().describe("Decorator name"),
-      arguments: z.array(z.string()).optional().describe("Decorator arguments")
-    })).optional().describe("Applied decorators"),
-    modulePath: z.string().describe("Import path"),
-    dependencies: z.array(z.string()).optional()
-      .describe("Dependencies")
-  })
-);
+export const baseComponentSchema = z.object({
+  type: z.enum(tsCompTypes)
+    .describe("Type of code component (function, class, interface, etc.)"),
+  name: z.string().describe("Name of the component"),
+  description: z.string().describe("Description of what this component does"),
+  isExported: z.boolean().describe("Whether this component is exported"),
+  filePath: z.string().describe("Path to the file containing this component"),
+  sourceCode: z.string().describe("Source code signature"),
+  jsdoc: z.string().optional().describe("JSDoc comment if present"),
+  visibility: z.enum(['public', 'protected', 'private', 'internal'])
+    .describe("Visibility level"),
+  decorators: z.array(z.object({
+    name: z.string().describe("Decorator name"),
+    arguments: z.array(z.string()).optional().describe("Decorator arguments")
+  })).optional().describe("Applied decorators"),
+  modulePath: z.string().describe("Import path"),
+  dependencies: z.array(z.string()).optional()
+    .describe("Dependencies")
+});
 export type BaseComponent = z.infer<typeof baseComponentSchema>;
 
 // Example for the AI model
@@ -141,19 +130,17 @@ export const baseComponentExample = {
 };
 
 // Function signature schema
-export const functionSignatureSchema = zodSchema(
-  z.object({
-    parameters: z.array(parameterSchema)
-      .describe("Function parameters"),
-    returnType: z.string().describe("Return type"),
-    returnDescription: z.string()
-      .describe("Description of the return value"),
-    typeParameters: z.array(typeParameterSchema).optional()
-      .describe("Generic type parameters"),
-    throwsExceptions: z.array(exceptionSchema).optional()
-      .describe("Possible exceptions")
-  })
-);
+export const functionSignatureSchema = z.object({
+  parameters: z.array(parameterSchema)
+    .describe("Function parameters"),
+  returnType: z.string().describe("Return type"),
+  returnDescription: z.string()
+    .describe("Description of the return value"),
+  typeParameters: z.array(typeParameterSchema).optional()
+    .describe("Generic type parameters"),
+  throwsExceptions: z.array(exceptionSchema).optional()
+    .describe("Possible exceptions")
+});
 export type FunctionSignature = z.infer<typeof functionSignatureSchema>;
 
 // Example for the AI model
@@ -194,17 +181,15 @@ export const functionSignatureExample = {
 };
 
 // Function component schema
-export const functionComponentSchema = zodSchema(
-  baseComponentSchema.extend({
-    type: z.literal('function').describe("Function component"),
-    signatures: z.array(functionSignatureSchema)
-      .describe("Function signatures (for overloads)"),
-    isAsync: z.boolean().describe("Is async function"),
-    isGenerator: z.boolean().describe("Is generator function"),
-    examples: z.array(z.string()).describe("Usage examples"),
-    usage: z.string().describe("Usage patterns and best practices")
-  })
-);
+export const functionComponentSchema = baseComponentSchema.extend({
+  type: z.literal('function').describe("Function component"),
+  signatures: z.array(functionSignatureSchema)
+    .describe("Function signatures (for overloads)"),
+  isAsync: z.boolean().describe("Is async function"),
+  isGenerator: z.boolean().describe("Is generator function"),
+  examples: z.array(z.string()).describe("Usage examples"),
+  usage: z.string().describe("Usage patterns and best practices")
+});
 
 export type FunctionComponent = z.infer<typeof functionComponentSchema>;
 
