@@ -6,6 +6,7 @@ import { createTogetherAI } from '@ai-sdk/togetherai';
 import { createXai } from '@ai-sdk/xai';
 import { createGroq } from '@ai-sdk/groq';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { GenObj } from 'pk-ts-node-lib';
 import { ModelListOpts, Strings, BuiltMsg, StructureSpec } from '../init.js';
 export declare const aiSdkClients: {
@@ -34,6 +35,9 @@ export declare const aiSdkClients: {
     };
     nebius: {
         create: typeof createOpenAICompatible;
+    };
+    openrouter: {
+        create: typeof createOpenRouter;
     };
 };
 /**

@@ -10,6 +10,7 @@ import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 import { groq, createGroq } from '@ai-sdk/groq';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
 import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, camelKeys, } from 'pk-ts-node-lib';
@@ -23,6 +24,7 @@ export const aiSdkClients = {
     xai: { client: xai, create: createXai, },
     lms: { create: createOpenAICompatible },
     nebius: { create: createOpenAICompatible },
+    openrouter: { create: createOpenRouter },
 };
 export const defaultSdkChatParams = {
     temperature: 0,

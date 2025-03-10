@@ -112,12 +112,12 @@ program.addCommand( new Command('decomp')
 
 program.addCommand( new Command('models')
   .description("List models for provider")
-  .argument('[filter]', 'Filter Models by', '')
+  .argument('[filter...]', 'Filter Models by', '')
   .action(async (filter, options) => {
     let opts = program.opts();
     let provider = opts.provider || await askLlmProvider();
     let client = getPkClient(provider);
-    let models = await client.filterModels(filter);
+    let models = await client.filterModels({filter});
     dbgWrt(models, `${provider}-models`);
     let names = client.modelObjsToNames(models);
     let cnt = models.length;

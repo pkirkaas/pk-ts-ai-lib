@@ -31,6 +31,7 @@ import { togetherai, createTogetherAI } from '@ai-sdk/togetherai';
 import { xai, createXai, } from '@ai-sdk/xai'; //X Grok
 import { groq, createGroq } from '@ai-sdk/groq';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 
 //import {Message} from '@anthropic-ai/sdk';
 
@@ -60,6 +61,7 @@ export const aiSdkClients = { // Keyed by 'providers' key
   xai: { client: xai, create: createXai, },
   lms: {create:createOpenAICompatible},
   nebius: {create:createOpenAICompatible},
+  openrouter:{create:createOpenRouter},
 };
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams

@@ -44,6 +44,10 @@ export const providers = {
         },
         //clientLib: OpenAI,
     },
+    openrouter: {
+        apiKey: process.env.OPENROUTER_API_KEY,
+        baseURL: 'https://openrouter.ai/api/v1',
+    },
     openai: {
         baseURL: 'https://api.openai.com/v1',
         // clientLib: OpenAI,
