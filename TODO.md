@@ -23,3 +23,4 @@
 - Abstract asking user for input to allow GUI/API query, not just Node/CLI
 - Figure out what code assistant to use
 - Complete generalization of zod schema generation & definition of object output
+- More AIDER conf
