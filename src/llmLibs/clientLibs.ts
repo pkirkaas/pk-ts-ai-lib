@@ -59,9 +59,9 @@ export const aiSdkClients = { // Keyed by 'providers' key
   groq: { client: groq, create: createGroq, },
   anthropic: { client: anthropic, create: createAnthropic, },
   xai: { client: xai, create: createXai, },
-  lms: {create:createOpenAICompatible},
-  nebius: {create:createOpenAICompatible},
-  openrouter:{create:createOpenRouter},
+  lms: { create: createOpenAICompatible },
+  nebius: { create: createOpenAICompatible },
+  openrouter: { create: createOpenRouter },
 };
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
@@ -81,7 +81,7 @@ export const defaultSdkChatParams: SdkChatParams = {
   frequency_penalty: 0,
   presence_penalty: 0,
   max_tokens: 8192,
-  reasoningEffort:"high",
+  reasoningEffort: "high",
   //max_tokens: 4096,
 };
 /*
@@ -426,8 +426,8 @@ export abstract class BaseClient {
   /**
    * Test decomp of TS Source Code file
    */
-  async sdkTsDecomp(fpath?:string, modelName?: Strings, providerOptions: GenObj = {}): Promise<any> {
-    let {messages, schema,} = mkDecompParams(fpath);
+  async sdkTsDecomp(fpath?: string, modelName?: Strings, providerOptions: GenObj = {}): Promise<any> {
+    let { messages, schema, } = mkDecompParams(fpath);
     //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
     providerOptions = this.mkSdkChatParams(providerOptions);
     /*
@@ -445,10 +445,10 @@ export abstract class BaseClient {
     modelName = await this.getModelName(modelName);
     let model = this.sdkClient(modelName);
     //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
-    console.error(`Trying sdkTsDecomp w.`, { messages,fpath,});
-    dbgWrt({model, schema, messages,fpath,},'gobjParams');
+    console.error(`Trying sdkTsDecomp w.`, { messages, fpath, });
+    dbgWrt({ model, schema, messages, fpath, }, 'gobjParams');
     let res = await generateObject({ model, schema, messages, providerOptions, });
-    dbgWrt({res},'gobjRes');
+    dbgWrt({ res }, 'gobjRes');
     let obj = res.object;
     return obj;
   }
@@ -689,11 +689,86 @@ export class TogetherClient extends BaseClient {
   }
 }
 
+export class OpenRouterClient extends BaseClient {
+  /** Special - writes openrouter models to
+   * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
+   */
+  async getModels(...args): Promise<GenObj[]> {
+    // Maps pricing object
+    function mapPrice(srcObj: any): { [key: string]: number; } {
+      // Validate input: must be a non-null object
+      if (typeof srcObj !== 'object' || srcObj === null) {
+        return {};
+      }
+
+      // Use a symbol to handle NaN keys in the Map
+      const NAN_KEY = Symbol('NaN');
+      const groupMap = new Map<number | symbol, string[]>();
+
+      // Process each key-value pair
+      for (const key in srcObj) {
+        if (Object.prototype.hasOwnProperty.call(srcObj, key)) {
+          const value = srcObj[key];
+          let numValue: number;
+
+          // Convert value to number
+          if (typeof value === 'string') {
+            numValue = parseFloat(value);
+          } else if (typeof value === 'number') {
+            numValue = value;
+          } else {
+            numValue = NaN; // Non-string/number values become NaN
+          }
+
+          // Transform the number
+          let processedValue: number;
+          if (isNaN(numValue)) {
+            processedValue = NaN;
+          } else {
+            const multiplied = numValue * 1000;
+            processedValue = Math.round(multiplied * 1000) / 1000; // Round to 3 decimal places
+          }
+
+          // Determine the map key
+          const mapKey = isNaN(processedValue) ? NAN_KEY : processedValue;
+
+          // Initialize array if key doesn't exist, then add the current key
+          if (!groupMap.has(mapKey)) {
+            groupMap.set(mapKey, []);
+          }
+          groupMap.get(mapKey)!.push(key);
+        }
+      }
+
+      // Build the result object
+      const result: { [key: string]: number; } = {};
+      for (const [mapKey, keys] of groupMap) {
+        // Sort keys alphabetically for consistency
+        keys.sort();
+        const concatenatedKey = keys.join(' ');
+        const value = mapKey === NAN_KEY ? NaN : mapKey as number;
+        result[concatenatedKey] = value;
+      }
+
+      return result;
+    }
+    let models = await super.getModels(...args);
+    //@ts-ignore
+    let mappedModels = models.map((model)=>{...model, price:mapPrice(model.pricing)});
+    let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
+    let outStr = `/** OpenRouter Models - as of [${dtFmt('short')}] */
+    export const openrouterModels = \n${JSON5Stringify(models)}\n;\n`;
+    fs.writeFileSync(outPath, outStr);
+    return models;
+  }
+}
+
 
 export const clientClasses = {
   OpenAiClient,
   ClaudeClient,
   TogetherClient,
+  OpenRouterClient,
 };
 
 export function getPkClientClass(provider) {
@@ -739,16 +814,16 @@ export function sdkFileMsgFPart(fpath: string, role = 'user'): CoreMessage {
     'text/typescript',
     'text/javascript',
   ];
-  let k=2; // Change to try different mime types for TS
+  let k = 2; // Change to try different mime types for TS
   let mimeType = fpath.endsWith('.ts') ? tsMimeTypes[k] : mime.getType(fpath);
-  let content:FilePart[] =  [{ type: "file", mimeType, data }];
-  let retMsg:CoreMessage = {
+  let content: FilePart[] = [{ type: "file", mimeType, data }];
+  let retMsg: CoreMessage = {
     //@ts-ignore
     role,
     content,
   }
-  // as CoreMessage
-  ;
+    // as CoreMessage
+    ;
   return retMsg;
 }
 
@@ -761,13 +836,13 @@ export function sdkFileMsg(fpath: string, role = 'user'): CoreMessage {
   }
   let content = wrapCodeFiles(fpath);
 
-  let retMsg:CoreMessage = {
+  let retMsg: CoreMessage = {
     //@ts-ignore
     role,
     content,
   }
-  // as CoreMessage
-  ;
+    // as CoreMessage
+    ;
   return retMsg;
 }
 
