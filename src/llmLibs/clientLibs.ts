@@ -754,7 +754,10 @@ export class OpenRouterClient extends BaseClient {
     }
     let models = await super.getModels(...args);
     //@ts-ignore
-    let mappedModels = models.map((model)=>{...model, price:mapPrice(model.pricing)});
+    let mappedModels = models.map(model => ({ 
+      ...model, 
+      price: mapPrice(model.pricing) 
+    }));
     let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
     let outStr = `/** OpenRouter Models - as of [${dtFmt('short')}] */
     export const openrouterModels = \n${JSON5Stringify(models)}\n;\n`;
