@@ -87,6 +87,13 @@ program.addCommand( new Command('funcs')
 
   }));
 
+program.addCommand( new Command('tstopts')
+  .description("Test variadic options")
+  .option('--filters <name...>','Model filter string(s)', '')
+  .action(async ( options) => {
+    console.log({options});
+}));
+
 program.addCommand( new Command('decomp')
   .description("Test 'generateObject for common func names")
   .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
