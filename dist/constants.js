@@ -2,7 +2,7 @@
  * Predefined constants & options, like system messages, etc
  */
 // Local Imports
-import { ClaudeClient, TogetherClient, } from './init.js';
+import { ClaudeClient, TogetherClient, OpenRouterClient, } from './init.js';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from "openai";
 export let LMS_PORT = process.env.LMS_PORT;
@@ -47,6 +47,7 @@ export const providers = {
     openrouter: {
         apiKey: process.env.OPENROUTER_API_KEY,
         baseURL: 'https://openrouter.ai/api/v1',
+        pkClientClass: OpenRouterClient,
     },
     openai: {
         baseURL: 'https://api.openai.com/v1',

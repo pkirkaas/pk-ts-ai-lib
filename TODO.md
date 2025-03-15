@@ -24,3 +24,4 @@
 - Figure out what code assistant to use
 - Complete generalization of zod schema generation & definition of object output
 - More AIDER conf
+- Figure out better filtering for openrouter models

@@ -756,11 +756,12 @@ export class OpenRouterClient extends BaseClient {
     //@ts-ignore
     let mappedModels = models.map(model => ({ 
       ...model, 
-      price: mapPrice(model.pricing) 
+      price: mapPrice(model.pricing),
+      moderated:model?.top_provider?.is_moderated, 
     }));
     let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
     let outStr = `/** OpenRouter Models - as of [${dtFmt('short')}] */
-    export const openrouterModels = \n${JSON5Stringify(models)}\n;\n`;
+    export const openrouterModels = \n${JSON5Stringify(mappedModels)}\n;\n`;
     fs.writeFileSync(outPath, outStr);
     return models;
   }

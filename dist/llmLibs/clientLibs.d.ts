@@ -224,10 +224,17 @@ export declare class ClaudeClient extends BaseClient {
 export declare class TogetherClient extends BaseClient {
     getModels(...args: any[]): Promise<GenObj[]>;
 }
+export declare class OpenRouterClient extends BaseClient {
+    /** Special - writes openrouter models to
+     * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
+     */
+    getModels(...args: any[]): Promise<GenObj[]>;
+}
 export declare const clientClasses: {
     OpenAiClient: typeof OpenAiClient;
     ClaudeClient: typeof ClaudeClient;
     TogetherClient: typeof TogetherClient;
+    OpenRouterClient: typeof OpenRouterClient;
 };
 export declare function getPkClientClass(provider: any): any;
 /**

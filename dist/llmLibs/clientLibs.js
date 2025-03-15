@@ -591,10 +591,83 @@ export class TogetherClient extends BaseClient {
         return await this.getRawModels(...args);
     }
 }
+export class OpenRouterClient extends BaseClient {
+    /** Special - writes openrouter models to
+     * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
+     */
+    async getModels(...args) {
+        // Maps pricing object
+        function mapPrice(srcObj) {
+            // Validate input: must be a non-null object
+            if (typeof srcObj !== 'object' || srcObj === null) {
+                return {};
+            }
+            // Use a symbol to handle NaN keys in the Map
+            const NAN_KEY = Symbol('NaN');
+            const groupMap = new Map();
+            // Process each key-value pair
+            for (const key in srcObj) {
+                if (Object.prototype.hasOwnProperty.call(srcObj, key)) {
+                    const value = srcObj[key];
+                    let numValue;
+                    // Convert value to number
+                    if (typeof value === 'string') {
+                        numValue = parseFloat(value);
+                    }
+                    else if (typeof value === 'number') {
+                        numValue = value;
+                    }
+                    else {
+                        numValue = NaN; // Non-string/number values become NaN
+                    }
+                    // Transform the number
+                    let processedValue;
+                    if (isNaN(numValue)) {
+                        processedValue = NaN;
+                    }
+                    else {
+                        const multiplied = numValue * 1000;
+                        processedValue = Math.round(multiplied * 1000) / 1000; // Round to 3 decimal places
+                    }
+                    // Determine the map key
+                    const mapKey = isNaN(processedValue) ? NAN_KEY : processedValue;
+                    // Initialize array if key doesn't exist, then add the current key
+                    if (!groupMap.has(mapKey)) {
+                        groupMap.set(mapKey, []);
+                    }
+                    groupMap.get(mapKey).push(key);
+                }
+            }
+            // Build the result object
+            const result = {};
+            for (const [mapKey, keys] of groupMap) {
+                // Sort keys alphabetically for consistency
+                keys.sort();
+                const concatenatedKey = keys.join(' ');
+                const value = mapKey === NAN_KEY ? NaN : mapKey;
+                result[concatenatedKey] = value;
+            }
+            return result;
+        }
+        let models = await super.getModels(...args);
+        //@ts-ignore
+        let mappedModels = models.map(model => ({
+            ...model,
+            price: mapPrice(model.pricing),
+            moderated: model?.top_provider?.is_moderated,
+        }));
+        let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
+        let outStr = `/** OpenRouter Models - as of [${dtFmt('short')}] */
+    export const openrouterModels = \n${JSON5Stringify(mappedModels)}\n;\n`;
+        fs.writeFileSync(outPath, outStr);
+        return models;
+    }
+}
 export const clientClasses = {
     OpenAiClient,
     ClaudeClient,
     TogetherClient,
+    OpenRouterClient,
 };
 export function getPkClientClass(provider) {
     provider = getLlmProvider(provider);

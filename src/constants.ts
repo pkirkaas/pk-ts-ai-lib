@@ -11,7 +11,7 @@ import {GenObj, Strings,
 // Local Imports
 
 import {
-  defaultSysMsg, OpenAiClient, ClaudeClient, TogetherClient,
+  defaultSysMsg, OpenAiClient, ClaudeClient, TogetherClient, OpenRouterClient,
 } from './init.js';
 
 import { VertexAI } from '@google-cloud/vertexai';
@@ -84,6 +84,7 @@ export const providers:Providers = {
   openrouter : {
     apiKey: process.env.OPENROUTER_API_KEY,
     baseURL:'https://openrouter.ai/api/v1',
+    pkClientClass: OpenRouterClient,
   },
   openai: {
     baseURL: 'https://api.openai.com/v1',
