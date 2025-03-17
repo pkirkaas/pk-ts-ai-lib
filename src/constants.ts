@@ -53,20 +53,31 @@ export const defaultGenerationConfig = { // For Google/VertexAI
   candidateCount: 1,
 };
 
+/**
+ * Configuration for an LLM provider
+ * 
+ * @property baseURL - Base URL for the provider's API
+ * @property apiKey - API key for authentication
+ * @property defaultOpts - Default options for API calls
+ * @property model - Default model to use
+ * @property filters - String or array of strings to filter model names/IDs
+ * @property clientLib - Client library to use for API calls
+ * @property pkClientClass - Custom client class
+ * @property type - Provider type (e.g., "vertex")
+ * @property location - Geographic location for the provider
+ * @property project - Project ID for the provider
+ */
 export type ProviderConfig = {
   baseURL?:string,
   apiKey?:string,
   defaultOpts?:GenObj,
   model?: string,
-  filters?:Strings,
+  filters?:string | Strings,
   clientLib?:any,
   pkClientClass?:any,
   type?:string,
   location?:string,
   project?:string,
-
-
-
 }
 
 export type Providers = { [key: string]: ProviderConfig };
@@ -105,7 +116,7 @@ export const providers:Providers = {
   },
   togetherai: {
     baseURL: "https://api.together.xyz/v1",
-    filters:['qwen', 'deepseek', 'meta-llama',],
+    filters: ['qwen', 'deepseek', 'meta-llama',],
     apiKey: process.env.TOGETHER_API_KEY,
     pkClientClass: TogetherClient,
   },

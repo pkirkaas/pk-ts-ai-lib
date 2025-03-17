@@ -81,6 +81,13 @@ export function mkModelListOpts(opts: any = {}) {
  * with at least a key of 'id'
  * Returns a processed model list - filtered, sorted, formatted
  * 
+ * @param modelObjs - Array of model objects to process
+ * @param opts - Options for processing the model list
+ * @param opts.sort - Key to sort by (e.g., 'created') or boolean
+ * @param opts.filter - String or array of strings to filter model names/IDs
+ * @param opts.format - Whether to format the model objects
+ * @param opts.type - For specific providers (e.g., together) - types can be 'chat', 'image', etc.
+ * @returns Filtered, sorted, and formatted model list
  */
 export type ModelListOpts = {
   sort?: string | boolean, // model obj key to sort by
@@ -88,6 +95,13 @@ export type ModelListOpts = {
   format?: any,
   type?: string, // For together - types can be 'chat', 'image', etc.
 };
+/**
+ * Filter, sort, and format an array of model objects
+ * 
+ * @param modelObjs - Array of model objects to process
+ * @param opts - Options for processing the model list
+ * @returns Filtered, sorted, and formatted model list
+ */
 export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {}) {
   let listOptsDef = { sort: 'created', format: true, filter: '', };
   let { sort, format, filter } = { ...listOptsDef, ...opts };
@@ -96,11 +110,9 @@ export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {})
     let filters = mkArray(filter);
     modelObjs = modelObjs.filter((modelObj) => {
       if (modelObj.id) {
-        //return modelObj.id.toLowerCase().includes(filter.toLowerCase());
         return strIncludesAny(modelObj.id, filters, true);
       } else if (modelObj.name) {
         return strIncludesAny(modelObj.name, filters, true);
-        //return modelObj.name.toLowerCase().includes(filter.toLowerCase());
       } else { // What to filter on?
         return true;
       }
@@ -211,7 +223,7 @@ export function writeLog(str, { lbl, ext }: GenObj = {}) {
 /**
  * Test if a string matches any of the standard unix GLOB patterns.
  * @param {string} str - The string to test.
- * @param {string|string[]} patterns - An array of standard unix GLOB patterns.
+ * @param {string|string[]} patterns - A string or array of standard unix GLOB patterns.
  * @returns {boolean} - True if the string matches any of the patterns, false otherwise.
  */
 export function matchPattern(str: string, patterns: Strings): boolean {

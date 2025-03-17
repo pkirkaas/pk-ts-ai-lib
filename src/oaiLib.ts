@@ -27,10 +27,17 @@ import {
 
 
 /**
+ * Get raw model objects from a provider's API
+ * 
  * Some providers work better with a direct call to the OpenAI API than
- * using the openai cliient
- * Annoyingly, switch on 'provider' to get right call - currently,
- * gengemini & togetherai
+ * using the openai client. This function handles those special cases.
+ * 
+ * @param provider - Provider name (default: 'togetherai')
+ * @param opts - Options for filtering and formatting the model list
+ * @param opts.filter - String or array of strings to filter model names/IDs
+ * @param opts.sort - Key to sort by or boolean
+ * @param opts.format - Whether to format the model objects
+ * @returns Array of model objects from the provider
  */
 export async function getRawModelObjs(provider = 'togetherai', opts: GenObj = {}) {
   provider = getLlmProvider(provider);
