@@ -72,7 +72,7 @@ export type ProviderConfig = {
   apiKey?:string,
   defaultOpts?:GenObj,
   model?: string,
-  filters?:string | Strings,
+  mnfilters?:string | Strings,
   clientLib?:any,
   pkClientClass?:any,
   type?:string,
@@ -100,7 +100,7 @@ export const providers:Providers = {
   openai: {
     baseURL: 'https://api.openai.com/v1',
     // clientLib: OpenAI,
-    filters: 'latest',
+    mnfilters: 'latest',
     defaultOpts: {
       ...oaiCodeParams,
       // max_tokens: 8192,
@@ -116,7 +116,7 @@ export const providers:Providers = {
   },
   togetherai: {
     baseURL: "https://api.together.xyz/v1",
-    filters: ['qwen', 'deepseek', 'meta-llama',],
+    mnfilters: ['qwen', 'deepseek', 'meta-llama',],
     apiKey: process.env.TOGETHER_API_KEY,
     pkClientClass: TogetherClient,
   },
