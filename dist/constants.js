@@ -52,7 +52,7 @@ export const providers = {
     openai: {
         baseURL: 'https://api.openai.com/v1',
         // clientLib: OpenAI,
-        filters: 'latest',
+        mnfilters: 'latest',
         defaultOpts: {
             ...oaiCodeParams,
             // max_tokens: 8192,
@@ -68,7 +68,7 @@ export const providers = {
     },
     togetherai: {
         baseURL: "https://api.together.xyz/v1",
-        filters: ['qwen', 'deepseek', 'meta-llama',],
+        mnfilters: ['qwen', 'deepseek', 'meta-llama',],
         apiKey: process.env.TOGETHER_API_KEY,
         pkClientClass: TogetherClient,
     },

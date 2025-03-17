@@ -157,7 +157,7 @@ export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {})
  * @returns {string}
  */
 export function getLlmProvider(provider = null) {
-  if (!provider) {
+  if (!(provider in providers)) {
     provider = askLlmProvider();
   }
   if (provider && Object.keys(providers).includes(provider)) {

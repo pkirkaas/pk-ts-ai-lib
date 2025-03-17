@@ -340,17 +340,21 @@ export abstract class BaseClient {
    * Interactive multi-turn chat using non-interactive singleSdkChat
    */
   //async sdkChat({user,system,modelName,temperature}) {
-  async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
+  //async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
+  async sdkChat(params:{msgs: Strings, ASK:boolean, mnfilters?: Strings, sdkChatParams: SdkChatParams}): Promise<CoreMessage[]> {
+    let {msgs, ASK, mnfilters, sdkChatParams} = params;
     let bMsg = await this.prepChat(msgs, ASK);
     sdkChatParams = this.mkSdkChatParams(sdkChatParams);
-    return this.sdkChatBuilt(bMsg, filter, sdkChatParams,);
+    return this.sdkChatBuilt({bMsg, mnfilters, sdkChatParams,});
   }
 
   mkChatLog({ chatType = "Undefined", uMsg = '', sMsg = '', msgKeys = [], chatConfig = {} }): ChatLogger {
     return new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
   }
 
-  async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<CoreMessage[]> {
+  //async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<CoreMessage[]> {
+  async sdkChatBuilt(params:{bMsg: BuiltMsg, mnfilters?: Strings, sdkChatParams: SdkChatParams}): Promise<CoreMessage[]> {
+    let {bMsg,mnfilters, sdkChatParams={}} = params;
     let chatType = 'sdkChat';
     function getDets(resp: GenObj) { // Get token usage from response
       let usage = resp?.usage?.totalTokens;
@@ -362,7 +366,7 @@ export abstract class BaseClient {
     let { uMsg, sMsg, msgKeys = [] } = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
-    let modelName = await this.getModelName(filter);
+    let modelName = await this.getModelName(mnfilters);
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);
     }

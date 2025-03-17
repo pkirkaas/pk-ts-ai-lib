@@ -34,6 +34,13 @@ export declare function mkModelListOpts(opts?: any): any;
  * with at least a key of 'id'
  * Returns a processed model list - filtered, sorted, formatted
  *
+ * @param modelObjs - Array of model objects to process
+ * @param opts - Options for processing the model list
+ * @param opts.sort - Key to sort by (e.g., 'created') or boolean
+ * @param opts.filter - String or array of strings to filter model names/IDs
+ * @param opts.format - Whether to format the model objects
+ * @param opts.type - For specific providers (e.g., together) - types can be 'chat', 'image', etc.
+ * @returns Filtered, sorted, and formatted model list
  */
 export type ModelListOpts = {
     sort?: string | boolean;
@@ -41,6 +48,13 @@ export type ModelListOpts = {
     format?: any;
     type?: string;
 };
+/**
+ * Filter, sort, and format an array of model objects
+ *
+ * @param modelObjs - Array of model objects to process
+ * @param opts - Options for processing the model list
+ * @returns Filtered, sorted, and formatted model list
+ */
 export declare function filterModelObjArr(modelObjs: GenObj[], opts?: ModelListOpts): import("pk-ts-node-lib").GenericObject[];
 /**
  * Return the provider key (lms, ollama)
@@ -66,7 +80,7 @@ export declare function writeLog(str: any, { lbl, ext }?: GenObj): void;
 /**
  * Test if a string matches any of the standard unix GLOB patterns.
  * @param {string} str - The string to test.
- * @param {string|string[]} patterns - An array of standard unix GLOB patterns.
+ * @param {string|string[]} patterns - A string or array of standard unix GLOB patterns.
  * @returns {boolean} - True if the string matches any of the patterns, false otherwise.
  */
 export declare function matchPattern(str: string, patterns: Strings): boolean;

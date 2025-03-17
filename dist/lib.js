@@ -44,6 +44,13 @@ export function mkModelListOpts(opts = {}) {
     opts = { ...listOptsDef, ...opts };
     return opts;
 }
+/**
+ * Filter, sort, and format an array of model objects
+ *
+ * @param modelObjs - Array of model objects to process
+ * @param opts - Options for processing the model list
+ * @returns Filtered, sorted, and formatted model list
+ */
 export function filterModelObjArr(modelObjs, opts = {}) {
     let listOptsDef = { sort: 'created', format: true, filter: '', };
     let { sort, format, filter } = { ...listOptsDef, ...opts };
@@ -51,12 +58,10 @@ export function filterModelObjArr(modelObjs, opts = {}) {
         let filters = mkArray(filter);
         modelObjs = modelObjs.filter((modelObj) => {
             if (modelObj.id) {
-                //return modelObj.id.toLowerCase().includes(filter.toLowerCase());
                 return strIncludesAny(modelObj.id, filters, true);
             }
             else if (modelObj.name) {
                 return strIncludesAny(modelObj.name, filters, true);
-                //return modelObj.name.toLowerCase().includes(filter.toLowerCase());
             }
             else { // What to filter on?
                 return true;
@@ -102,7 +107,7 @@ export function filterModelObjArr(modelObjs, opts = {}) {
  * @returns {string}
  */
 export function getLlmProvider(provider = null) {
-    if (!provider) {
+    if (!(provider in providers)) {
         provider = askLlmProvider();
     }
     if (provider && Object.keys(providers).includes(provider)) {
@@ -153,7 +158,7 @@ export function writeLog(str, { lbl, ext } = {}) {
 /**
  * Test if a string matches any of the standard unix GLOB patterns.
  * @param {string} str - The string to test.
- * @param {string|string[]} patterns - An array of standard unix GLOB patterns.
+ * @param {string|string[]} patterns - A string or array of standard unix GLOB patterns.
  * @returns {boolean} - True if the string matches any of the patterns, false otherwise.
  */
 export function matchPattern(str, patterns) {

@@ -4,6 +4,10 @@
 // NPM Imports
 import { Command } from 'commander';
 import { z } from 'zod';
+// PK-Lib imports
+import { dbgWrt, } from 'pk-ts-sqlite-lib';
+//Local Imports
+import { providers, getPkClient, askLlmProvider, getLlmProvider, } from './init.js';
 // Exports & implementations
 export const StringArraySchema = z.string().array();
 export const FuncSigSchema = z.object({
@@ -24,13 +28,11 @@ const funcsStruct = {
 const FunctionSignaturesSchema = z.record(z.string().describe("The name of the exported function"), // Key: Function name
 z.array(z.string().describe("The TypeScript signature of the function")).describe("An array of TypeScript function signatures for the function")).describe("A mapping of exported function names to their TypeScript signatures");
 //export const 
-// PK-Lib imports
-import { dbgWrt, } from 'pk-ts-sqlite-lib';
-//Local Imports
-import { getPkClient, askLlmProvider, } from './init.js';
 let program = new Command()
     .name('Execute LLM Commands')
-    .option('-p, --provider <name>', 'The Provider name', '');
+    .option('-p, --provider <name>', 'The Provider name', 'openrouter')
+    .option('-m, --mnfilters <names...>', 'Model Name Filters', '');
+let opts = program.opts();
 program.addCommand(new Command('funcs')
     .description("Test 'generateObject for common func names")
     .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
@@ -56,14 +58,13 @@ program.addCommand(new Command('tstopts')
     .description("Test variadic options")
     .option('--filters <name...>', 'Model filter string(s)', '')
     .action(async (options) => {
-    console.log({ options });
+    //let opts = program.opts();
+    console.log({ options, opts, });
 }));
 program.addCommand(new Command('decomp')
     .description("Test 'generateObject for common func names")
     .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
     .action(async (filter, options) => {
-    let opts = program.opts();
-    //let {provider} = opts;
     let provider = opts.provider || await askLlmProvider();
     let client = getPkClient(provider);
     let modelName = await client.getModelName(filter);
@@ -83,7 +84,6 @@ program.addCommand(new Command('models')
     .description("List models for provider")
     .argument('[filter...]', 'Filter Models by', '')
     .action(async (filter, options) => {
-    let opts = program.opts();
     let provider = opts.provider || await askLlmProvider();
     let client = getPkClient(provider);
     let models = await client.filterModels({ filter });
@@ -96,8 +96,6 @@ program.addCommand(new Command('modelName')
     .description("List models for provider")
     .argument('[filter]', 'Filter Models by "all", "default", "current", or a substring', '')
     .action(async (filter, options) => {
-    let opts = program.opts();
-    //let {provider} = opts;
     let provider = opts.provider || await askLlmProvider();
     let client = getPkClient(provider);
     let modelName = await client.getModelName(filter);
@@ -107,8 +105,6 @@ program.addCommand(new Command('nchat')
     .description("Chat with Native SDK")
     .argument('[msg]', 'Initial Usr Msg', '')
     .action(async (msg, options) => {
-    let opts = program.opts();
-    //let {provider} = opts;
     let provider = opts.provider || await askLlmProvider();
     let client = getPkClient(provider);
     let chatRes = await client.nativeChat(msg);
@@ -117,13 +113,17 @@ program.addCommand(new Command('nchat')
 }));
 program.addCommand(new Command('sdkchat')
     .description("Chat with AI SDK")
-    .argument('[msg]', 'Initial Usr Msg', '')
-    .action(async (msg, options) => {
-    let opts = program.opts();
-    //let {provider} = opts;
-    let provider = opts.provider || await askLlmProvider();
+    .argument('[msgs...]', 'Initial Usr Msg', '')
+    .action(async (msgs, options) => {
+    let { provider, mnfilters } = opts;
+    provider = getLlmProvider(provider);
+    if (!(provider in providers)) {
+        provider = await askLlmProvider();
+    }
+    //let provider = opts.provider || await askLlmProvider();
+    //let mnfilters = opts.mnfilters;
     let client = getPkClient(provider);
-    let chatRes = await client.sdkChat(msg);
+    let chatRes = await client.sdkChat({ msgs, mnfilters });
     dbgWrt(chatRes);
     console.log({ chatRes });
 }));

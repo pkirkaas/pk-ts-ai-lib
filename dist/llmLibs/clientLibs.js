@@ -255,15 +255,19 @@ export class BaseClient {
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
     //async sdkChat({user,system,modelName,temperature}) {
-    async sdkChat(msgs, ASK = false, filter, sdkChatParams = {}) {
+    //async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
+    async sdkChat(params) {
+        let { msgs, ASK, mnfilters, sdkChatParams } = params;
         let bMsg = await this.prepChat(msgs, ASK);
         sdkChatParams = this.mkSdkChatParams(sdkChatParams);
-        return this.sdkChatBuilt(bMsg, filter, sdkChatParams);
+        return this.sdkChatBuilt({ bMsg, mnfilters, sdkChatParams, });
     }
     mkChatLog({ chatType = "Undefined", uMsg = '', sMsg = '', msgKeys = [], chatConfig = {} }) {
         return new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
     }
-    async sdkChatBuilt(bMsg, filter, sdkChatParams = {}) {
+    //async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<CoreMessage[]> {
+    async sdkChatBuilt(params) {
+        let { bMsg, mnfilters, sdkChatParams = {} } = params;
         let chatType = 'sdkChat';
         function getDets(resp) {
             let usage = resp?.usage?.totalTokens;
@@ -275,7 +279,7 @@ export class BaseClient {
         let { uMsg, sMsg, msgKeys = [] } = bMsg;
         let providerConfig = this.providerConfig;
         //modelName = modelName || this.modelName;
-        let modelName = await this.getModelName(filter);
+        let modelName = await this.getModelName(mnfilters);
         if (!uMsg) {
             uMsg = await ask(`What to ask [${this.provider}]?`);
         }

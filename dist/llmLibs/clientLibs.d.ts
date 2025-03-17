@@ -155,7 +155,12 @@ export declare abstract class BaseClient {
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    sdkChat(msgs: Strings, ASK?: boolean, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<CoreMessage[]>;
+    sdkChat(params: {
+        msgs: Strings;
+        ASK: boolean;
+        mnfilters?: Strings;
+        sdkChatParams: SdkChatParams;
+    }): Promise<CoreMessage[]>;
     mkChatLog({ chatType, uMsg, sMsg, msgKeys, chatConfig }: {
         chatType?: string;
         uMsg?: string;
@@ -163,7 +168,11 @@ export declare abstract class BaseClient {
         msgKeys?: any[];
         chatConfig?: {};
     }): ChatLogger;
-    sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams?: SdkChatParams): Promise<CoreMessage[]>;
+    sdkChatBuilt(params: {
+        bMsg: BuiltMsg;
+        mnfilters?: Strings;
+        sdkChatParams: SdkChatParams;
+    }): Promise<CoreMessage[]>;
     /**
      * Generate an object from input messages & schema
      * @param spec:StructureSpec - The schema & definition for the object returned
