@@ -25,3 +25,4 @@
 - Complete generalization of zod schema generation & definition of object output
 - More AIDER conf
 - Figure out better filtering for openrouter models
+- Use commander to add options, refactor clientlibs to use object args
