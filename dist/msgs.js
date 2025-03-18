@@ -81,7 +81,7 @@ export function wordCnt(str) {
 /**
  * Test all the message keys in the system
  */
-export function tstMsgs(typex) {
+export async function tstMsgs(typex) {
     for (let msgType of msgTypes) {
         //console.log(`In tstMsgs - testing msgType: [${msgType}]`);
         let msgObj = getMsgObj(msgType);
@@ -90,7 +90,7 @@ export function tstMsgs(typex) {
             let msgStr = `msgKey: [${msgKey}] - type: [${msgType}]; wrapped: #${wrapKeyType(msgKey, msgType)}# BLOCK`;
             //console.log(`Testing key: [${msgKey}] of type: [${msgType}]`);
             try {
-                let msgs = buildMsg(msgStr);
+                let msgs = await buildMsg(msgStr);
             }
             catch (e) {
                 let errMsg = e.message;
@@ -248,7 +248,13 @@ export async function askMsg(smsgx) {
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export function buildMsg(msgx) {
+export async function buildMsg(msgx) {
+    if (isEmpty(msgx)) {
+        let uMsg = await ask("What to ask the LLM?");
+        let sMsg = defaultSysMsg;
+        let msgKeys = ['ASK'];
+        return { uMsg, sMsg, msgKeys };
+    }
     let msgKeys = mkArray(msgx);
     let msgType = 'usrmsg';
     let msgStr = '\n';
@@ -260,6 +266,9 @@ export function buildMsg(msgx) {
         }
         else if (umsgKeys.includes(msg)) {
             msgStr += wrapKeyType(msg, msgType);
+        }
+        else if (umsgKeys.includes('ASK')) {
+            msgStr += await ask("What to ask the LLM?");
         }
         else {
             throw new PkError(`in buildMsg - msg [${msg}] not in umsgKeys`);

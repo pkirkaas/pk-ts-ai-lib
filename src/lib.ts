@@ -25,8 +25,7 @@ import {
 // Local Imports
 
 import {
-  //fncSchema,
-   buildMsg,
+  //fncSchema, buildMsg,
   systemMessages, usrMessages, providers, timeout, defaultSysMsg, initChatLog,
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities, oaiCodeParams,
 } from './init.js';
@@ -91,7 +90,7 @@ export function mkModelListOpts(opts: any = {}) {
  */
 export type ModelListOpts = {
   sort?: string | boolean, // model obj key to sort by
-  filter?: Strings, // model names or substrings to filter on
+  mnfilters?: Strings, // model names or substrings to filter on
   format?: any,
   type?: string, // For together - types can be 'chat', 'image', etc.
 };
@@ -104,10 +103,10 @@ export type ModelListOpts = {
  */
 export function filterModelObjArr(modelObjs: GenObj[], opts: ModelListOpts = {}) {
   let listOptsDef = { sort: 'created', format: true, filter: '', };
-  let { sort, format, filter } = { ...listOptsDef, ...opts };
+  let { sort, format, mnfilters } = { ...listOptsDef, ...opts };
 
-  if (filter) {
-    let filters = mkArray(filter);
+  if (!isEmpty(mnfilters)) {
+    let filters = mkArray(mnfilters);
     modelObjs = modelObjs.filter((modelObj) => {
       if (modelObj.id) {
         return strIncludesAny(modelObj.id, filters, true);

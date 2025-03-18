@@ -265,26 +265,26 @@ export abstract class BaseClient {
     */
   /**
    * Possibly interactive method to set this.modelName & return the model name, based on provider & params
-   * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
+   * @param mnfilters?:Strings - filters for model names, or one of 'current' , 'default', 'all',
    */
-  async getModelName(filter?: Strings): Promise<string> {
-    if ((!filter || (filter === 'current')) && this.modelName) {
+  async getModelName({mnfilters}): Promise<string> {
+    if (isEmpty(mnfilters) && this.modelName) { //mnfilters[0] === 'current'
       return this.modelName;
     }
     let providerConfig = this.providerConfig;
-    if (!filter || (filter === 'default')) {
+    if (isEmpty(mnfilters)) {// !filter || (filter === 'default')) {
       this.modelName = providerConfig?.model || providerConfig?.defaultModel;
       if (this.modelName) {
         return this.modelName;
       }
     }
-    if (!filter && providerConfig.filters) {
-      filter = providerConfig.filters;
+    if (isEmpty(mnfilters) && providerConfig.mnfilters) {
+      mnfilters = providerConfig.mnfilters;
     }
-    let models = await this.filterModels({ filter });
+    let models = await this.filterModels({ mnfilters });
     let names = this.modelObjsToNames(models);
     if (!Array.isArray(names) || !names.length) {
-      throw new PkError(`For provider: [${this.provider}] no models found for filter:`, filter);
+      throw new PkError(`For provider: [${this.provider}] no models found for filter:`, mnfilters);
     }
     if (names.length === 1) {
       this.modelName = names[0];
@@ -300,7 +300,8 @@ export abstract class BaseClient {
    * Array of model objects to string array of model names
    */
   modelObjsToNames(models: any[]): string[] {
-    let names = models.map((model) => model.name || model.id);
+    //let names = models.map((model) => model.name || model.id);
+    let names = models.map((model) => model.id || model.name);
     return names;
   }
 
@@ -331,7 +332,7 @@ export abstract class BaseClient {
     if (ASK || isEmpty(msgs)) {
       bMsg = await askMsg(msgs);
     } else {
-      bMsg = buildMsg(msgs);
+      bMsg = await buildMsg(msgs);
     }
     return bMsg;
   }
@@ -341,10 +342,17 @@ export abstract class BaseClient {
    */
   //async sdkChat({user,system,modelName,temperature}) {
   //async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
-  async sdkChat(params:{msgs: Strings, ASK:boolean, mnfilters?: Strings, sdkChatParams: SdkChatParams}): Promise<CoreMessage[]> {
-    let {msgs, ASK, mnfilters, sdkChatParams} = params;
-    let bMsg = await this.prepChat(msgs, ASK);
-    sdkChatParams = this.mkSdkChatParams(sdkChatParams);
+  async sdkChat(params:{msgs: Strings,  mnfilters?: Strings, sdkChatParams: SdkChatParams}): Promise<CoreMessage[]> {
+    let {msgs,  mnfilters, sdkChatParams} = params;
+    //let bMsg = await this.prepChat(msgs, ASK);
+    let bMsg = await buildMsg(msgs,);
+    //sdkChatParams = this.mkSdkChatParams(sdkChatParams);
+    //console.log({bMsg, sdkChatParams});
+    //let cm:CoreMessage = {};
+    //@ts-ignore
+    //return [{}];
+
+    //return {bMsg, sdkChatParams};
     return this.sdkChatBuilt({bMsg, mnfilters, sdkChatParams,});
   }
 
@@ -366,7 +374,7 @@ export abstract class BaseClient {
     let { uMsg, sMsg, msgKeys = [] } = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
-    let modelName = await this.getModelName(mnfilters);
+    let modelName = await this.getModelName({mnfilters});
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);
     }
@@ -406,11 +414,11 @@ export abstract class BaseClient {
    */
 
 
-  async sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings, providerOptions: GenObj = {}): Promise<any> {
+  async sdkObject(spec: StructureSpec, msgx: Strings, mnfilters?: Strings, providerOptions: GenObj = {}): Promise<any> {
     let msgs = mkArray(msgx);
     //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
     providerOptions = this.mkSdkChatParams(providerOptions);
-    let { uMsg, sMsg } = buildMsg(msgs);
+    let { uMsg, sMsg } = await buildMsg(msgs);
     let { schema, definition } = spec;
     let predef = "You are required to provide a valid JSON object, strictly adhering to the JSON schema provided.\n";
     let sdef = `\n${predef}\n${definition}\n`;
@@ -420,7 +428,7 @@ export abstract class BaseClient {
       { role: 'system', content: sdef },
       { role: 'user', content: uMsg, },
     ];
-    modelName = await this.getModelName(modelName);
+    let modelName = await this.getModelName({mnfilters});
     let model = this.sdkClient(modelName);
     let res = await generateObject({ model, schema, messages, providerOptions, });
     let obj = res.object;
@@ -430,12 +438,12 @@ export abstract class BaseClient {
   /**
    * Test decomp of TS Source Code file
    */
-  async sdkTsDecomp(fpath?: string, modelName?: Strings, providerOptions: GenObj = {}): Promise<any> {
+  async sdkTsDecomp(fpath?: string, mnfilters?: Strings, providerOptions: GenObj = {}): Promise<any> {
     let { messages, schema, } = mkDecompParams(fpath);
     //providerOptions = {...defaultSdkChatParams, ...providerOptions,};
     providerOptions = this.mkSdkChatParams(providerOptions);
     /*
-    let { uMsg, sMsg } = buildMsg(msgs);
+    let { uMsg, sMsg } = await buildMsg(msgs);
     let { schema, definition } = spec;
     let predef = "You are required to provide a valid object, strictly adhering to the schema provided.\n";
     let sdef = `\n${predef}\n${definition}\n`;
@@ -446,7 +454,7 @@ export abstract class BaseClient {
       { role: 'user', content: uMsg, },
     ];
     */
-    modelName = await this.getModelName(modelName);
+    let modelName = await this.getModelName({mnfilters});
     let model = this.sdkClient(modelName);
     //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
     console.error(`Trying sdkTsDecomp w.`, { messages, fpath, });
@@ -507,7 +515,7 @@ export abstract class BaseClient {
 
   /**
    * Returns the models for the provider, optionally filtered/processed:
-   * @param opts.filter?:Strings - substring(s) to filter model names, or 'all' or empty for all
+   * @param opts.mnfilters?:Strings - substring(s) to filter model names, or 'all' or empty for all
    * @param opts.format?:any - format models? - Currently, just format created date
    * @param opts.sort?:string - sort by ModelObject key 
    * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat' 
@@ -516,10 +524,10 @@ export abstract class BaseClient {
   async filterModels(opts: ModelListOpts = {}): Promise<GenObj[]> {
     let modelObjs = await this.getModels();
     let listOptsDef = { sort: 'created', format: true, filter: '', };
-    let { sort, format, filter, type, } = { ...listOptsDef, ...opts };
+    let { sort, format, mnfilters, type, } = { ...listOptsDef, ...opts };
 
-    if (filter && filter !== 'all') {
-      let filters = mkArray(filter);
+    if (!isEmpty(mnfilters)) {
+      let filters = mkArray(mnfilters);
       modelObjs = modelObjs.filter((modelObj) => {
         if (modelObj.id) {
           return strIncludesAny(modelObj.id, filters, true);
@@ -583,12 +591,12 @@ export class OpenAiClient extends BaseClient {
 export class ClaudeClient extends BaseClient {
 
   async nativeChatBuilt(params: { bMsg: BuiltMsg, [key: string]: any; }): Promise<any> {
-    let { bMsg, filter, ...chatParams } = params;
+    let { bMsg, mnfilters, ...chatParams } = params;
     //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
     let chatType = "Claude Native";
     let { uMsg, sMsg, msgKeys } = bMsg;
     let system = sMsg;
-    let model = await this.getModelName(filter);
+    let model = await this.getModelName({mnfilters});
     //let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=4096,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=8192,budget_tokens} = chatParams;
@@ -697,6 +705,15 @@ export class OpenRouterClient extends BaseClient {
   /** Special - writes openrouter models to
    * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
    */
+  async filterModels(...args): Promise<GenObj[]> {
+    let models = await super.filterModels(...args);
+    let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-filtered-models.ts";
+    let outStr = `/** OpenRouter Mapped Models - as of [${dtFmt('dt')}]*/
+    export const openrouterModels = \n${JSON5Stringify(models)}\n;\n`;
+    fs.writeFileSync(outPath, outStr);
+    return models;
+
+  }
   async getModels(...args): Promise<GenObj[]> {
     // Maps pricing object
     function mapPrice(srcObj: any): { [key: string]: number; } {
@@ -763,11 +780,15 @@ export class OpenRouterClient extends BaseClient {
       price: mapPrice(model.pricing),
       moderated:model?.top_provider?.is_moderated, 
     }));
+    let mmcnt = mappedModels.length;
+    let mcnt = models.length;
+    let tomodels = typeOf(models);
     let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
-    let outStr = `/** OpenRouter Models - as of [${dtFmt('short')}] */
+    let outStr = `/** OpenRouter Mapped Models - as of [${dtFmt('dt')}]; mmcnt: [${mmcnt}], mcnt: [${mcnt}], tom: [${tomodels}] */
     export const openrouterModels = \n${JSON5Stringify(mappedModels)}\n;\n`;
     fs.writeFileSync(outPath, outStr);
-    return models;
+    //return models;
+    return mappedModels;
   }
 }
 

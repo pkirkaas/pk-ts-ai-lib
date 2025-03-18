@@ -54,7 +54,7 @@ let fncs = {
         if (isEmpty(args)) {
             args.push('text-popup');
         }
-        let { uMsg, sMsg, msgKeys } = buildMsg(args);
+        let { uMsg, sMsg, msgKeys } = await buildMsg(args);
         let outPath = dbgWrt({ what: "tstBuildMsg", args, uMsg, sMsg, msgKeys, }, 'buildMsg');
         //console.log(`Built Msg:`,{msgKeys,sMsg,uMsg});
         logPretty({ msgKeys, sMsg, uMsg });

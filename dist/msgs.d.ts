@@ -46,7 +46,7 @@ export declare function wordCnt(str: string): number;
 /**
  * Test all the message keys in the system
  */
-export declare function tstMsgs(typex?: Strings): void;
+export declare function tstMsgs(typex?: Strings): Promise<void>;
 /**
  * Builds a MsgObj for a given msg type - hard coded for now
  * @param msgType:string - 'sysmsg' | 'usrmsg' | 'code'
@@ -69,7 +69,7 @@ export declare function askMsg(smsgx: Strings): Promise<BuiltMsg>;
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
-export declare function buildMsg(msgx: Strings): BuiltMsg;
+export declare function buildMsg(msgx: Strings): Promise<BuiltMsg>;
 export declare function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string;
 export declare function buildSysMsg(msg: string): string;
 /**

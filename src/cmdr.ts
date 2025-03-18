@@ -118,15 +118,17 @@ program.addCommand( new Command('decomp')
 
 program.addCommand( new Command('models')
   .description("List models for provider")
-  .argument('[filter...]', 'Filter Models by', '')
-  .action(async (filter, options) => {
-    let provider = opts.provider || await askLlmProvider();
+  //.argument('[filter...]', 'Filter Models by', '')
+  //.action(async (filter, options) => {
+  .action(async (options) => {
+    let {provider, mnfilters} = opts;
+    provider = getLlmProvider(provider);
     let client = getPkClient(provider);
-    let models = await client.filterModels({filter});
+    let models = await client.filterModels({mnfilters});
     dbgWrt(models, `${provider}-models`);
     let names = client.modelObjsToNames(models);
     let cnt = models.length;
-    console.log("In ModelsCmd", { filter, options, opts, models, names, cnt, });
+    console.log("In ModelsCmd", { mnfilters, options, opts, models, names, cnt, provider, });
   })
 );
 
@@ -144,7 +146,7 @@ program.addCommand( new Command('nchat')
   .description("Chat with Native SDK")
   .argument('[msg]', 'Initial Usr Msg', '')
   .action(async (msg, options) => {
-    let provider = opts.provider || await askLlmProvider();
+    let {provider, mnfilters} = opts;
     let client = getPkClient(provider);
     let chatRes = await client.nativeChat(msg);
     dbgWrt(chatRes);
@@ -159,9 +161,10 @@ program.addCommand( new Command('sdkchat')
   .action(async (msgs, options) => {
     let {provider, mnfilters} = opts;
     provider = getLlmProvider(provider);
-    if (! (provider in providers)) {
-      provider = await askLlmProvider();
-    }
+    
+   // if (! (provider in providers)) {
+    //  provider = await askLlmProvider();
+   // }
     //let provider = opts.provider || await askLlmProvider();
     //let mnfilters = opts.mnfilters;
     let client = getPkClient(provider);
@@ -187,5 +190,8 @@ program.addCommand( new Command('asksdkchat')
 
 
 
-
+try {
 await program.parseAsync(process.argv);
+} catch(e) {
+  console.error(`Error in cmdr - `,e);
+}

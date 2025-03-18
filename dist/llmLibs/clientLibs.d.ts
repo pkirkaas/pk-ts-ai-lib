@@ -130,9 +130,11 @@ export declare abstract class BaseClient {
     }): Promise<any>;
     /**
      * Possibly interactive method to set this.modelName & return the model name, based on provider & params
-     * @param filter?:Strings - filters for model names, or one of 'current' , 'default', 'all',
+     * @param mnfilters?:Strings - filters for model names, or one of 'current' , 'default', 'all',
      */
-    getModelName(filter?: Strings): Promise<string>;
+    getModelName({ mnfilters }: {
+        mnfilters: any;
+    }): Promise<string>;
     /**
      * Array of model objects to string array of model names
      */
@@ -157,7 +159,6 @@ export declare abstract class BaseClient {
      */
     sdkChat(params: {
         msgs: Strings;
-        ASK: boolean;
         mnfilters?: Strings;
         sdkChatParams: SdkChatParams;
     }): Promise<CoreMessage[]>;
@@ -180,11 +181,11 @@ export declare abstract class BaseClient {
      * TODO: Add 'output' option to return array of objects
      * TODO: Add ProviderOptions param to allow for provider-specific options - temperature, etc
      */
-    sdkObject(spec: StructureSpec, msgx: Strings, modelName?: Strings, providerOptions?: GenObj): Promise<any>;
+    sdkObject(spec: StructureSpec, msgx: Strings, mnfilters?: Strings, providerOptions?: GenObj): Promise<any>;
     /**
      * Test decomp of TS Source Code file
      */
-    sdkTsDecomp(fpath?: string, modelName?: Strings, providerOptions?: GenObj): Promise<any>;
+    sdkTsDecomp(fpath?: string, mnfilters?: Strings, providerOptions?: GenObj): Promise<any>;
     /**
      * Returns the models available for the provider
      */
@@ -192,7 +193,7 @@ export declare abstract class BaseClient {
     getRawModels(...args: any[]): Promise<GenObj[]>;
     /**
      * Returns the models for the provider, optionally filtered/processed:
-     * @param opts.filter?:Strings - substring(s) to filter model names, or 'all' or empty for all
+     * @param opts.mnfilters?:Strings - substring(s) to filter model names, or 'all' or empty for all
      * @param opts.format?:any - format models? - Currently, just format created date
      * @param opts.sort?:string - sort by ModelObject key
      * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat'
@@ -237,6 +238,7 @@ export declare class OpenRouterClient extends BaseClient {
     /** Special - writes openrouter models to
      * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
      */
+    filterModels(...args: any[]): Promise<GenObj[]>;
     getModels(...args: any[]): Promise<GenObj[]>;
 }
 export declare const clientClasses: {

@@ -26,3 +26,4 @@
 - More AIDER conf
 - Figure out better filtering for openrouter models
 - Use commander to add options, refactor clientlibs to use object args
+- Try commander options w false as default value if no val specified. That would allow `-p` if specified w. no value to inquire, vs using default

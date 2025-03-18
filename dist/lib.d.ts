@@ -44,7 +44,7 @@ export declare function mkModelListOpts(opts?: any): any;
  */
 export type ModelListOpts = {
     sort?: string | boolean;
-    filter?: Strings;
+    mnfilters?: Strings;
     format?: any;
     type?: string;
 };

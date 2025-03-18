@@ -53,9 +53,9 @@ export function mkModelListOpts(opts = {}) {
  */
 export function filterModelObjArr(modelObjs, opts = {}) {
     let listOptsDef = { sort: 'created', format: true, filter: '', };
-    let { sort, format, filter } = { ...listOptsDef, ...opts };
-    if (filter) {
-        let filters = mkArray(filter);
+    let { sort, format, mnfilters } = { ...listOptsDef, ...opts };
+    if (!isEmpty(mnfilters)) {
+        let filters = mkArray(mnfilters);
         modelObjs = modelObjs.filter((modelObj) => {
             if (modelObj.id) {
                 return strIncludesAny(modelObj.id, filters, true);
