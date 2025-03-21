@@ -136,16 +136,6 @@ export const providers:Providers = {
     baseURL: "https://api.studio.nebius.ai/v1/",
     apiKey: process.env.NEBIUS_API_KEY,
   },
-  /*
-  ollama: {
-    baseURL: `http://localhost:${OLLAMA_PORT}/v1`,
-    apiKey: 'ollama',
-    defaultOpts: {
-      ...oaiCodeParams,
-      // max_tokens: 8192,
-    },
-    // clientLib: OpenAI,
-  },
   xai: {
     apiKey: process.env.GROK_API_KEY,
     // clientLib: OpenAI,
@@ -155,6 +145,16 @@ export const providers:Providers = {
       ...oaiCodeParams,
       // max_tokens: 8192,
     },
+  },
+  /*
+  ollama: {
+    baseURL: `http://localhost:${OLLAMA_PORT}/v1`,
+    apiKey: 'ollama',
+    defaultOpts: {
+      ...oaiCodeParams,
+      // max_tokens: 8192,
+    },
+    // clientLib: OpenAI,
   },
   gengemini: { // Use Gemini API instead of VertexAI
     model: 'gemini-2.0-flash-exp',

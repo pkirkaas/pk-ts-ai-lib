@@ -88,6 +88,16 @@ export const providers = {
         baseURL: "https://api.studio.nebius.ai/v1/",
         apiKey: process.env.NEBIUS_API_KEY,
     },
+    xai: {
+        apiKey: process.env.GROK_API_KEY,
+        // clientLib: OpenAI,
+        baseURL: "https://api.x.ai/v1",
+        model: "grok-beta",
+        defaultOpts: {
+            ...oaiCodeParams,
+            // max_tokens: 8192,
+        },
+    },
     /*
     ollama: {
       baseURL: `http://localhost:${OLLAMA_PORT}/v1`,
@@ -97,16 +107,6 @@ export const providers = {
         // max_tokens: 8192,
       },
       // clientLib: OpenAI,
-    },
-    xai: {
-      apiKey: process.env.GROK_API_KEY,
-      // clientLib: OpenAI,
-      baseURL: "https://api.x.ai/v1",
-      model: "grok-beta",
-      defaultOpts: {
-        ...oaiCodeParams,
-        // max_tokens: 8192,
-      },
     },
     gengemini: { // Use Gemini API instead of VertexAI
       model: 'gemini-2.0-flash-exp',
