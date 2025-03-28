@@ -83,6 +83,7 @@ export declare let systemMessages: {
     default: string;
     code: string;
     python: string;
+    rag: string;
     ai: string;
     hf: string;
     claude: string;

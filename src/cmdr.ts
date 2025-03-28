@@ -91,6 +91,19 @@ program.addCommand(new Command('nchat')
 );
 
 
+program.addCommand(new Command('imgGen')
+  .description("Generate an image")
+  .argument('[msg]', 'Initial Usr Msg', '')
+  .action(async (msgs, options) => {
+    await setOpts();
+    let { provider, mnfilters } = opts;
+    provider = getLlmProvider(provider);
+    let client = getPkClient(provider);
+    let imgRes = await client.imgGen({ msgs, mnfilters });
+    console.log({ imgRes });
+  })
+);
+
 program.addCommand(new Command('sdkchat')
   .description("Chat with AI SDK")
   .argument('[msgs...]', 'Initial Usr Msg', '')

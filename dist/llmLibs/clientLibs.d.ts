@@ -9,6 +9,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { GenObj } from 'pk-ts-node-lib';
 import { ModelListOpts, Strings, BuiltMsg, StructureSpec } from '../init.js';
+export declare function detectImageFormat(imageData: Uint8Array): Promise<string>;
 export declare const aiSdkClients: {
     togetherai: {
         client: import("@ai-sdk/togetherai").TogetherAIProvider;
@@ -124,6 +125,8 @@ export declare abstract class BaseClient {
      * TODO? Should extract filter & get model here, or nativeChat
      */
     nativeChat(msgs: Strings, params?: GenObj): Promise<any>;
+    /** Placeholder to test generating images */
+    imgGen(...args: any[]): Promise<string>;
     nativeChatBuilt(params: {
         bMsg: BuiltMsg;
         [key: string]: any;
@@ -235,6 +238,7 @@ export declare class TogetherClient extends BaseClient {
     getModels(...args: any[]): Promise<GenObj[]>;
 }
 export declare class OpenRouterClient extends BaseClient {
+    imgGen(...args: any[]): Promise<string>;
     /** Special - writes openrouter models to
      * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
      */

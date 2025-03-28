@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test":"tsc",
+    "test": "tsc",
     "clean": "rm -rf ./dist ./node_modules package-lock.json &&  npm i && tsc"
   },
   "dependencies": {
@@ -50,6 +50,7 @@
     "chromadb": "^1.10.4",
     "console-title": "*",
     "dotenv": "^16.4.7",
+    "file-type": "^20.4.1",
     "google-auth-library": "*",
     "langchain": "^0.3.19",
     "llamaindex": "^0.9.3",

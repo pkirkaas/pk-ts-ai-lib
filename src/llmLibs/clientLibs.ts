@@ -11,10 +11,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import chalk from 'chalk';
 import OpenAI from "openai";
+import { fileTypeFromBuffer } from 'file-type';
 import {
   generateText, CoreUserMessage, CoreSystemMessage, CoreAssistantMessage, CoreToolMessage,
   generateObject, GenerateTextResult, CoreMessage, FilePart,
 } from 'ai';
+import { experimental_generateImage as generateImage } from 'ai';
 import { v4 as uuidv4 } from 'uuid';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
@@ -53,6 +55,15 @@ import {
 } from '../init.js';
 
 
+export async function detectImageFormat(imageData: Uint8Array) {
+    const type = await fileTypeFromBuffer(imageData);
+    if (type) {
+        console.log(`Detected format: ${type.ext}`);
+        return type.ext; // e.g., 'jpg', 'png', 'gif'
+    }
+    console.log("Unknown image format");
+    return null;
+}
 export const aiSdkClients = { // Keyed by 'providers' key
   togetherai: { client: togetherai, create: createTogetherAI, },
   openai: { client: openai, create: createOpenAI, },
@@ -62,6 +73,8 @@ export const aiSdkClients = { // Keyed by 'providers' key
   lms: { create: createOpenAICompatible },
   nebius: { create: createOpenAICompatible },
   openrouter: { create: createOpenRouter },
+  // Play to get image generation
+  //openrouter: { create: createOpenAI },
 };
 /**
  * Interface for chat parameters, extending OpenAI's ChatCompletionCreateParams
@@ -226,12 +239,12 @@ export abstract class BaseClient {
     let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
     let name = this.provider;
     let { apiKey, baseURL, } = this.providerConfig;
+    let reasoningEffort = 'high';
     if (this.provider === 'openai') { // strict
       let compatibility = 'strict';
-      let reasoningEffort = 'high';
       sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort, name, });
     } else {
-      sdkClient = aisdk.create({ apiKey, baseURL, name });
+      sdkClient = aisdk.create({ apiKey, baseURL, name, reasoningEffort, });
     }
     return sdkClient;
   }
@@ -252,6 +265,13 @@ export abstract class BaseClient {
     return this.nativeChatBuilt({ bMsg, ...opts });
   }
 
+  /** Placeholder to test generating images */
+  async imgGen(...args) {
+    let msg = `imgGen not implemented for provider: [${this.provider}]`;
+    console.error(msg);
+    return msg;
+  }
+
   async nativeChatBuilt(params: { bMsg: BuiltMsg, [key: string]: any; }): Promise<any> {
     console.log("Not implemented in Base!", { params });
     return "Not done in Base";
@@ -267,7 +287,7 @@ export abstract class BaseClient {
    * Possibly interactive method to set this.modelName & return the model name, based on provider & params
    * @param mnfilters?:Strings - filters for model names, or one of 'current' , 'default', 'all',
    */
-  async getModelName({mnfilters}): Promise<string> {
+  async getModelName({ mnfilters }): Promise<string> {
     if (isEmpty(mnfilters) && this.modelName) { //mnfilters[0] === 'current'
       return this.modelName;
     }
@@ -342,8 +362,8 @@ export abstract class BaseClient {
    */
   //async sdkChat({user,system,modelName,temperature}) {
   //async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
-  async sdkChat(params:{msgs: Strings,  mnfilters?: Strings, sdkChatParams: SdkChatParams}): Promise<CoreMessage[]> {
-    let {msgs,  mnfilters, sdkChatParams} = params;
+  async sdkChat(params: { msgs: Strings, mnfilters?: Strings, sdkChatParams: SdkChatParams; }): Promise<CoreMessage[]> {
+    let { msgs, mnfilters, sdkChatParams } = params;
     //let bMsg = await this.prepChat(msgs, ASK);
     let bMsg = await buildMsg(msgs,);
     //sdkChatParams = this.mkSdkChatParams(sdkChatParams);
@@ -353,7 +373,7 @@ export abstract class BaseClient {
     //return [{}];
 
     //return {bMsg, sdkChatParams};
-    return this.sdkChatBuilt({bMsg, mnfilters, sdkChatParams,});
+    return this.sdkChatBuilt({ bMsg, mnfilters, sdkChatParams, });
   }
 
   mkChatLog({ chatType = "Undefined", uMsg = '', sMsg = '', msgKeys = [], chatConfig = {} }): ChatLogger {
@@ -361,8 +381,8 @@ export abstract class BaseClient {
   }
 
   //async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<CoreMessage[]> {
-  async sdkChatBuilt(params:{bMsg: BuiltMsg, mnfilters?: Strings, sdkChatParams: SdkChatParams}): Promise<CoreMessage[]> {
-    let {bMsg,mnfilters, sdkChatParams={}} = params;
+  async sdkChatBuilt(params: { bMsg: BuiltMsg, mnfilters?: Strings, sdkChatParams: SdkChatParams; }): Promise<CoreMessage[]> {
+    let { bMsg, mnfilters, sdkChatParams = {} } = params;
     let chatType = 'sdkChat';
     function getDets(resp: GenObj) { // Get token usage from response
       let usage = resp?.usage?.totalTokens;
@@ -374,7 +394,7 @@ export abstract class BaseClient {
     let { uMsg, sMsg, msgKeys = [] } = bMsg;
     let providerConfig = this.providerConfig;
     //modelName = modelName || this.modelName;
-    let modelName = await this.getModelName({mnfilters});
+    let modelName = await this.getModelName({ mnfilters });
     if (!uMsg) {
       uMsg = await ask(`What to ask [${this.provider}]?`);
     }
@@ -428,7 +448,7 @@ export abstract class BaseClient {
       { role: 'system', content: sdef },
       { role: 'user', content: uMsg, },
     ];
-    let modelName = await this.getModelName({mnfilters});
+    let modelName = await this.getModelName({ mnfilters });
     let model = this.sdkClient(modelName);
     let res = await generateObject({ model, schema, messages, providerOptions, });
     let obj = res.object;
@@ -454,7 +474,7 @@ export abstract class BaseClient {
       { role: 'user', content: uMsg, },
     ];
     */
-    let modelName = await this.getModelName({mnfilters});
+    let modelName = await this.getModelName({ mnfilters });
     let model = this.sdkClient(modelName);
     //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
     console.error(`Trying sdkTsDecomp w.`, { messages, fpath, });
@@ -596,7 +616,7 @@ export class ClaudeClient extends BaseClient {
     let chatType = "Claude Native";
     let { uMsg, sMsg, msgKeys } = bMsg;
     let system = sMsg;
-    let model = await this.getModelName({mnfilters});
+    let model = await this.getModelName({ mnfilters });
     //let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=4096,budget_tokens} = chatParams;
     //let {temperature=.1,max_tokens=8192,budget_tokens} = chatParams;
@@ -702,6 +722,23 @@ export class TogetherClient extends BaseClient {
 }
 
 export class OpenRouterClient extends BaseClient {
+  async imgGen(...args) {
+    let imgModels = [
+      'google/gemma-3-27b-it:free',
+      'google/gemma-3-27b-it',
+      'microsoft/phi-4-multimodal-instruct',
+      'bytedance-research/ui-tars-72b:free',
+    ];
+    let imgModel = await ask(`Which imgModel for openRouter?`,imgModels);
+    let model = this.sdkClient.image(imgModel);
+    let prompt = "Create an image of a dog eating a watermelon";
+    let {image} = await generateImage({model, prompt});
+    let toImage = typeOf(image);
+    let res = `In imgGen for OpenRouter; chosenModel: [${imgModel}], toImage: [${toImage}]`;
+
+    console.log(res, 'with args', args);
+    return res;
+  }
   /** Special - writes openrouter models to
    * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
    */
@@ -775,10 +812,10 @@ export class OpenRouterClient extends BaseClient {
     }
     let models = await super.getModels(...args);
     //@ts-ignore
-    let mappedModels = models.map(model => ({ 
-      ...model, 
+    let mappedModels = models.map(model => ({
+      ...model,
       price: mapPrice(model.pricing),
-      moderated:model?.top_provider?.is_moderated, 
+      moderated: model?.top_provider?.is_moderated,
     }));
     let mmcnt = mappedModels.length;
     let mcnt = models.length;

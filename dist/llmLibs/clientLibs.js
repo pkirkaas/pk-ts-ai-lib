@@ -1,6 +1,8 @@
 import chalk from 'chalk';
 import OpenAI from "openai";
+import { fileTypeFromBuffer } from 'file-type';
 import { generateText, generateObject, } from 'ai';
+import { experimental_generateImage as generateImage } from 'ai';
 import _ from 'lodash';
 import fs from 'fs';
 import mime from 'mime';
@@ -16,6 +18,15 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, camelKeys, } from 'pk-ts-node-lib';
 // Local Imports
 import { getProviderConfig, getLlmProvider, wrapStr, mkDecompParams, buildMsg, wrapCodeFiles, askMsg, } from '../init.js';
+export async function detectImageFormat(imageData) {
+    const type = await fileTypeFromBuffer(imageData);
+    if (type) {
+        console.log(`Detected format: ${type.ext}`);
+        return type.ext; // e.g., 'jpg', 'png', 'gif'
+    }
+    console.log("Unknown image format");
+    return null;
+}
 export const aiSdkClients = {
     togetherai: { client: togetherai, create: createTogetherAI, },
     openai: { client: openai, create: createOpenAI, },
@@ -25,6 +36,8 @@ export const aiSdkClients = {
     lms: { create: createOpenAICompatible },
     nebius: { create: createOpenAICompatible },
     openrouter: { create: createOpenRouter },
+    // Play to get image generation
+    //openrouter: { create: createOpenAI },
 };
 export const defaultSdkChatParams = {
     temperature: 0,
@@ -146,13 +159,13 @@ export class BaseClient {
         let aisdk = aiSdkClients[this.provider] || aiSdkClients.openai;
         let name = this.provider;
         let { apiKey, baseURL, } = this.providerConfig;
+        let reasoningEffort = 'high';
         if (this.provider === 'openai') { // strict
             let compatibility = 'strict';
-            let reasoningEffort = 'high';
             sdkClient = aisdk.create({ apiKey, baseURL, compatibility, reasoningEffort, name, });
         }
         else {
-            sdkClient = aisdk.create({ apiKey, baseURL, name });
+            sdkClient = aisdk.create({ apiKey, baseURL, name, reasoningEffort, });
         }
         return sdkClient;
     }
@@ -169,6 +182,12 @@ export class BaseClient {
         let { ASK = false, ...opts } = params || {};
         let bMsg = await this.prepChat(msgs, ASK);
         return this.nativeChatBuilt({ bMsg, ...opts });
+    }
+    /** Placeholder to test generating images */
+    async imgGen(...args) {
+        let msg = `imgGen not implemented for provider: [${this.provider}]`;
+        console.error(msg);
+        return msg;
     }
     async nativeChatBuilt(params) {
         console.log("Not implemented in Base!", { params });
@@ -603,6 +622,22 @@ export class TogetherClient extends BaseClient {
     }
 }
 export class OpenRouterClient extends BaseClient {
+    async imgGen(...args) {
+        let imgModels = [
+            'google/gemma-3-27b-it:free',
+            'google/gemma-3-27b-it',
+            'microsoft/phi-4-multimodal-instruct',
+            'bytedance-research/ui-tars-72b:free',
+        ];
+        let imgModel = await ask(`Which imgModel for openRouter?`, imgModels);
+        let model = this.sdkClient.image(imgModel);
+        let prompt = "Create an image of a dog eating a watermelon";
+        let { image } = await generateImage({ model, prompt });
+        let toImage = typeOf(image);
+        let res = `In imgGen for OpenRouter; chosenModel: [${imgModel}], toImage: [${toImage}]`;
+        console.log(res, 'with args', args);
+        return res;
+    }
     /** Special - writes openrouter models to
      * "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts"
      */
