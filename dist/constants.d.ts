@@ -36,6 +36,7 @@ export declare const defaultGenerationConfig: {
  * @property apiKey - API key for authentication
  * @property defaultOpts - Default options for API calls
  * @property model - Default model to use
+ * @property imgModels:Strings - image generation models
  * @property filters - String or array of strings to filter model names/IDs
  * @property clientLib - Client library to use for API calls
  * @property pkClientClass - Custom client class
@@ -48,6 +49,8 @@ export type ProviderConfig = {
     apiKey?: string;
     defaultOpts?: GenObj;
     model?: string;
+    imgModels?: Strings;
+    imgModel?: string;
     mnfilters?: string | Strings;
     clientLib?: any;
     pkClientClass?: any;

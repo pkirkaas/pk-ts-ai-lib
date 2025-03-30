@@ -126,7 +126,7 @@ export declare abstract class BaseClient {
      */
     nativeChat(msgs: Strings, params?: GenObj): Promise<any>;
     /** Placeholder to test generating images */
-    imgGen(...args: any[]): Promise<string>;
+    imgGen(...args: any[]): Promise<any>;
     nativeChatBuilt(params: {
         bMsg: BuiltMsg;
         [key: string]: any;
@@ -197,6 +197,10 @@ export declare abstract class BaseClient {
     /**
      * Returns the models for the provider, optionally filtered/processed:
      * @param opts.mnfilters?:Strings - substring(s) to filter model names, or 'all' or empty for all
+     * @param opts.created?:string|number|GenObj|boolean|null - only models after offset -
+     *    true: 90 days
+     *    string|number - number of days
+     *    GenObj - A date-fns Duration object {days, hours, minutes, months, seconds, years}
      * @param opts.format?:any - format models? - Currently, just format created date
      * @param opts.sort?:string - sort by ModelObject key
      * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat'

@@ -60,6 +60,7 @@ export const defaultGenerationConfig = { // For Google/VertexAI
  * @property apiKey - API key for authentication
  * @property defaultOpts - Default options for API calls
  * @property model - Default model to use
+ * @property imgModels:Strings - image generation models
  * @property filters - String or array of strings to filter model names/IDs
  * @property clientLib - Client library to use for API calls
  * @property pkClientClass - Custom client class
@@ -72,6 +73,8 @@ export type ProviderConfig = {
   apiKey?:string,
   defaultOpts?:GenObj,
   model?: string,
+  imgModels?: Strings,
+  imgModel?:string,
   mnfilters?:string | Strings,
   clientLib?:any,
   pkClientClass?:any,
@@ -140,6 +143,8 @@ export const providers:Providers = {
     apiKey: process.env.GROK_API_KEY,
     // clientLib: OpenAI,
     baseURL: "https://api.x.ai/v1",
+    imgModels: "grok-2-image",
+    imgModel: "grok-2-image",
     model: "grok-beta",
     defaultOpts: {
       ...oaiCodeParams,

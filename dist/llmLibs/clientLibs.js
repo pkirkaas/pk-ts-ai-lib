@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { fileTypeFromBuffer } from 'file-type';
 import { generateText, generateObject, } from 'ai';
 import { experimental_generateImage as generateImage } from 'ai';
+import { add } from 'date-fns';
 import _ from 'lodash';
 import fs from 'fs';
 import mime from 'mime';
@@ -15,7 +16,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isString, mkArray, strIncludesAny, PkError, typeOf, camelKeys, } from 'pk-ts-node-lib';
+import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isNumeric, asNumeric, isString, mkArray, strIncludesAny, PkError, typeOf, camelKeys, dateToTimestamp, } from 'pk-ts-node-lib';
 // Local Imports
 import { getProviderConfig, getLlmProvider, wrapStr, mkDecompParams, buildMsg, wrapCodeFiles, askMsg, } from '../init.js';
 export async function detectImageFormat(imageData) {
@@ -185,9 +186,13 @@ export class BaseClient {
     }
     /** Placeholder to test generating images */
     async imgGen(...args) {
-        let msg = `imgGen not implemented for provider: [${this.provider}]`;
-        console.error(msg);
-        return msg;
+        let model = this.providerConfig.imgModel;
+        let prompt = "A dog eating a watermelon";
+        let response = await this.client.images.generate({ model, prompt, });
+        let imgdata = response.data[0];
+        //let msg = `imgGen not implemented for provider: [${this.provider}]`;
+        console.error({ imgdata });
+        return imgdata;
     }
     async nativeChatBuilt(params) {
         console.log("Not implemented in Base!", { params });
@@ -442,6 +447,10 @@ export class BaseClient {
     /**
      * Returns the models for the provider, optionally filtered/processed:
      * @param opts.mnfilters?:Strings - substring(s) to filter model names, or 'all' or empty for all
+     * @param opts.created?:string|number|GenObj|boolean|null - only models after offset -
+     *    true: 90 days
+     *    string|number - number of days
+     *    GenObj - A date-fns Duration object {days, hours, minutes, months, seconds, years}
      * @param opts.format?:any - format models? - Currently, just format created date
      * @param opts.sort?:string - sort by ModelObject key
      * @param opts.type?:string - filter by ModelObject 'type' key - like 'chat'
@@ -450,7 +459,24 @@ export class BaseClient {
     async filterModels(opts = {}) {
         let modelObjs = await this.getModels();
         let listOptsDef = { sort: 'created', format: true, filter: '', };
-        let { sort, format, mnfilters, type, } = { ...listOptsDef, ...opts };
+        let { sort, created, format, mnfilters, type, } = { ...listOptsDef, ...opts };
+        if (created) {
+            if (created === true) {
+                created = 90;
+            }
+            else if (isNumeric(created)) {
+                created = asNumeric(created);
+            }
+        }
+        if (created) { // Number of days in the past
+            //let afterTSM = dtFmt
+            let days = -Math.abs(created);
+            let duration = { days };
+            let from = add(Date(), duration);
+            modelObjs = modelObjs.filter((modelObj) => {
+                return dateToTimestamp(modelObj.created) > dateToTimestamp(from);
+            });
+        }
         if (!isEmpty(mnfilters)) {
             let filters = mkArray(mnfilters);
             modelObjs = modelObjs.filter((modelObj) => {

@@ -26,6 +26,7 @@ import {
 let program = new Command()
   .name('Execute LLM Commands')
   .option('-p, --provider [name]', 'The Provider name', 'openrouter')
+  .option('-c, --created [name]', 'Model created within days', "90")
   .option('-m, --mnfilters <names...>', 'Model Name Filters', '')
   ;
 let opts = program.opts();
@@ -36,6 +37,9 @@ let opts = program.opts();
 async function setOpts() {
   if (opts.provider === true) {
     opts.provider = await askLlmProvider();
+  }
+  if (opts.created === true) {
+    opts.created = false;
   }
   return opts;
 }
@@ -55,14 +59,15 @@ program.addCommand(new Command('models')
   //.action(async (filter, options) => {
   .action(async (options) => {
     await setOpts();
-    let { provider, mnfilters } = opts;
+    let { provider, mnfilters, created, } = opts;
     provider = getLlmProvider(provider);
+    //console.log(`in models`,{provider, mnfilters, created,});
     let client = getPkClient(provider);
-    let models = await client.filterModels({ mnfilters });
+    let models = await client.filterModels({ mnfilters, created, });
     dbgWrt(models, `${provider}-models`);
     let names = client.modelObjsToNames(models);
     let cnt = models.length;
-    console.log("In ModelsCmd", { mnfilters, options, opts, models, names, cnt, provider, });
+    console.log("In ModelsCmd", { models, names, mnfilters, options, opts, created, cnt, provider, });
   })
 );
 

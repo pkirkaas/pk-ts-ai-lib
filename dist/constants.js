@@ -92,6 +92,8 @@ export const providers = {
         apiKey: process.env.GROK_API_KEY,
         // clientLib: OpenAI,
         baseURL: "https://api.x.ai/v1",
+        imgModels: "grok-2-image",
+        imgModel: "grok-2-image",
         model: "grok-beta",
         defaultOpts: {
             ...oaiCodeParams,

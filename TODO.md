@@ -28,3 +28,4 @@
 - Use commander to add options, refactor clientlibs to use object args
 - Try commander options w false as default value if no val specified. That would allow `-p` if specified w. no value to inquire, vs using default
 - cmdr.ts works to parse options (badly) - now have to add more options & processing
+- Enhance imgGen

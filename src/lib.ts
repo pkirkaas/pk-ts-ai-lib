@@ -91,6 +91,13 @@ export function mkModelListOpts(opts: any = {}) {
 export type ModelListOpts = {
   sort?: string | boolean, // model obj key to sort by
   mnfilters?: Strings, // model names or substrings to filter on
+  created?:string|number|GenObj|boolean|null,
+  /*
+   - only models after offset -
+   *    true: 90 days
+   *    string|number - number of days
+   *    GenObj - A date-fns Duration object {days, hours, minutes, months, seconds, years}
+   * */
   format?: any,
   type?: string, // For together - types can be 'chat', 'image', etc.
 };
