@@ -9,6 +9,22 @@ export declare function consoleDir(arg: any, opts?: {
     colors: boolean;
 }): void;
 /**
+ * CLI function to set LLM API options interactively by user
+ *
+ */
+export declare function askParams({ provider, type, model, mnfilters, created, reasoning, topP, topK, steps, n, }: {
+    provider: any;
+    type: any;
+    model: any;
+    mnfilters: any;
+    created: any;
+    reasoning: any;
+    topP: any;
+    topK: any;
+    steps: any;
+    n: any;
+}): Promise<void>;
+/**
  * Create a structured output schema for openai
  * @param name:string
  * @param description:string

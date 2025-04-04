@@ -26,7 +26,7 @@ import {
 
 import {
   //fncSchema, buildMsg,
-  systemMessages, usrMessages, providers, timeout, defaultSysMsg, initChatLog,
+  systemMessages, usrMessages, providers, timeout, defaultSysMsg, initChatLog, getPkClient,
   wordCnt, LogItem, logEntities, ChatLog, ChatItem, chatEntities, oaiCodeParams,
 } from './init.js';
 
@@ -35,6 +35,23 @@ export function consoleDir(arg:any, opts={depth:null, showHidden:true, colors:tr
   console.dir(arg,opts);
 }
 
+/**
+ * CLI function to set LLM API options interactively by user
+ * 
+ */
+export async function askParams({provider, type, model, mnfilters, created, reasoning,topP, topK, steps,n,}) {
+  if (!provider) {
+    provider = await askLlmProvider();
+  }
+  let client = getPkClient(provider);
+  let providerConfig = getProviderConfig(provider);
+  if (!type) {
+    type = await ask(`What Model Type?`, ['chat', 'image',]);
+  }
+  if (!model) {
+    let models = await client.filterModels({mnfilters, type, created,});
+  }
+}
 //Zod/Schema support for structured output
 
 /**

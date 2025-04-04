@@ -120,6 +120,7 @@ export const providers:Providers = {
   togetherai: {
     baseURL: "https://api.together.xyz/v1",
     mnfilters: ['qwen', 'deepseek', 'meta-llama',],
+    imgModel:'black-forest-labs/FLUX.1-schnell-Free',
     apiKey: process.env.TOGETHER_API_KEY,
     pkClientClass: TogetherClient,
   },
@@ -136,6 +137,7 @@ export const providers:Providers = {
   },
   nebius: {
     clientLib: OpenAI,
+    imgModel:"black-forest-labs/flux-dev",
     baseURL: "https://api.studio.nebius.ai/v1/",
     apiKey: process.env.NEBIUS_API_KEY,
   },

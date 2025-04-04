@@ -6,10 +6,27 @@ import { z } from 'zod';
 // PkLib Imports
 import { writeData, PkError, isEmpty, mkArray, isString, ask, dtFmt, strIncludesAny, } from 'pk-ts-node-lib';
 // Local Imports
-import { providers, oaiCodeParams, } from './init.js';
+import { providers, getPkClient, oaiCodeParams, } from './init.js';
 // Move to common/node lib
 export function consoleDir(arg, opts = { depth: null, showHidden: true, colors: true }) {
     console.dir(arg, opts);
+}
+/**
+ * CLI function to set LLM API options interactively by user
+ *
+ */
+export async function askParams({ provider, type, model, mnfilters, created, reasoning, topP, topK, steps, n, }) {
+    if (!provider) {
+        provider = await askLlmProvider();
+    }
+    let client = getPkClient(provider);
+    let providerConfig = getProviderConfig(provider);
+    if (!type) {
+        type = await ask(`What Model Type?`, ['chat', 'image',]);
+    }
+    if (!model) {
+        let models = await client.filterModels({ mnfilters, type, created, });
+    }
 }
 //Zod/Schema support for structured output
 /**

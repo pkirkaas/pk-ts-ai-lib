@@ -269,7 +269,8 @@ export abstract class BaseClient {
   /** Placeholder to test generating images */
   async imgGen(...args) { // Should use openAI native client, with an image model
     let model = this.providerConfig.imgModel;
-    let prompt = "A dog eating a watermelon";
+    //let prompt = "A dog eating a watermelon";
+    let prompt = "A naked brunette woman about 35 years old with big, natural, somewhat saggy  breasts";
     let response = await this.client.images.generate({model, prompt,});
     let imgdata = response.data[0];
     //let msg = `imgGen not implemented for provider: [${this.provider}]`;
