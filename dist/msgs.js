@@ -4,9 +4,11 @@
 // NPM Imports
 import fs from 'node:fs';
 //PkLib imports
-import { PkError, uniqueVals, uniqueKeys, taggedMatches, ask, inArr1NinArr2, isEmpty, mkArray, } from 'pk-ts-node-lib';
+import { PkError, uniqueVals, uniqueKeys, taggedMatches, ask, inArr1NinArr2, isEmpty, mkArray, getDirname, getFilename, } from 'pk-ts-node-lib';
 // Local Imports
 import { getFileMsgObj, wrapCodeNew, } from './init.js';
+const __dirname = getDirname(import.meta.url);
+const __filename = getFilename(import.meta.url);
 /**
  * Throws if any embeds remain in string(s)
  */
@@ -111,7 +113,7 @@ export function getMsgObj(msgType, msgObj = {}) {
     let msgSrcs = [msgObj];
     switch (msgType) {
         case 'sysmsg':
-            msgSrcs.push(systemMessages);
+            msgSrcs.push(systemMessages, getFileMsgObj(`./sys-messages`));
             break;
         case 'usrmsg':
             msgSrcs.push(usrMessages, getFileMsgObj());
@@ -248,6 +250,21 @@ export async function askMsg(smsgx) {
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
+// Define defaultSysMsg early to avoid reference before definition
+export const defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
+
+
+Your audience is highly skilled software developers and engineers who require technical, detailed implementable solutions.
+
+Your response is not chatty or friendly, but neither is it just high level conceptual overview.
+
+You consider your answer in depth, carefully, reason through step by step. You will provide a very detailed, thorough, complete, correct response, prioritizing correctness over speed.
+
+You will ask clarifying questions if you need more information for your answer - it is much better to say you don't know than provide possibly incorrect information. Accuracy is essential.
+
+Before you respond, you will review your solution again, and PLEASE, PLEASE take the extra time to double check.
+
+`;
 export async function buildMsg(msgx) {
     if (isEmpty(msgx)) {
         let uMsg = await ask("What to ask the LLM?");
@@ -412,20 +429,7 @@ export let codeFiles = {
     */
 };
 //You are a highly specialized AI assistant focused on accurate software code generation. Provide exact, correct code snippets and minimize unnecessary explanations. Only answer when completely certain.
-export let defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
-
-
-Your audience is highly skilled software developers and engineers who require technical, detailed implementable solutions.
-
-Your response is not chatty or friendly, but neither is it just high level conceptual overview.
-
-You consider your answer in depth, carefully, reason through step by step. You will provide a very detailed, thorough, complete, correct response, prioritizing correctness over speed.
-
-You will ask clarifying questions if you need more information for your answer - it is much better to say you don't know than provide possibly incorrect information. Accuracy is essential.
-
-Before you respond, you will review your solution again, and PLEASE, PLEASE take the extra time to double check.
-
-`;
+// defaultSysMsg moved to earlier in the file
 export let systemMessages = {
     tstsim: `Simlple, single sys msg`,
     tstrpt: `[[tstsim]] [[tstsim]]`,
@@ -493,6 +497,21 @@ You are deeply familiar with all the wide variety of modern Language Models, res
 
 Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`LangGraph\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
   `,
+    ragnovel: `[[ai]] I am experimenting with developing an LLM RAG training application for novels, written in TypeScript.
+
+I will use a vector DB to store both encoded vectors from the text, along with associated metadata, to enhance the power of the RAG.
+
+The RAG training should support both identifying novel by content questions, like:
+
+- Which novel has the character 'Daryl Saroyan'?
+- Which novel involves international espionage with making a movie in Hollywood? 
+
+But should also support answering questions about content, based on the novel, like:
+
+- In what time period is the novel  'The Sun Also Rises' set?
+- Who are the main protagonists in the novel 'Smileys People'?
+
+`,
     hf: `[[ai]] You are in particular an expert with ALL the resources and capabilities provided by "HuggingFace" for implementing and customizing specialized AI solutions.
 `,
     claude: `[[ai]] You are an expert in the new Anthropic/Claude \`Claude 3.7 Sonnet\` LLM family and new deep thinking APIs as documented in \`https://docs.anthropic.com/en/docs/about-claude/models/extended-thinking-models\`

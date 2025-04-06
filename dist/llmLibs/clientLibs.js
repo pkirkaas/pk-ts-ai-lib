@@ -401,6 +401,25 @@ export class BaseClient {
      */
     async getModels(...args) {
         let modelObjs = (await this.client.models.list()).data;
+        let cmpFnc = (a, b) => {
+            let order = 1;
+            let sortBy = 'created';
+            // Handle missing values
+            if (!(a[sortBy])) {
+                return order;
+            }
+            if (!(b[sortBy])) {
+                return -order;
+            }
+            // Convert to numbers for comparison if they're not already
+            const aVal = typeof a[sortBy] === 'number' ? a[sortBy] : Number(a[sortBy]);
+            const bVal = typeof b[sortBy] === 'number' ? b[sortBy] : Number(b[sortBy]);
+            // Compare the numeric values
+            return bVal > aVal ? -order : order;
+        };
+        let toMO = typeOf(modelObjs);
+        modelObjs.sort(cmpFnc);
+        console.error({ toMO });
         return modelObjs;
     }
     async getRawModels(...args) {
@@ -443,6 +462,24 @@ export class BaseClient {
                 throw new PkError(`Invalid 'models' list response from ${url} - `, { respJson });
             }
         } // respJson should be array of model def objects - filter, format & sort
+        let cmpFnc = (a, b) => {
+            let order = 1;
+            let sortBy = 'created';
+            if (a[sortBy] === b[sortBy]) {
+                return 0;
+            }
+            if (!(a[sortBy])) {
+                console.error(`No [${sortBy} key`);
+                return order;
+            }
+            if ((!b[sortBy])) {
+                console.error(`No [${sortBy} key`);
+                return -order;
+            }
+            //return b[sortBy] > a[sortBy] ? 1 : -1;
+            return b[sortBy] > a[sortBy] ? -order : order;
+        };
+        modelObjs.sort(cmpFnc);
         return modelObjs;
     }
     /**
@@ -459,8 +496,12 @@ export class BaseClient {
      */
     async filterModels(opts = {}) {
         let modelObjs = await this.getModels();
-        let listOptsDef = { sort: 'created', format: true, filter: '', };
-        let { sort, created, format, mnfilters, type, } = { ...listOptsDef, ...opts };
+        let listOptsDef = { sort: 'created', format: true, filter: '', invsort: 1 };
+        let { sort, invsort, created, format, mnfilters, type, } = { ...listOptsDef, ...opts };
+        let order = 1;
+        if (invsort) {
+            order = -order;
+        }
         if (created) {
             if (created === true) {
                 created = 90;
@@ -505,12 +546,12 @@ export class BaseClient {
                     return 0;
                 }
                 if (!(a[sortBy])) {
-                    return -1;
+                    return -order;
                 }
                 if ((!b[sortBy])) {
-                    return 1;
+                    return order;
                 }
-                return b[sortBy] > a[sortBy] ? -1 : 1;
+                return b[sortBy] > a[sortBy] ? -order : order;
             };
             modelObjs.sort(cmpFnc);
         }
@@ -677,6 +718,9 @@ export class OpenRouterClient extends BaseClient {
         return models;
     }
     async getModels(...args) {
+        let models = await super.getModels(...args);
+        //Debug return models;
+        //@ts-ignore
         // Maps pricing object
         function mapPrice(srcObj) {
             // Validate input: must be a non-null object
@@ -730,8 +774,6 @@ export class OpenRouterClient extends BaseClient {
             }
             return result;
         }
-        let models = await super.getModels(...args);
-        //@ts-ignore
         let mappedModels = models.map(model => ({
             ...model,
             price: mapPrice(model.pricing),

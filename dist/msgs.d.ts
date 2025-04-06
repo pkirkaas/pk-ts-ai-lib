@@ -69,6 +69,7 @@ export declare function askMsg(smsgx: Strings): Promise<BuiltMsg>;
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
+export declare const defaultSysMsg = "You are a highly specialized AI Advanced Software Engineering and Development assistant.\n\n\nYour audience is highly skilled software developers and engineers who require technical, detailed implementable solutions.\n\nYour response is not chatty or friendly, but neither is it just high level conceptual overview.\n\nYou consider your answer in depth, carefully, reason through step by step. You will provide a very detailed, thorough, complete, correct response, prioritizing correctness over speed.\n\nYou will ask clarifying questions if you need more information for your answer - it is much better to say you don't know than provide possibly incorrect information. Accuracy is essential.\n\nBefore you respond, you will review your solution again, and PLEASE, PLEASE take the extra time to double check.\n\n";
 export declare function buildMsg(msgx: Strings): Promise<BuiltMsg>;
 export declare function nestReplaceTags(msgStr: string, msgType: string, strip?: any): string;
 export declare function buildSysMsg(msg: string): string;
@@ -76,7 +77,6 @@ export declare function buildSysMsg(msg: string): string;
  * Keys w. source code file path, to be wrapped in triple backticks
  */
 export declare let codeFiles: WrapCodeObjs;
-export declare let defaultSysMsg: string;
 export declare let systemMessages: {
     tstsim: string;
     tstrpt: string;
@@ -85,6 +85,7 @@ export declare let systemMessages: {
     python: string;
     rag: string;
     ai: string;
+    ragnovel: string;
     hf: string;
     claude: string;
     aiclient: string;

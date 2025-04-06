@@ -21,8 +21,8 @@ import {
   wrapCodeNew,
 } from './init.js';
 
-//const __dirname = getDirname(import.meta.url);
-//const __filename = getFilename(import.meta.url);
+const __dirname = getDirname(import.meta.url);
+const __filename = getFilename(import.meta.url);
 
 export type BuiltMsg = {
   sMsg: string,
@@ -133,14 +133,13 @@ export async function tstMsgs(typex?: Strings) {
  * @param msgObj?:MsgObj - object of msg keys & msg strings to add to default
  */
 export function getMsgObj(msgType: string, msgObj: MsgObj = {}): MsgObj {
-  console.debug(`In getMsgObj with msgType: ${msgType}`);
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in getMsgObj; invalid msgType:`, msgType);
   }
   let msgSrcs = [msgObj];
   switch (msgType) {
     case 'sysmsg':
-      msgSrcs.push(systemMessages, getFileMsgObj('../src/sys-messages'));
+      msgSrcs.push(systemMessages, getFileMsgObj(`./sys-messages`));
       break;
     case 'usrmsg':
       msgSrcs.push(usrMessages, getFileMsgObj());
@@ -283,7 +282,7 @@ export async function askMsg(smsgx:Strings):Promise<BuiltMsg>{
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
 // Define defaultSysMsg early to avoid reference before definition
-const defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
+export const defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
 
 
 Your audience is highly skilled software developers and engineers who require technical, detailed implementable solutions.

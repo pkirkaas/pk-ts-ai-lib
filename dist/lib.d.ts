@@ -60,6 +60,7 @@ export declare function mkModelListOpts(opts?: any): any;
  */
 export type ModelListOpts = {
     sort?: string | boolean;
+    invsort?: any;
     mnfilters?: Strings;
     created?: string | number | GenObj | boolean | null;
     format?: any;

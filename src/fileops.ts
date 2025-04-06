@@ -9,7 +9,7 @@ import path from "path";
 
 // PkLib Imports
 import {
-  getFilePaths, slashPath, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, PkError, GenObj, isDirectory, isSimpleObject,
+  getFilePaths, slashPath, sassMapStringToJson, sassMapStringToObj, saveData, isFile, getOsType, isWindows, isLinux, runCommand, stdOut, winBashes, argv, PkError, GenObj, isDirectory, isSimpleObject, getDirname, getFilename,
   JSON5Stringify, mkArray, Strings, getFiles, isEmpty, isString,
 } from 'pk-ts-node-lib';
 
@@ -20,6 +20,8 @@ import {
 
 } from './init.js';
 
+const __dirname = getDirname(import.meta.url);
+const __filename = getFilename(import.meta.url);
 /** 
  * Build a message object from MD files in 'rootdirx'
  * Recursively build a message object from MD files in 'rootdirx', keyed by file name
@@ -29,6 +31,7 @@ import {
  * return obj of {key: msg}
  */
 export function getFileMsgObj(rootdirx?: Strings): MsgObj {
+  console.log(`ThisDir: ${__dirname}`);
   rootdirx = rootdirx || './text-messages';
   let rootdirs = mkArray(rootdirx);
   let ret: MsgObj = {};

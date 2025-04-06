@@ -107,6 +107,7 @@ export function mkModelListOpts(opts: any = {}) {
  */
 export type ModelListOpts = {
   sort?: string | boolean, // model obj key to sort by
+  invsort?:any,
   mnfilters?: Strings, // model names or substrings to filter on
   created?:string|number|GenObj|boolean|null,
   /*

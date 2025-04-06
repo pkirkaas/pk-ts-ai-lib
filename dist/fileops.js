@@ -6,9 +6,11 @@
 import fs from "fs-extra";
 import path from "path";
 // PkLib Imports
-import { slashPath, isFile, PkError, isDirectory, isSimpleObject, JSON5Stringify, mkArray, getFiles, isEmpty, isString, } from 'pk-ts-node-lib';
+import { slashPath, isFile, PkError, isDirectory, isSimpleObject, getDirname, getFilename, JSON5Stringify, mkArray, getFiles, isEmpty, isString, } from 'pk-ts-node-lib';
 // Local Imports
 import { matchPattern, codeFiles, } from './init.js';
+const __dirname = getDirname(import.meta.url);
+const __filename = getFilename(import.meta.url);
 /**
  * Build a message object from MD files in 'rootdirx'
  * Recursively build a message object from MD files in 'rootdirx', keyed by file name
@@ -18,6 +20,7 @@ import { matchPattern, codeFiles, } from './init.js';
  * return obj of {key: msg}
  */
 export function getFileMsgObj(rootdirx) {
+    console.log(`ThisDir: ${__dirname}`);
     rootdirx = rootdirx || './text-messages';
     let rootdirs = mkArray(rootdirx);
     let ret = {};

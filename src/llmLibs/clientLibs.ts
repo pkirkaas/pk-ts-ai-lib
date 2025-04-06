@@ -496,7 +496,7 @@ export abstract class BaseClient {
   async getModels(...args): Promise<GenObj[]> {
     let modelObjs: GenObj[] = (await this.client.models.list()).data;
     let cmpFnc = (a, b) => { // Sort by key value
-      let order = -1;
+      let order = 1;
       let sortBy = 'created';
       
       // Handle missing values
@@ -593,9 +593,10 @@ export abstract class BaseClient {
    */
   async filterModels(opts: ModelListOpts = {}): Promise<GenObj[]> {
     let modelObjs = await this.getModels();
-    let listOptsDef = { sort: 'created', format: true, filter: '', };
+    let listOptsDef = { sort: 'created', format: true, filter: '', invsort:1};
     let { sort, invsort, created, format, mnfilters, type, } = { ...listOptsDef, ...opts };
     let order = 1;
+
     if (invsort) {
       order = -order;
     }
@@ -822,6 +823,9 @@ export class OpenRouterClient extends BaseClient {
 
   }
   async getModels(...args): Promise<GenObj[]> {
+    let models = await super.getModels(...args);
+    //Debug return models;
+    //@ts-ignore
     // Maps pricing object
     function mapPrice(srcObj: any): { [key: string]: number; } {
       // Validate input: must be a non-null object
@@ -880,8 +884,6 @@ export class OpenRouterClient extends BaseClient {
 
       return result;
     }
-    let models = await super.getModels(...args);
-    //@ts-ignore
     let mappedModels = models.map(model => ({
       ...model,
       price: mapPrice(model.pricing),

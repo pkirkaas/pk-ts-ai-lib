@@ -5,6 +5,7 @@
   "extends": "pk-ts-node-lib/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "./src",
     // tests for ts-node
     //"moduleResolution": "esnext",
    //"module": "esnext",
