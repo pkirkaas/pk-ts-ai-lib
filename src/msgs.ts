@@ -9,7 +9,7 @@ import fs from 'node:fs';
 //PkLib imports
 import {
   PkError, isFile, JSON5Stringify, JSONStringify, writeData, uniqueVals, strIncludesAny, isSubset, parseArgs, typeOf, Strings, uniqueKeys, taggedMatches,
-  ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich, mkArray,
+  ask, inArr1NinArr2, subObj, isEmpty, GenObj, isObject, intersect, dupEntries, strIncludesWhich, mkArray, getDirname, getFilename,
 } from 'pk-ts-node-lib';
 
 // Local Imports
@@ -20,6 +20,9 @@ import {
   MsgObj,
   wrapCodeNew,
 } from './init.js';
+
+//const __dirname = getDirname(import.meta.url);
+//const __filename = getFilename(import.meta.url);
 
 export type BuiltMsg = {
   sMsg: string,
@@ -130,13 +133,14 @@ export async function tstMsgs(typex?: Strings) {
  * @param msgObj?:MsgObj - object of msg keys & msg strings to add to default
  */
 export function getMsgObj(msgType: string, msgObj: MsgObj = {}): MsgObj {
+  console.debug(`In 
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in getMsgObj; invalid msgType:`, msgType);
   }
   let msgSrcs = [msgObj];
   switch (msgType) {
     case 'sysmsg':
-      msgSrcs.push(systemMessages);
+      msgSrcs.push(systemMessages, getFileMsgObj('../src/sys-messages'));
       break;
     case 'usrmsg':
       msgSrcs.push(usrMessages, getFileMsgObj());
@@ -541,6 +545,22 @@ You are deeply familiar with all the wide variety of modern Language Models, res
 
 Additionally, you are deeply familiar with all the latest AI frameworks and tools, including \`LangChain\`, \`LlamaIndex\`, \`LangGraph\`, \`GPT4All\`, \`Llama.cpp\`, etc., for both Python and JavaScript/TypeScript, used to develop custom AI agents and assistants, and to fine tune and train custom LLMs, as well as free/open source vector storage databases, etc.
   `,
+
+ragnovel: `[[ai]] I am experimenting with developing an LLM RAG training application for novels, written in TypeScript.
+
+I will use a vector DB to store both encoded vectors from the text, along with associated metadata, to enhance the power of the RAG.
+
+The RAG training should support both identifying novel by content questions, like:
+
+- Which novel has the character 'Daryl Saroyan'?
+- Which novel involves international espionage with making a movie in Hollywood? 
+
+But should also support answering questions about content, based on the novel, like:
+
+- In what time period is the novel  'The Sun Also Rises' set?
+- Who are the main protagonists in the novel 'Smileys People'?
+
+`,
 
 hf: `[[ai]] You are in particular an expert with ALL the resources and capabilities provided by "HuggingFace" for implementing and customizing specialized AI solutions.
 `,
