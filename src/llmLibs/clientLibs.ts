@@ -17,7 +17,7 @@ import {
   generateObject, GenerateTextResult, CoreMessage, FilePart,
 } from 'ai';
 import { experimental_generateImage as generateImage } from 'ai';
-import {add} from 'date-fns';
+import { add } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 //import { OpenAI } from "@ai-sdk/openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
@@ -57,13 +57,13 @@ import {
 
 
 export async function detectImageFormat(imageData: Uint8Array) {
-    const type = await fileTypeFromBuffer(imageData);
-    if (type) {
-        console.log(`Detected format: ${type.ext}`);
-        return type.ext; // e.g., 'jpg', 'png', 'gif'
-    }
-    console.log("Unknown image format");
-    return null;
+  const type = await fileTypeFromBuffer(imageData);
+  if (type) {
+    console.log(`Detected format: ${type.ext}`);
+    return type.ext; // e.g., 'jpg', 'png', 'gif'
+  }
+  console.log("Unknown image format");
+  return null;
 }
 export const aiSdkClients = { // Keyed by 'providers' key
   togetherai: { client: togetherai, create: createTogetherAI, },
@@ -271,10 +271,10 @@ export abstract class BaseClient {
     let model = this.providerConfig.imgModel;
     //let prompt = "A dog eating a watermelon";
     let prompt = "A naked brunette woman about 35 years old with big, natural, somewhat saggy  breasts";
-    let response = await this.client.images.generate({model, prompt,});
+    let response = await this.client.images.generate({ model, prompt, });
     let imgdata = response.data[0];
     //let msg = `imgGen not implemented for provider: [${this.provider}]`;
-    console.error({imgdata});
+    console.error({ imgdata });
     return imgdata;
   }
 
@@ -495,6 +495,29 @@ export abstract class BaseClient {
    */
   async getModels(...args): Promise<GenObj[]> {
     let modelObjs: GenObj[] = (await this.client.models.list()).data;
+    let cmpFnc = (a, b) => { // Sort by key value
+      let order = -1;
+      let sortBy = 'created';
+      let asb=a[sortBy];
+      let bsb=b[sortBy];
+      if (a[sortBy] === b[sortBy]) {
+        console.error(`[${sortBy} key value same: asb:[${asb}]; bsb:[${bsb}]`);
+        return 0;
+      }
+      if (!(a[sortBy])) {
+        console.error(`No [${sortBy} key`);
+        return order;
+      }
+      if ((!b[sortBy])) {
+        console.error(`No [${sortBy} key`);
+        return -order;
+      }
+      //return b[sortBy] > a[sortBy] ? 1 : -1;
+      return b[sortBy] > a[sortBy] ? -order : order;
+    };
+    let toMO = typeOf(modelObjs);
+    modelObjs.sort(cmpFnc);
+    console.error({toMO});
     return modelObjs;
   }
 
@@ -534,6 +557,24 @@ export abstract class BaseClient {
         throw new PkError(`Invalid 'models' list response from ${url} - `, { respJson });
       }
     } // respJson should be array of model def objects - filter, format & sort
+    let cmpFnc = (a, b) => { // Sort by key value
+      let order = 1;
+      let sortBy = 'created';
+      if (a[sortBy] === b[sortBy]) {
+        return 0;
+      }
+      if (!(a[sortBy])) {
+        console.error(`No [${sortBy} key`);
+        return order;
+      }
+      if ((!b[sortBy])) {
+        console.error(`No [${sortBy} key`);
+        return -order;
+      }
+      //return b[sortBy] > a[sortBy] ? 1 : -1;
+      return b[sortBy] > a[sortBy] ? -order : order;
+    };
+    modelObjs.sort(cmpFnc);
     return modelObjs;
   }
 
@@ -554,7 +595,11 @@ export abstract class BaseClient {
   async filterModels(opts: ModelListOpts = {}): Promise<GenObj[]> {
     let modelObjs = await this.getModels();
     let listOptsDef = { sort: 'created', format: true, filter: '', };
-    let { sort, created, format, mnfilters, type, } = { ...listOptsDef, ...opts };
+    let { sort, invsort, created, format, mnfilters, type, } = { ...listOptsDef, ...opts };
+    let order = 1;
+    if (invsort) {
+      order = -order;
+    }
     if (created) {
       if (created === true) {
         created = 90;
@@ -564,8 +609,8 @@ export abstract class BaseClient {
     }
     if (created) { // Number of days in the past
       //let afterTSM = dtFmt
-      let days:number = -Math.abs(created as number);
-      let duration = {days};
+      let days: number = -Math.abs(created as number);
+      let duration = { days };
       let from = add(Date(), duration);
       modelObjs = modelObjs.filter((modelObj) => {
         return dateToTimestamp(modelObj.created) > dateToTimestamp(from);
@@ -596,12 +641,12 @@ export abstract class BaseClient {
           return 0;
         }
         if (!(a[sortBy])) {
-          return -1;
+          return -order;
         }
         if ((!b[sortBy])) {
-          return 1;
+          return order;
         }
-        return b[sortBy] > a[sortBy] ? -1 : 1;
+        return b[sortBy] > a[sortBy] ? -order : order;
       };
       modelObjs.sort(cmpFnc);
     }
@@ -755,10 +800,10 @@ export class OpenRouterClient extends BaseClient {
       'microsoft/phi-4-multimodal-instruct',
       'bytedance-research/ui-tars-72b:free',
     ];
-    let imgModel = await ask(`Which imgModel for openRouter?`,imgModels);
+    let imgModel = await ask(`Which imgModel for openRouter?`, imgModels);
     let model = this.sdkClient.image(imgModel);
     let prompt = "Create an image of a dog eating a watermelon";
-    let {image} = await generateImage({model, prompt});
+    let { image } = await generateImage({ model, prompt });
     let toImage = typeOf(image);
     let res = `In imgGen for OpenRouter; chosenModel: [${imgModel}], toImage: [${toImage}]`;
 
