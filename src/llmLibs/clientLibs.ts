@@ -498,22 +498,21 @@ export abstract class BaseClient {
     let cmpFnc = (a, b) => { // Sort by key value
       let order = -1;
       let sortBy = 'created';
-      let asb=a[sortBy];
-      let bsb=b[sortBy];
-      if (a[sortBy] === b[sortBy]) {
-        console.error(`[${sortBy} key value same: asb:[${asb}]; bsb:[${bsb}]`);
-        return 0;
-      }
+      
+      // Handle missing values
       if (!(a[sortBy])) {
-        console.error(`No [${sortBy} key`);
         return order;
       }
-      if ((!b[sortBy])) {
-        console.error(`No [${sortBy} key`);
+      if (!(b[sortBy])) {
         return -order;
       }
-      //return b[sortBy] > a[sortBy] ? 1 : -1;
-      return b[sortBy] > a[sortBy] ? -order : order;
+      
+      // Convert to numbers for comparison if they're not already
+      const aVal = typeof a[sortBy] === 'number' ? a[sortBy] : Number(a[sortBy]);
+      const bVal = typeof b[sortBy] === 'number' ? b[sortBy] : Number(b[sortBy]);
+      
+      // Compare the numeric values
+      return bVal > aVal ? -order : order;
     };
     let toMO = typeOf(modelObjs);
     modelObjs.sort(cmpFnc);
