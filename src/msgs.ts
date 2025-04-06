@@ -133,7 +133,7 @@ export async function tstMsgs(typex?: Strings) {
  * @param msgObj?:MsgObj - object of msg keys & msg strings to add to default
  */
 export function getMsgObj(msgType: string, msgObj: MsgObj = {}): MsgObj {
-  console.debug(`In 
+  console.debug(`In getMsgObj with msgType: ${msgType}`);
   if (!msgTypes.includes(msgType)) {
     throw new PkError(`in getMsgObj; invalid msgType:`, msgType);
   }
@@ -282,6 +282,22 @@ export async function askMsg(smsgx:Strings):Promise<BuiltMsg>{
  * Takes msgx:Strings & returns BuiltMsg with uMsg & sMsg, with all substitutions
  * @param msgx:Strings - String or string[] Array of msgs or msg keys
  */
+// Define defaultSysMsg early to avoid reference before definition
+const defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
+
+
+Your audience is highly skilled software developers and engineers who require technical, detailed implementable solutions.
+
+Your response is not chatty or friendly, but neither is it just high level conceptual overview.
+
+You consider your answer in depth, carefully, reason through step by step. You will provide a very detailed, thorough, complete, correct response, prioritizing correctness over speed.
+
+You will ask clarifying questions if you need more information for your answer - it is much better to say you don't know than provide possibly incorrect information. Accuracy is essential.
+
+Before you respond, you will review your solution again, and PLEASE, PLEASE take the extra time to double check.
+
+`;
+
 export async function buildMsg(msgx: Strings): Promise<BuiltMsg> {
   if (isEmpty(msgx)) {
     let uMsg = await ask("What to ask the LLM?");
@@ -463,7 +479,7 @@ export let codeFiles: WrapCodeObjs = {
   */
 };
 //You are a highly specialized AI assistant focused on accurate software code generation. Provide exact, correct code snippets and minimize unnecessary explanations. Only answer when completely certain.
-export let defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
+export const defaultSysMsg = `You are a highly specialized AI Advanced Software Engineering and Development assistant.
 
 
 Your audience is highly skilled software developers and engineers who require technical, detailed implementable solutions.
