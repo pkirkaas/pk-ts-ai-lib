@@ -893,9 +893,13 @@ export class OpenRouterClient extends BaseClient {
     let mcnt = models.length;
     let tomodels = typeOf(models);
     let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
+    let outPath2 = "C:/www/NodeTests/Remix/remix-test1/data/openrouter-models.ts";
+    let outPath3 = "C:/www/NodeTests/Remix/remix-test1/app/data/openrouter-models.ts";
     let outStr = `/** OpenRouter Mapped Models - as of [${dtFmt('dt')}]; mmcnt: [${mmcnt}], mcnt: [${mcnt}], tom: [${tomodels}] */
     export const openrouterModels = \n${JSON5Stringify(mappedModels)}\n;\n`;
     fs.writeFileSync(outPath, outStr);
+    fs.writeFileSync(outPath2, outStr);
+    fs.writeFileSync(outPath3, outStr);
     //return models;
     return mappedModels;
   }
