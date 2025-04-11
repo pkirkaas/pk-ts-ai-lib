@@ -80,9 +80,8 @@ export declare class ChatLogger {
     divider: string;
     logInited: boolean;
     title: string;
-    constructor({ provider, modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, outPath }: {
-        provider: any;
-        modelName: any;
+    constructor({ client, chatConfig, uMsg, sMsg, msgKeys, chatType, outPath }: {
+        client: any;
         chatConfig?: {};
         uMsg: any;
         sMsg: any;

@@ -69,9 +69,9 @@ export class ChatLogger {
     divider = '\n\n# Conversation:\n\n---\n\n';
     logInited = false;
     title;
-    constructor({ provider, modelName, chatConfig = {}, uMsg, sMsg, msgKeys = [], chatType = 'uDefChat', outPath = '' }) {
-        this.provider = provider;
-        this.modelName = modelName;
+    constructor({ client, chatConfig = {}, uMsg, sMsg, msgKeys = [], chatType = 'uDefChat', outPath = '' }) {
+        this.provider = client.provider;
+        this.modelName = client.modelName;
         this.sMsg = sMsg;
         this.uMsg = uMsg;
         this.chatType = chatType;
@@ -84,7 +84,7 @@ export class ChatLogger {
         this.label = this.msgKeys.join('-').substring(0, 35);
         this.chatinfo = `[${this.label}::${this.provider}:${this.modelName}]-${dtFmt('dt')}`;
         this.title = `${this.provider}-${this.chatType}-${this.label}`;
-        let outName = safeFile(`${this.label}-${this.chatType}-${this.provider}-${this.stamp}.md`);
+        let outName = safeFile(`${this.label}-${this.chatType}-${this.provider}-${this.modelName}-${this.stamp}.md`);
         this.outPath = outPath || `./out/chats/${dtFmt('html')}/${safeFile(this.label)}/${outName}`;
     }
     initFile(args) {
@@ -188,6 +188,7 @@ export class BaseClient {
     async imgGen(...args) {
         let model = this.providerConfig.imgModel;
         //let prompt = "A dog eating a watermelon";
+        // Test moderation
         let prompt = "A naked brunette woman about 35 years old with big, natural, somewhat saggy  breasts";
         let response = await this.client.images.generate({ model, prompt, });
         let imgdata = response.data[0];
@@ -280,22 +281,13 @@ export class BaseClient {
     /**
      * Interactive multi-turn chat using non-interactive singleSdkChat
      */
-    //async sdkChat({user,system,modelName,temperature}) {
-    //async sdkChat(msgs: Strings, ASK = false, filter?: Strings, sdkChatParams: SdkChatParams = {}): Promise<CoreMessage[]> {
     async sdkChat(params) {
         let { msgs, mnfilters, sdkChatParams } = params;
-        //let bMsg = await this.prepChat(msgs, ASK);
         let bMsg = await buildMsg(msgs);
-        //sdkChatParams = this.mkSdkChatParams(sdkChatParams);
-        //console.log({bMsg, sdkChatParams});
-        //let cm:CoreMessage = {};
-        //@ts-ignore
-        //return [{}];
-        //return {bMsg, sdkChatParams};
         return this.sdkChatBuilt({ bMsg, mnfilters, sdkChatParams, });
     }
     mkChatLog({ chatType = "Undefined", uMsg = '', sMsg = '', msgKeys = [], chatConfig = {} }) {
-        return new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
+        return new ChatLogger({ client: this, chatConfig, uMsg, sMsg, msgKeys, chatType, });
     }
     //async sdkChatBuilt(bMsg: BuiltMsg, filter?: Strings, sdkChatParams: SdkChatParams = {},): Promise<CoreMessage[]> {
     async sdkChatBuilt(params) {
@@ -321,7 +313,7 @@ export class BaseClient {
         ];
         //let chatConfig = {temperature};
         let chatConfig = sdkChatParams;
-        let chatLog = new ChatLogger({ provider: this.provider, modelName: this.modelName, chatConfig, uMsg, sMsg, msgKeys, chatType, });
+        let chatLog = new ChatLogger({ client: this, chatConfig, uMsg, sMsg, msgKeys, chatType, });
         let msgCnt = 0;
         while (uMsg) {
             let response = await this.singleSdkChat(messages, modelName, sdkChatParams);
@@ -573,7 +565,6 @@ export class BaseClient {
  * The default pk client
  */
 export class OpenAiClient extends BaseClient {
-    //async nativeChatBuilt(bMsg: BuiltMsg, filter?: Strings, chatParams: GenObj = {}): Promise<any> {
     async nativeChatBuilt(params) {
         let { bMsg, ...opts } = params || {};
         console.log(`in OpenAI nativeChat w msg:`, { bMsg });
@@ -588,9 +579,6 @@ export class ClaudeClient extends BaseClient {
         let { uMsg, sMsg, msgKeys } = bMsg;
         let system = sMsg;
         let model = await this.getModelName({ mnfilters });
-        //let {temperature=.1,max_tokens=32000,budget_tokens} = chatParams;
-        //let {temperature=.1,max_tokens=4096,budget_tokens} = chatParams;
-        //let {temperature=.1,max_tokens=8192,budget_tokens} = chatParams;
         let { temperature = .3, max_tokens = 16192, budget_tokens = 8192 } = chatParams;
         //ONLY if budget_tokens will use 'thinking'
         let claude37Defs = {
