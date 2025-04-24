@@ -297,8 +297,7 @@ export declare const functionSignatureExample: {
         conditions: string;
     }[];
 };
-export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendShape<{
-    type: z.ZodEnum<[string, ...string[]]>;
+export declare const functionComponentSchema: z.ZodObject<{
     name: z.ZodString;
     description: z.ZodString;
     isExported: z.ZodBoolean;
@@ -318,7 +317,7 @@ export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendSha
     }>, "many">>;
     modulePath: z.ZodString;
     dependencies: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-}, {
+} & {
     type: z.ZodLiteral<"function">;
     signatures: z.ZodArray<z.ZodObject<{
         parameters: z.ZodArray<z.ZodObject<{
@@ -418,7 +417,7 @@ export declare const functionComponentSchema: z.ZodObject<z.objectUtil.extendSha
     isGenerator: z.ZodBoolean;
     examples: z.ZodArray<z.ZodString, "many">;
     usage: z.ZodString;
-}>, "strip", z.ZodTypeAny, {
+}, "strip", z.ZodTypeAny, {
     usage?: string;
     type?: "function";
     name?: string;

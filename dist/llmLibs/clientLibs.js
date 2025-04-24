@@ -16,7 +16,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 //import {Message} from '@anthropic-ai/sdk';
 //PkLib Imports
-import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isNumeric, asNumeric, isString, mkArray, strIncludesAny, PkError, typeOf, camelKeys, dateToTimestamp, } from 'pk-ts-node-lib';
+import { dbgWrt, ask, isFile, stdOut, writeData, dtFmt, JSON5Stringify, isEmpty, isSimpleObject, safeFile, isNumeric, asNumeric, isString, mkArray, strIncludesAny, PkError, typeOf, toCamel, camelKeys, dateToTimestamp, } from 'pk-ts-node-lib';
 // Local Imports
 import { getProviderConfig, getLlmProvider, wrapStr, mkDecompParams, buildMsg, wrapCodeFiles, askMsg, } from '../init.js';
 export async function detectImageFormat(imageData) {
@@ -756,7 +756,9 @@ export class OpenRouterClient extends BaseClient {
             for (const [mapKey, keys] of groupMap) {
                 // Sort keys alphabetically for consistency
                 keys.sort();
-                const concatenatedKey = keys.join(' ');
+                let tcKeys = keys.map(toCamel);
+                //const concatenatedKey = keys.join(' ');
+                const concatenatedKey = tcKeys.join(' ');
                 const value = mapKey === NAN_KEY ? NaN : mapKey;
                 result[concatenatedKey] = value;
             }
@@ -765,14 +767,15 @@ export class OpenRouterClient extends BaseClient {
         let mappedModels = models.map(model => ({
             ...model,
             price: mapPrice(model.pricing),
+            modality: model?.architecture?.modality,
             moderated: model?.top_provider?.is_moderated,
         }));
         let mmcnt = mappedModels.length;
         let mcnt = models.length;
         let tomodels = typeOf(models);
         let outPath = "C:/www/NodeTests/NextTests/json-table/src/data/openrouter-models.ts";
-        let outPath2 = "C:/www/NodeTests/Remix/remix-test1/data/openrouter-models.ts";
-        let outPath3 = "C:/www/NodeTests/Remix/remix-test1/app/data/openrouter-models.ts";
+        let outPath2 = "C:/www/NodeTests/Remix/remix-model-table/data/openrouter-models.ts";
+        let outPath3 = "C:/www/NodeTests/Remix/remix-model-table/app/data/openrouter-models.ts";
         let outStr = `/** OpenRouter Mapped Models - as of [${dtFmt('dt')}]; mmcnt: [${mmcnt}], mcnt: [${mcnt}], tom: [${tomodels}] */
     export const openrouterModels = \n${JSON5Stringify(mappedModels)}\n;\n`;
         fs.writeFileSync(outPath, outStr);
