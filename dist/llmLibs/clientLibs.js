@@ -762,7 +762,9 @@ export class OpenRouterClient extends BaseClient {
                 const value = mapKey === NAN_KEY ? NaN : mapKey;
                 result[concatenatedKey] = value;
             }
-            return result;
+            let inv = _.invert(result); //Use prices as keys
+            //return result;
+            return inv;
         }
         let mappedModels = models.map(model => ({
             ...model,

@@ -814,7 +814,7 @@ export class OpenRouterClient extends BaseClient {
     //Debug return models;
     //@ts-ignore
     // Maps pricing object
-    function mapPrice(srcObj: any): { [key: string]: number; } {
+    function mapPrice(srcObj: any): { [key: string|number]: string|number; } {
       // Validate input: must be a non-null object
       if (typeof srcObj !== 'object' || srcObj === null) {
         return {};
@@ -870,8 +870,10 @@ export class OpenRouterClient extends BaseClient {
         const value = mapKey === NAN_KEY ? NaN : mapKey as number;
         result[concatenatedKey] = value;
       }
+      let inv = _.invert(result); //Use prices as keys
 
-      return result;
+      //return result;
+      return inv;
     }
     let mappedModels = models.map(model => ({
       ...model,
