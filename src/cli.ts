@@ -52,10 +52,12 @@ let fncs = {
     let tv = typeOfEach({schemaTypeDefs, tsCompTypes, tsCompStr},true);
     console.log(tv);
   },
+  /*
   tZod:() => {
     let jsSchema = zodToJsonSchema(decompSchema);
     console.log(jsSchema);
   },
+  */
   fMsg:() => {
     let fpath = "C:/www/TypeScriptLibs/Pk-Ts-Node/src/index.ts";
     let fmsg = sdkFileMsg(fpath);

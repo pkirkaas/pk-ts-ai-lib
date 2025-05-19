@@ -177,6 +177,7 @@ export declare abstract class BaseClient {
         sdkChatParams: SdkChatParams;
     }): Promise<CoreMessage[]>;
     /**
+     * @deprecated for now - sdk generateObject schema changed - FIX!!
      * Generate an object from input messages & schema
      * @param spec:StructureSpec - The schema & definition for the object returned
      * @param msgx:Strings - The messages to ask the user for input
@@ -185,6 +186,7 @@ export declare abstract class BaseClient {
      */
     sdkObject(spec: StructureSpec, msgx: Strings, mnfilters?: Strings, providerOptions?: GenObj): Promise<any>;
     /**
+     * @deprecated for now - sdk generateObject schema changed - FIX!!
      * Test decomp of TS Source Code file
      */
     sdkTsDecomp(fpath?: string, mnfilters?: Strings, providerOptions?: GenObj): Promise<any>;

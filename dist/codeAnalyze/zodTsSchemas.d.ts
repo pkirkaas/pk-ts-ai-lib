@@ -12,21 +12,21 @@ export declare const decompSchema: z.ZodObject<{
         name: z.ZodString;
         type: z.ZodString;
     }, "strip", z.ZodTypeAny, {
-        type?: string;
         name?: string;
+        type?: string;
     }, {
-        type?: string;
         name?: string;
+        type?: string;
     }>, "many">;
 }, "strip", z.ZodTypeAny, {
     exports?: {
-        type?: string;
         name?: string;
+        type?: string;
     }[];
 }, {
     exports?: {
-        type?: string;
         name?: string;
+        type?: string;
     }[];
 }>;
 export declare const decompSchemaExample: {
@@ -43,15 +43,15 @@ export declare const parameterSchema: z.ZodObject<{
     isOptional: z.ZodBoolean;
     isRest: z.ZodBoolean;
 }, "strip", z.ZodTypeAny, {
-    type?: string;
     name?: string;
+    type?: string;
     description?: string;
     defaultValue?: string;
     isOptional?: boolean;
     isRest?: boolean;
 }, {
-    type?: string;
     name?: string;
+    type?: string;
     description?: string;
     defaultValue?: string;
     isOptional?: boolean;
@@ -126,8 +126,8 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath: z.ZodString;
     dependencies: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    type?: string;
     name?: string;
+    type?: string;
     description?: string;
     isExported?: boolean;
     filePath?: string;
@@ -141,8 +141,8 @@ export declare const baseComponentSchema: z.ZodObject<{
     modulePath?: string;
     dependencies?: string[];
 }, {
-    type?: string;
     name?: string;
+    type?: string;
     description?: string;
     isExported?: boolean;
     filePath?: string;
@@ -182,15 +182,15 @@ export declare const functionSignatureSchema: z.ZodObject<{
         isOptional: z.ZodBoolean;
         isRest: z.ZodBoolean;
     }, "strip", z.ZodTypeAny, {
-        type?: string;
         name?: string;
+        type?: string;
         description?: string;
         defaultValue?: string;
         isOptional?: boolean;
         isRest?: boolean;
     }, {
-        type?: string;
         name?: string;
+        type?: string;
         description?: string;
         defaultValue?: string;
         isOptional?: boolean;
@@ -226,8 +226,8 @@ export declare const functionSignatureSchema: z.ZodObject<{
     }>, "many">>;
 }, "strip", z.ZodTypeAny, {
     parameters?: {
-        type?: string;
         name?: string;
+        type?: string;
         description?: string;
         defaultValue?: string;
         isOptional?: boolean;
@@ -247,8 +247,8 @@ export declare const functionSignatureSchema: z.ZodObject<{
     }[];
 }, {
     parameters?: {
-        type?: string;
         name?: string;
+        type?: string;
         description?: string;
         defaultValue?: string;
         isOptional?: boolean;
@@ -328,15 +328,15 @@ export declare const functionComponentSchema: z.ZodObject<{
             isOptional: z.ZodBoolean;
             isRest: z.ZodBoolean;
         }, "strip", z.ZodTypeAny, {
-            type?: string;
             name?: string;
+            type?: string;
             description?: string;
             defaultValue?: string;
             isOptional?: boolean;
             isRest?: boolean;
         }, {
-            type?: string;
             name?: string;
+            type?: string;
             description?: string;
             defaultValue?: string;
             isOptional?: boolean;
@@ -372,8 +372,8 @@ export declare const functionComponentSchema: z.ZodObject<{
         }>, "many">>;
     }, "strip", z.ZodTypeAny, {
         parameters?: {
-            type?: string;
             name?: string;
+            type?: string;
             description?: string;
             defaultValue?: string;
             isOptional?: boolean;
@@ -393,8 +393,8 @@ export declare const functionComponentSchema: z.ZodObject<{
         }[];
     }, {
         parameters?: {
-            type?: string;
             name?: string;
+            type?: string;
             description?: string;
             defaultValue?: string;
             isOptional?: boolean;
@@ -419,8 +419,8 @@ export declare const functionComponentSchema: z.ZodObject<{
     usage: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     usage?: string;
-    type?: "function";
     name?: string;
+    type?: "function";
     description?: string;
     examples?: string[];
     isExported?: boolean;
@@ -436,8 +436,8 @@ export declare const functionComponentSchema: z.ZodObject<{
     dependencies?: string[];
     signatures?: {
         parameters?: {
-            type?: string;
             name?: string;
+            type?: string;
             description?: string;
             defaultValue?: string;
             isOptional?: boolean;
@@ -460,8 +460,8 @@ export declare const functionComponentSchema: z.ZodObject<{
     isGenerator?: boolean;
 }, {
     usage?: string;
-    type?: "function";
     name?: string;
+    type?: "function";
     description?: string;
     examples?: string[];
     isExported?: boolean;
@@ -477,8 +477,8 @@ export declare const functionComponentSchema: z.ZodObject<{
     dependencies?: string[];
     signatures?: {
         parameters?: {
-            type?: string;
             name?: string;
+            type?: string;
             description?: string;
             defaultValue?: string;
             isOptional?: boolean;

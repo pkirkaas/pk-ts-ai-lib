@@ -423,6 +423,7 @@ export abstract class BaseClient {
   }
 
   /**
+   * @deprecated for now - sdk generateObject schema changed - FIX!!
    * Generate an object from input messages & schema
    * @param spec:StructureSpec - The schema & definition for the object returned
    * @param msgx:Strings - The messages to ask the user for input
@@ -447,12 +448,14 @@ export abstract class BaseClient {
     ];
     let modelName = await this.getModelName({ mnfilters });
     let model = this.sdkClient(modelName);
-    let res = await generateObject({ model, schema, messages, providerOptions, });
+//    let res = await generateObject({ model, schema, messages, providerOptions, });
+    let res = {object:"FIX SCHEMA!",};
     let obj = res.object;
     return obj;
   }
 
   /**
+   * @deprecated for now - sdk generateObject schema changed - FIX!!
    * Test decomp of TS Source Code file
    */
   async sdkTsDecomp(fpath?: string, mnfilters?: Strings, providerOptions: GenObj = {}): Promise<any> {
@@ -476,7 +479,8 @@ export abstract class BaseClient {
     //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
     console.error(`Trying sdkTsDecomp w.`, { messages, fpath, });
     dbgWrt({ model, schema, messages, fpath, }, 'gobjParams');
-    let res = await generateObject({ model, schema, messages, providerOptions, });
+    //let res = await generateObject({ model, schema, messages, providerOptions, });
+    let res = {object:"FIX SCHEMA!",};
     dbgWrt({ res }, 'gobjRes');
     let obj = res.object;
     return obj;

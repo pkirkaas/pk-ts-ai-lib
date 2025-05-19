@@ -2,12 +2,11 @@
  * CLI Index to run the AI Agents
  * Tests moved to tests.ts
  */
-import { zodToJsonSchema } from 'zod-to-json-schema';
 // pk-lib imports
 import { dbgWrt, runCli, } from 'pk-ts-node-lib';
 import { isEmpty, typeOfEach, } from 'pk-ts-common-lib';
 // local imports
-import { sysMsgs, decompSchema, schemaTypeDefs, tsCompTypes, tsCompStr, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, logPretty, sdkFileMsg, } from './init.js';
+import { sysMsgs, schemaTypeDefs, tsCompTypes, tsCompStr, tstZodSchemas, askMsg, tstMsgs, wrapCodeNew, buildMsg, hfChat, OpenAiClient, logPretty, sdkFileMsg, } from './init.js';
 // Implementations
 export let msgKeys = {};
 let fncs = {
@@ -15,10 +14,12 @@ let fncs = {
         let tv = typeOfEach({ schemaTypeDefs, tsCompTypes, tsCompStr }, true);
         console.log(tv);
     },
-    tZod: () => {
-        let jsSchema = zodToJsonSchema(decompSchema);
-        console.log(jsSchema);
+    /*
+    tZod:() => {
+      let jsSchema = zodToJsonSchema(decompSchema);
+      console.log(jsSchema);
     },
+    */
     fMsg: () => {
         let fpath = "C:/www/TypeScriptLibs/Pk-Ts-Node/src/index.ts";
         let fmsg = sdkFileMsg(fpath);

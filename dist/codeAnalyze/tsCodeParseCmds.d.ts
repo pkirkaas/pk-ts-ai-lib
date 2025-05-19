@@ -26,21 +26,21 @@ export declare function mkDecompParams(fpath?: string): {
             name: z.ZodString;
             type: z.ZodString;
         }, "strip", z.ZodTypeAny, {
-            type?: string;
             name?: string;
+            type?: string;
         }, {
-            type?: string;
             name?: string;
+            type?: string;
         }>, "many">;
     }, "strip", z.ZodTypeAny, {
         exports?: {
-            type?: string;
             name?: string;
+            type?: string;
         }[];
     }, {
         exports?: {
-            type?: string;
             name?: string;
+            type?: string;
         }[];
     }>;
 };

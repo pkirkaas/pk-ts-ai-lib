@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import OpenAI from "openai";
 import { fileTypeFromBuffer } from 'file-type';
-import { generateText, generateObject, } from 'ai';
+import { generateText, } from 'ai';
 import { experimental_generateImage as generateImage } from 'ai';
 import { add } from 'date-fns';
 import _ from 'lodash';
@@ -334,6 +334,7 @@ export class BaseClient {
         return messages;
     }
     /**
+     * @deprecated for now - sdk generateObject schema changed - FIX!!
      * Generate an object from input messages & schema
      * @param spec:StructureSpec - The schema & definition for the object returned
      * @param msgx:Strings - The messages to ask the user for input
@@ -355,11 +356,13 @@ export class BaseClient {
         ];
         let modelName = await this.getModelName({ mnfilters });
         let model = this.sdkClient(modelName);
-        let res = await generateObject({ model, schema, messages, providerOptions, });
+        //    let res = await generateObject({ model, schema, messages, providerOptions, });
+        let res = { object: "FIX SCHEMA!", };
         let obj = res.object;
         return obj;
     }
     /**
+     * @deprecated for now - sdk generateObject schema changed - FIX!!
      * Test decomp of TS Source Code file
      */
     async sdkTsDecomp(fpath, mnfilters, providerOptions = {}) {
@@ -383,7 +386,8 @@ export class BaseClient {
         //console.error(`Trying sdkTsDecomp w.`, {model, schema, messages,fpath,});
         console.error(`Trying sdkTsDecomp w.`, { messages, fpath, });
         dbgWrt({ model, schema, messages, fpath, }, 'gobjParams');
-        let res = await generateObject({ model, schema, messages, providerOptions, });
+        //let res = await generateObject({ model, schema, messages, providerOptions, });
+        let res = { object: "FIX SCHEMA!", };
         dbgWrt({ res }, 'gobjRes');
         let obj = res.object;
         return obj;

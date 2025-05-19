@@ -30,3 +30,4 @@
 - cmdr.ts works to parse options (badly) - now have to add more options & processing
 - Enhance imgGen
 - Work on RAG & Embeddings - 
+- FIX changed AI SDK object/schema calls
