@@ -31,3 +31,4 @@
 - Enhance imgGen
 - Work on RAG & Embeddings - 
 - FIX changed AI SDK object/schema calls
+- Fix pk node cli support to use new dotenv config
