@@ -49,7 +49,6 @@
     "ai": "*",
     "chromadb": "^1.10.4",
     "console-title": "*",
-    "dotenv": "^15.0.0",
     "file-type": "^20.4.1",
     "google-auth-library": "*",
     "langchain": "^0.3.19",

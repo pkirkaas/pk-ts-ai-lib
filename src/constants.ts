@@ -127,7 +127,8 @@ export const providers:Providers = {
   anthropic: {
     clientLib: Anthropic,
     pkClientClass: ClaudeClient,
-    model: 'claude-3-7-sonnet-latest',
+    //model: 'claude-3-7-sonnet-latest',
+    model: 'claude-4-sonnet-latest',
     apiKey: process.env.ANTHROPIC_API_KEY,
     defaultOpts: {
       ...anthropicCodeParams,
@@ -145,9 +146,10 @@ export const providers:Providers = {
     apiKey: process.env.GROK_API_KEY,
     // clientLib: OpenAI,
     baseURL: "https://api.x.ai/v1",
-    imgModels: "grok-2-image",
-    imgModel: "grok-2-image",
-    model: "grok-beta",
+    //imgModels: "grok-2-image",
+    //imgModel: "grok-2-image",
+    model: "grok-4", // Shortcut work?
+    //model: "grok-4-0709",
     defaultOpts: {
       ...oaiCodeParams,
       // max_tokens: 8192,
