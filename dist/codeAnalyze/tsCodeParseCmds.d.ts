@@ -20,7 +20,7 @@ export declare const tsExpDef = "entities/symbols/declarations/items";
  * Test messages for sdk generateObject
  */
 export declare function mkDecompParams(fpath?: string): {
-    messages: CoreMessage[];
+    messages: import("ai").ModelMessage[];
     schema: z.ZodObject<{
         exports: z.ZodArray<z.ZodObject<{
             name: z.ZodString;

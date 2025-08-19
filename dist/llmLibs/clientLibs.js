@@ -510,7 +510,7 @@ export class BaseClient {
             //let afterTSM = dtFmt
             let days = -Math.abs(created);
             let duration = { days };
-            let from = add(Date(), duration);
+            let from = add(new Date(), duration);
             modelObjs = modelObjs.filter((modelObj) => {
                 return dateToTimestamp(modelObj.created) > dateToTimestamp(from);
             });
@@ -570,9 +570,98 @@ export class BaseClient {
  */
 export class OpenAiClient extends BaseClient {
     async nativeChatBuilt(params) {
-        let { bMsg, ...opts } = params || {};
-        console.log(`in OpenAI nativeChat w msg:`, { bMsg });
-        return 'Unimplemented OpenAI Native Chat';
+        const { bMsg, mnfilters, ...chatParams } = params || {};
+        const chatType = "OpenAI Native";
+        let { uMsg, sMsg, msgKeys } = bMsg;
+        const model = await this.getModelName({ mnfilters });
+        // Map input params (camel or snake) to OpenAI Chat Completions params (snake_case)
+        const mapOpenAIParams = (input = {}) => {
+            const out = {};
+            const has = (k) => input[k] !== undefined;
+            // Allow either camelCase or snake_case
+            if (has('temperature'))
+                out.temperature = input.temperature;
+            if (has('top_p'))
+                out.top_p = input.top_p;
+            if (has('topP'))
+                out.top_p = input.topP;
+            if (has('max_tokens'))
+                out.max_tokens = input.max_tokens;
+            if (has('maxTokens'))
+                out.max_tokens = input.maxTokens;
+            if (has('presence_penalty'))
+                out.presence_penalty = input.presence_penalty;
+            if (has('presencePenalty'))
+                out.presence_penalty = input.presencePenalty;
+            if (has('frequency_penalty'))
+                out.frequency_penalty = input.frequency_penalty;
+            if (has('frequencyPenalty'))
+                out.frequency_penalty = input.frequencyPenalty;
+            if (has('stop'))
+                out.stop = input.stop;
+            if (has('seed'))
+                out.seed = input.seed;
+            if (has('logit_bias'))
+                out.logit_bias = input.logit_bias;
+            if (has('n'))
+                out.n = input.n;
+            if (has('user'))
+                out.user = input.user;
+            if (has('response_format'))
+                out.response_format = input.response_format;
+            if (has('tools'))
+                out.tools = input.tools;
+            if (has('tool_choice'))
+                out.tool_choice = input.tool_choice;
+            if (has('parallel_tool_calls'))
+                out.parallel_tool_calls = input.parallel_tool_calls;
+            if (has('metadata'))
+                out.metadata = input.metadata;
+            // Note: Intentionally NOT mapping unknown keys like reasoningEffort
+            return out;
+        };
+        const chatConfig = mapOpenAIParams(chatParams);
+        const chatLog = this.mkChatLog({ chatConfig, uMsg, sMsg, msgKeys, chatType });
+        // Compose initial messages
+        let messages = [];
+        if (sMsg)
+            messages.push({ role: 'system', content: sMsg });
+        if (uMsg)
+            messages.push({ role: 'user', content: uMsg });
+        const getDets = (resp) => {
+            const usage = resp?.usage ? {
+                inputTokens: resp.usage.prompt_tokens || 0,
+                outputTokens: resp.usage.completion_tokens || 0,
+                totalTokens: resp.usage.total_tokens || 0,
+            } : undefined;
+            const finish = resp?.choices?.[0]?.finish_reason;
+            return { usage, finish };
+        };
+        let msgCnt = 0;
+        while (uMsg) {
+            const args = { model, messages, ...chatConfig };
+            const response = await this.client.chat.completions.create(args);
+            if (!msgCnt) {
+                dbgWrt({ args, response }, `oaiNativeResp-${model}`);
+            }
+            msgCnt++;
+            // Extract assistant content
+            const content = response?.choices?.[0]?.message?.content ?? '';
+            const assistant = Array.isArray(content)
+                ? content.map((p) => typeof p === 'string' ? p : (p?.text ?? '')).join('')
+                : content;
+            const dets = getDets(response);
+            stdOut(chalk.blue(`\n\n${assistant}\n\n`));
+            chatLog.wrtAssistant(assistant, dets);
+            messages.push({ role: 'assistant', content: assistant });
+            const next = await ask(`Followup for ${this.provider}?`);
+            if (!next)
+                break;
+            uMsg = next;
+            messages.push({ role: 'user', content: uMsg });
+            chatLog.wrtUsr(uMsg);
+        }
+        return messages;
     }
 }
 export class ClaudeClient extends BaseClient {
@@ -800,7 +889,16 @@ export const clientClasses = {
 export function getPkClientClass(provider) {
     provider = getLlmProvider(provider);
     let config = getProviderConfig(provider);
-    let clientClass = config.pkClientClass || OpenAiClient;
+    // Prefer explicit config, else pick sensible defaults by provider
+    let clientClass = config.pkClientClass;
+    if (!clientClass) {
+        const map = {
+            anthropic: ClaudeClient,
+            togetherai: TogetherClient,
+            openrouter: OpenRouterClient,
+        };
+        clientClass = map[provider] || OpenAiClient;
+    }
     return clientClass;
 }
 /**
@@ -821,17 +919,20 @@ export function sdkFileMsgFPart(fpath, role = 'user') {
     if (!isFile(fpath)) {
         throw new PkError(`File [${fpath}] not found`);
     }
-    let data = fs.readFileSync(fpath, { encoding: 'utf8' });
-    let tsMimeTypes = [
+    const data = fs.readFileSync(fpath);
+    // Determine MIME type (special-case .ts files)
+    const tsMimeTypes = [
         'application/typescript',
         'application/x-typescript',
         'text/typescript',
-        'text/javascript',
+        'text/plain',
     ];
-    let k = 2; // Change to try different mime types for TS
-    let mimeType = fpath.endsWith('.ts') ? tsMimeTypes[k] : mime.getType(fpath);
-    let content = [{ type: "file", mimeType, data }];
-    let retMsg = {
+    const mimeType = fpath.endsWith('.ts')
+        ? tsMimeTypes[0]
+        : (mime.getType(fpath) || 'application/octet-stream');
+    // Avoid strict typing here due to differing FilePart shapes across ai SDK versions
+    const content = [{ type: "file", mimeType, data }];
+    const retMsg = {
         //@ts-ignore
         role,
         content,

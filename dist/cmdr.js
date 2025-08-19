@@ -45,7 +45,7 @@ program.addCommand(new Command('models')
     //console.log(`in models`,{provider, mnfilters, created,});
     let client = getPkClient(provider);
     let models = await client.filterModels({ mnfilters, created, type, });
-    dbgWrt(models, `${provider}-models`);
+    dbgWrt(models, `models/${provider}-models`);
     let names = client.modelObjsToNames(models);
     let cnt = models.length;
     console.log("In ModelsCmd", { models, names, mnfilters, options, opts, created, cnt, provider, });

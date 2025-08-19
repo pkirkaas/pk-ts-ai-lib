@@ -693,6 +693,9 @@ You are an expert with the latest version of the npm TypeScript first schema/typ
 
   pyqt: `[[python]] You are an expert with the \`PyQt6\` Python library for creating graphical user interfaces (GUIs), and all available widget libraries.
 
+  @@@ FIX HERE
+  You are an expert software developer, engineer & architect for complex design and development of GUI components in Python 3.10++
+
 You will provide a complete, working, and tested PyQt6 GUI application in Python code - including all necessary imports and setup code - to create a working GUI application, using standard widgets and layouts where available.
 
  `,

@@ -215,6 +215,7 @@ export declare abstract class BaseClient {
 export declare class OpenAiClient extends BaseClient {
     nativeChatBuilt(params: {
         bMsg: BuiltMsg;
+        mnfilters?: Strings;
         [key: string]: any;
     }): Promise<any>;
 }

@@ -59,7 +59,8 @@ export const providers = {
         },
         apiKey: process.env.OPENAI_API_KEY,
         //model: "o1", // $15
-        model: "o3-mini", // $1.10, supports structured outputs, functions
+        model: 'o4-mini-deep-research-2025-06-26',
+        //"o3-mini", // $1.10, supports structured outputs, functions
         //model:"gpt-4.5-preview", // EXPENSIVE! $75
     },
     groq: {
