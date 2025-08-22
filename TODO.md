@@ -32,3 +32,4 @@
 - Work on RAG & Embeddings - 
 - FIX changed AI SDK object/schema calls
 - Finish adding newer models
+- Add full HF client implementation

@@ -34,6 +34,9 @@ export declare const aiSdkClients: {
     lms: {
         create: typeof createOpenAICompatible;
     };
+    hf: {
+        create: typeof createOpenAICompatible;
+    };
     nebius: {
         create: typeof createOpenAICompatible;
     };

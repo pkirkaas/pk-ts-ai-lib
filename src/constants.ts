@@ -143,6 +143,11 @@ export const providers:Providers = {
     baseURL: "https://api.studio.nebius.ai/v1/",
     apiKey: process.env.NEBIUS_API_KEY,
   },
+  hf: {
+    baseURL: "https://router.huggingface.co/v1/", //Fix this
+    apiKey: process.env.HF_API_KEY,
+
+  },
   xai: {
     apiKey: process.env.GROK_API_KEY,
     // clientLib: OpenAI,

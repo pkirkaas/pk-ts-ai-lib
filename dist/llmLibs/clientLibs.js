@@ -35,6 +35,7 @@ export const aiSdkClients = {
     anthropic: { client: anthropic, create: createAnthropic, },
     xai: { client: xai, create: createXai, },
     lms: { create: createOpenAICompatible },
+    hf: { create: createOpenAICompatible },
     nebius: { create: createOpenAICompatible },
     openrouter: { create: createOpenRouter },
     // Play to get image generation
