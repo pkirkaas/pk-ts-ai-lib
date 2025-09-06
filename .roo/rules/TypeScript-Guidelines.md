@@ -1,6 +1,6 @@
 - Assume latest version of all languages, libraries and tools
 - The project is implemented in JavaScript v ES022+, TypeScript v ^5.8, NodeJS ^22
-- For front-end/web clients, use Next.js ^15, React ^19, prefer SSR & RSC when possible
+- For front-end/web clients, use React ^19, prefer SSR & RSC when possible
 - Use ESM import/export for imported modules
 - Functions and methods should accept flexible parameters - a function accepting `string[]` parameter should also accept a `string` parameter and covert it to a `string[]`
 - All code should be as generalizable as possible for future reuse
